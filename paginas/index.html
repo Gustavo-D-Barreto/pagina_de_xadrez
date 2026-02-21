@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xadrezinho - Jogue Agora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../visual/style.css" />
+</head>
+
+<body class="index-page">
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
+            <span class="nav-logo-text">XADREZINHO</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link active">Início</a></li>
+            <li><a href="lobby.html" class="nav-link">Jogar</a></li>
+            <li><a href="manual.html" class="nav-link">Manual</a></li>
+            <li><a href="sobre.html" class="nav-link">Sobre</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="login.html" class="btn-nav-login">Entrar</a>
+        </div>
+    </nav>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero">
+        <!-- Layered backgrounds -->
+        <div class="hero-bg hero-bg-base"></div>
+        <div class="hero-bg hero-bg-overlay"></div>
+        <div class="hero-particles" id="particles"></div>
+
+        <!-- Left Side: Text Content -->
+        <div class="hero-content">
+            <p class="hero-eyebrow">O Jogo de Estratégia Definitivo</p>
+            <h1 class="hero-title">
+                XADREZ<br />
+                <span class="hero-title-accent">REINVENTADO</span>
+            </h1>
+            <p class="hero-description">
+                Domina o tabuleiro. Elimina seus inimigos. Conquista a glória.<br />
+                Com habilidades únicas e batalhas épicas — cada partida é uma lenda.
+            </p>
+            <div class="hero-cta">
+                <a href="login.html" class="btn-play">
+                    <span class="btn-play-text">JOGAR AGORA</span>
+                    <span class="btn-play-shine"></span>
+                </a>
+                <a href="manual.html" class="btn-learn">APRENDER</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Peças Únicas</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Estratégias</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">1v1</span>
+                    <span class="stat-label">Batalhas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Characters -->
+        <div class="hero-characters">
+            <div class="char-glow"></div>
+            <img class="hero-char hero-char-main" src="../spritesxadrez/sprites/spr_rainha_roxa.png"
+                alt="Rainha Roxa" />
+            <img class="hero-char hero-char-left" src="../spritesxadrez/sprites/spr_cavalo_verde.png"
+                alt="Cavalo Verde" />
+            <img class="hero-char hero-char-right" src="../spritesxadrez/sprites/spr_torre_verde.png"
+                alt="Torre Verde" />
+            <img class="hero-char hero-char-front" src="../spritesxadrez/sprites/spr_peao_roxo.png" alt="Peão Roxo" />
+        </div>
+
+        <!-- Bottom Fade -->
+        <div class="hero-bottom-fade"></div>
+    </section>
+
+    <!-- ===== FEATURES SECTION ===== -->
+    <section class="features">
+        <div class="features-header">
+            <h2 class="features-title">ESCOLHA SUA PEÇA</h2>
+            <p class="features-subtitle">Cada peça possui habilidades únicas. Descubra seu playstyle.</p>
+        </div>
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Rainha" class="feature-img" />
+                    <div class="feature-glow green-glow"></div>
+                </div>
+                <h3 class="feature-name">A RAINHA</h3>
+                <p class="feature-desc">A mais poderosa do tabuleiro. Domina linhas e diagonais com autoridade absoluta.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo" class="feature-img" />
+                    <div class="feature-glow green-glow"></div>
+                </div>
+                <h3 class="feature-name">O CAVALO</h3>
+                <p class="feature-desc">Move-se em L, ignorando obstáculos. Surpreende inimigos com ataques inesperados.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="../spritesxadrez/sprites/spr_torre_verde.png" alt="Torre" class="feature-img" />
+                    <div class="feature-glow green-glow"></div>
+                </div>
+                <h3 class="feature-name">A TORRE</h3>
+                <p class="feature-desc">Fortaleza nas linhas e colunas. Combinada com o rei, realiza o roque definitivo.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="../spritesxadrez/sprites/spr_peao_verde.png" alt="Peão" class="feature-img" />
+                    <div class="feature-glow green-glow"></div>
+                </div>
+                <h3 class="feature-name">O PEÃO</h3>
+                <p class="feature-desc">Pequeno mas determinado. Avança sem recuar, e pode se tornar qualquer peça.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== SECTION: PONTOS POR CAPTURAS ===== -->
+    <section class="info-section info-section--alt">
+        <div class="info-section__bg"></div>
+        <div class="info-section__inner">
+            <div class="info-block info-block--reverse">
+                <div class="info-visual">
+                    <div class="info-icon-wrap gold-pulse">
+                        <img src="../spritesxadrez/sprites/spr_moeda.png" alt="Moeda" class="info-icon-img" />
+                    </div>
+                    <div class="info-stat-badge">
+                        <span class="info-stat-num">+50</span>
+                        <span class="info-stat-lbl">pts por captura</span>
+                    </div>
+                </div>
+                <div class="info-text">
+                    <span class="info-tag">Sistema de Pontos</span>
+                    <h2 class="info-title">CADA CAPTURA <span class="accent-gold">CONTA</span></h2>
+                    <p class="info-desc">
+                        No Xadrezinho, eliminar peças inimigas não é apenas estratégia — é recompensa.
+                        Cada captura gera <strong>pontos</strong> que ficam na sua conta permanentemente.
+                        Quanto mais valiosa a peça abatida, mais moedas você recebe.
+                        Acumule, domine, conquiste.
+                    </p>
+                    <ul class="info-list">
+                        <li><span class="list-dot gold"></span>Peões valem pontos base</li>
+                        <li><span class="list-dot gold"></span>Torres, bispos e cavalos valem ainda mais</li>
+                        <li><span class="list-dot gold"></span>Capturar a Rainha é a maior recompensa</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION: LOJA DE FEITIÇOS ===== -->
+    <section class="info-section">
+        <div class="info-section__inner">
+            <div class="info-block">
+                <div class="info-text">
+                    <span class="info-tag purple-tag">Loja de Feitiços</span>
+                    <h2 class="info-title">GASTE SEUS PONTOS <span class="accent-purple">COM SABEDORIA</span></h2>
+                    <p class="info-desc">
+                        Os pontos que você acumula nas batalhas podem ser trocados por <strong>feitiços
+                            poderosos</strong>
+                        na Loja. Antes de cada partida, escolha seus feitiços e entre no campo já com vantagem.
+                        Estratégia começa antes mesmo do primeiro movimento.
+                    </p>
+                    <div class="spell-cards">
+                        <div class="spell-card">
+                            <div class="spell-icon">✦</div>
+                            <div class="spell-info">
+                                <span class="spell-name">Feitiço I</span>
+                                <span class="spell-mystery">Em breve...</span>
+                            </div>
+                            <span class="spell-cost">??? pts</span>
+                        </div>
+                        <div class="spell-card spell-card--locked">
+                            <div class="spell-icon">⚔</div>
+                            <div class="spell-info">
+                                <span class="spell-name">Mais feitiços</span>
+                                <span class="spell-mystery">Segredos da arena...</span>
+                            </div>
+                            <span class="spell-cost locked-badge">🔒</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-visual">
+                    <div class="info-icon-wrap purple-pulse">
+                        <img src="../spritesxadrez/sprites/spr_carta_ganancia.png" alt="Feitiço"
+                            class="info-icon-img big-icon" />
+                    </div>
+                    <div class="floating-cards">
+                        <img src="../spritesxadrez/sprites/spr_carta_peoes.png" alt="Carta"
+                            class="float-card float-card--a" />
+                        <img src="../spritesxadrez/sprites/spr_carta_torre.png" alt="Carta"
+                            class="float-card float-card--b" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION: EVOLUÇÃO ===== -->
+    <section class="info-section info-section--alt">
+        <div class="info-section__bg evo-bg"></div>
+        <div class="info-section__inner">
+            <div class="info-block info-block--reverse">
+                <div class="info-visual evo-visual">
+                    <div class="evo-pieces">
+                        <div class="evo-piece">
+                            <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo" class="evo-img" />
+                            <div class="evo-badge">3 capturas</div>
+                            <div class="evo-glow-ring"></div>
+                        </div>
+                        <div class="evo-piece">
+                            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Rainha" class="evo-img" />
+                            <div class="evo-badge">5 capturas</div>
+                            <div class="evo-glow-ring"></div>
+                        </div>
+                        <div class="evo-piece">
+                            <img src="../spritesxadrez/sprites/spr_peao_verde.png" alt="Peão" class="evo-img" />
+                            <div class="evo-badge">2 capturas</div>
+                            <div class="evo-glow-ring"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-text">
+                    <span class="info-tag green-tag">Sistema de Evolução</span>
+                    <h2 class="info-title">PEÇAS QUE <span class="accent-green">EVOLUEM</span></h2>
+                    <p class="info-desc">
+                        Após capturar um número suficiente de peças inimigas, sua peça <strong>desperta um poder
+                            único</strong>.
+                        Clique com o botão direito para ativar a habilidade de evolução. Cada peça tem um caminho
+                        diferente.
+                    </p>
+                    <div class="evo-list">
+                        <div class="evo-entry">
+                            <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="" class="evo-entry-img" />
+                            <div>
+                                <span class="evo-entry-name">🐴 Cavalo</span>
+                                <span class="evo-entry-desc">Após <strong>3 capturas</strong> — Troca de lugar com
+                                    qualquer outra peça aliada no tabuleiro.</span>
+                            </div>
+                        </div>
+                        <div class="evo-entry">
+                            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="" class="evo-entry-img" />
+                            <div>
+                                <span class="evo-entry-name">👑 Rainha</span>
+                                <span class="evo-entry-desc">Após <strong>5 capturas</strong> — Ativa um poder
+                                    devastador que varre o tabuleiro por um turno.</span>
+                            </div>
+                        </div>
+                        <div class="evo-entry">
+                            <img src="../spritesxadrez/sprites/spr_peao_verde.png" alt="" class="evo-entry-img" />
+                            <div>
+                                <span class="evo-entry-name">⚔ Peão</span>
+                                <span class="evo-entry-desc">Após <strong>2 capturas</strong> — Captura a peça
+                                    diretamente à sua frente, rompendo linhas de defesa.</span>
+                            </div>
+                        </div>
+                        <div class="evo-entry">
+                            <img src="../spritesxadrez/sprites/spr_torre_verde.png" alt="" class="evo-entry-img" />
+                            <div>
+                                <span class="evo-entry-name">🏰 Torre</span>
+                                <span class="evo-entry-desc">Após <strong>4 capturas</strong> — Cria uma zona de
+                                    controle que impede peças inimigas de avançar.</span>
+                            </div>
+                        </div>
+                        <div class="evo-entry">
+                            <div class="evo-entry-bishop">✝</div>
+                            <div>
+                                <span class="evo-entry-name">✝ Bispo</span>
+                                <span class="evo-entry-desc">Após <strong>3 capturas</strong> — Teleporta-se para
+                                    qualquer diagonal do tabuleiro instantaneamente.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SECTION: PASSIVAS / CARTAS ===== -->
+    <section class="info-section passiva-section">
+        <div class="info-section__inner">
+            <div class="passiva-header">
+                <span class="info-tag red-tag">Poderes Passivos</span>
+                <h2 class="info-title">ESCOLHA SEU <span class="accent-red">DESTINO</span></h2>
+                <p class="info-desc center-text">
+                    No início de cada partida, <strong>3 cartas misteriosas</strong> aparecem na tela.
+                    Escolha <strong>apenas uma</strong> — ela te dará um poder passivo que dura a partida inteira.
+                    Seu adversário também escolhe. Que a melhor estratégia vença.
+                </p>
+            </div>
+            <div class="passiva-cards">
+                <div class="passiva-card passiva-card--gold">
+                    <div class="passiva-card__shine"></div>
+                    <div class="passiva-card__header">
+                        <span class="passiva-card__icon">⚡</span>
+                    </div>
+                    <img src="../spritesxadrez/sprites/spr_carta_ganancia.png" alt="Carta Ganância"
+                        class="passiva-card__img" />
+                    <div class="passiva-card__body">
+                        <h3 class="passiva-card__name">Carta Misteriosa</h3>
+                        <p class="passiva-card__lore">"Poder que muda o rumo da batalha..."</p>
+                    </div>
+                    <div class="passiva-card__footer">
+                        <span class="passiva-locked">Descubra ao jogar</span>
+                    </div>
+                </div>
+                <div class="passiva-card passiva-card--purple passiva-card--featured">
+                    <div class="passiva-card__shine"></div>
+                    <div class="passiva-card__header">
+                        <span class="passiva-card__icon">🌀</span>
+                    </div>
+                    <img src="../spritesxadrez/sprites/spr_carta_peoes.png" alt="Carta Peões"
+                        class="passiva-card__img" />
+                    <div class="passiva-card__body">
+                        <h3 class="passiva-card__name">Carta Misteriosa</h3>
+                        <p class="passiva-card__lore">"Uma força que age nas sombras..."</p>
+                    </div>
+                    <div class="passiva-card__footer">
+                        <span class="passiva-locked">Descubra ao jogar</span>
+                    </div>
+                </div>
+                <div class="passiva-card passiva-card--green">
+                    <div class="passiva-card__shine"></div>
+                    <div class="passiva-card__header">
+                        <span class="passiva-card__icon">🛡</span>
+                    </div>
+                    <img src="../spritesxadrez/sprites/spr_carta_torre.png" alt="Carta Torre"
+                        class="passiva-card__img" />
+                    <div class="passiva-card__body">
+                        <h3 class="passiva-card__name">Carta Misteriosa</h3>
+                        <p class="passiva-card__lore">"Proteção inabalável, vitória inevitável..."</p>
+                    </div>
+                    <div class="passiva-card__footer">
+                        <span class="passiva-locked">Descubra ao jogar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BANNER CTA ===== -->
+    <section class="banner-cta">
+        <div class="banner-bg"></div>
+        <div class="banner-content">
+            <h2 class="banner-title">PRONTO PARA A BATALHA?</h2>
+            <p class="banner-subtitle">Entre na arena. Seu adversário já está esperando.</p>
+            <a href="login.html" class="btn-play btn-play-large">
+                <span class="btn-play-text">COMEÇAR AGORA</span>
+                <span class="btn-play-shine"></span>
+            </a>
+        </div>
+        <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha" class="banner-char" />
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="footer-logo-img" />
+            <span class="footer-logo-text">XADREZINHO</span>
+        </div>
+        <p class="footer-copy">&copy; 2026 Xadrezinho. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Particle generator
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 8 + 's';
+            p.style.animationDuration = (6 + Math.random() * 8) + 's';
+            p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+            p.style.opacity = (0.2 + Math.random() * 0.6).toFixed(2);
+            container.appendChild(p);
+        }
+    </script>
+</body>
+
+</html>

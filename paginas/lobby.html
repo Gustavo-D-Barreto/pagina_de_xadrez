@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xadrezinho — Lobby</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../visual/style.css" />
+    <link rel="stylesheet" href="../visual/lobby.css" />
+</head>
+
+<body class="lobby-page">
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="lobby-bg">
+        <div class="lobby-bg__img"></div>
+        <div class="lobby-bg__overlay"></div>
+        <div class="lobby-bg__particles" id="lobbyParticles"></div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar lobby-navbar">
+        <a href="index.html" class="nav-logo">
+            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
+            <span class="nav-logo-text">XADREZINHO</span>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Início</a></li>
+            <li><a href="lobby.html" class="nav-link active">Lobby</a></li>
+            <li><a href="manual.html" class="nav-link">Manual</a></li>
+        </ul>
+
+        <div class="nav-actions lobby-nav-right">
+            <!-- Player badge (TODO: populate from Supabase) -->
+            <div class="player-badge">
+                <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Avatar" class="player-badge__avatar" />
+                <div class="player-badge__info">
+                    <span class="player-badge__name" id="playerName">Guerreiro</span>
+                    <span class="player-badge__pts">
+                        <img src="../spritesxadrez/sprites/spr_moeda.png" alt="pts" class="badge-coin" />
+                        <span id="playerPts">0</span> pts
+                    </span>
+                </div>
+            </div>
+            <a href="login.html" class="btn-nav-login">Sair</a>
+        </div>
+    </nav>
+
+    <!-- ===== MAIN LOBBY ===== -->
+    <main class="lobby-main">
+
+        <!-- Board decoration -->
+        <img src="../spritesxadrez/sprites/spr_tabuleiro.png" alt="" class="lobby-board-deco" aria-hidden="true" />
+
+        <!-- Header -->
+        <div class="lobby-header">
+            <p class="lobby-eyebrow">Bem-vindo à arena</p>
+            <h1 class="lobby-title">ESCOLHA <span class="accent-gold">SUA BATALHA</span></h1>
+            <p class="lobby-subtitle">Selecione como deseja entrar em combate</p>
+        </div>
+
+        <!-- ===== MODE CARDS GRID ===== -->
+        <div class="mode-grid">
+
+            <!-- 1 — MATCHMAKING -->
+            <div class="mode-card mode-card--online" id="cardMatchmaking">
+                <div class="mode-card__bg"></div>
+                <div class="mode-card__glow"></div>
+
+                <div class="mode-card__top">
+                    <div class="mode-card__icon-wrap">
+                        <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="" class="mode-card__icon" />
+                    </div>
+                    <span class="mode-badge mode-badge--online">ONLINE</span>
+                </div>
+
+                <div class="mode-card__body">
+                    <h2 class="mode-card__title">PARTIDA RANQUEADA</h2>
+                    <p class="mode-card__desc">
+                        Entre na fila e enfrente um adversário aleatório online.
+                        Ganhe pontos e suba no ranking global.
+                    </p>
+                    <ul class="mode-card__tags">
+                        <li>🌐 Online</li>
+                        <li>⚔ 1 vs 1</li>
+                        <li>🏆 Ranqueado</li>
+                    </ul>
+                </div>
+
+                <button class="mode-card__btn" onclick="enterQueue()">
+                    <span>ENTRAR NA FILA</span>
+                    <span class="btn-play-shine"></span>
+                </button>
+
+                <!-- Queue status (shown when searching) -->
+                <div class="queue-status" id="queueStatus" aria-live="polite">
+                    <div class="queue-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="queue-text">Procurando adversário<span class="queue-ellipsis"></span></span>
+                    <button class="queue-cancel" onclick="cancelQueue()">✕ Cancelar</button>
+                </div>
+            </div>
+
+            <!-- 2 — CRIAR SALA -->
+            <div class="mode-card mode-card--create" id="cardCreate">
+                <div class="mode-card__bg"></div>
+                <div class="mode-card__glow"></div>
+
+                <div class="mode-card__top">
+                    <div class="mode-card__icon-wrap">
+                        <img src="../spritesxadrez/sprites/spr_torre_verde.png" alt="" class="mode-card__icon" />
+                    </div>
+                    <span class="mode-badge mode-badge--private">PRIVADO</span>
+                </div>
+
+                <div class="mode-card__body">
+                    <h2 class="mode-card__title">CRIAR SALA</h2>
+                    <p class="mode-card__desc">
+                        Gere um código exclusivo, compartilhe com seu amigo
+                        e aguarde ele entrar para iniciar a batalha.
+                    </p>
+                    <ul class="mode-card__tags">
+                        <li>🔗 Código único</li>
+                        <li>👥 2 jogadores</li>
+                        <li>🕹 Personalizado</li>
+                    </ul>
+                </div>
+
+                <button class="mode-card__btn mode-card__btn--purple" onclick="createRoom()">
+                    <span>CRIAR SALA</span>
+                    <span class="btn-play-shine"></span>
+                </button>
+
+                <!-- Generated code display -->
+                <div class="room-code-display" id="roomCodeDisplay">
+                    <p class="room-code-label">Seu código de sala:</p>
+                    <div class="room-code-box">
+                        <span class="room-code-value" id="roomCodeValue">——————</span>
+                        <button class="room-code-copy" onclick="copyCode()" title="Copiar código">⎘</button>
+                    </div>
+                    <p class="room-code-hint">Aguardando oponente entrar...</p>
+                    <button class="queue-cancel" onclick="cancelRoom()">✕ Cancelar sala</button>
+                </div>
+            </div>
+
+            <!-- 3 — ENTRAR EM SALA -->
+            <div class="mode-card mode-card--join" id="cardJoin">
+                <div class="mode-card__bg"></div>
+                <div class="mode-card__glow"></div>
+
+                <div class="mode-card__top">
+                    <div class="mode-card__icon-wrap">
+                        <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="" class="mode-card__icon" />
+                    </div>
+                    <span class="mode-badge mode-badge--private">PRIVADO</span>
+                </div>
+
+                <div class="mode-card__body">
+                    <h2 class="mode-card__title">ENTRAR EM SALA</h2>
+                    <p class="mode-card__desc">
+                        Tem o código do seu amigo? Digite abaixo e
+                        entre diretamente na sala dele para o duelo.
+                    </p>
+                    <ul class="mode-card__tags">
+                        <li>🔑 Código do amigo</li>
+                        <li>👥 2 jogadores</li>
+                        <li>⚡ Direto ao ponto</li>
+                    </ul>
+                </div>
+
+                <!-- Code input inline -->
+                <div class="join-input-wrap">
+                    <div class="join-field">
+                        <input type="text" id="joinCodeInput" class="join-input" placeholder="Digite o código..."
+                            maxlength="8" autocomplete="off" oninput="this.value=this.value.toUpperCase()" />
+                        <button class="mode-card__btn mode-card__btn--gold" onclick="joinRoom()">
+                            <span>ENTRAR</span>
+                            <span class="btn-play-shine"></span>
+                        </button>
+                    </div>
+                    <p class="join-msg" id="joinMsg"></p>
+                </div>
+            </div>
+
+            <!-- 4 — LOCAL (Mesmo PC) -->
+            <div class="mode-card mode-card--local" id="cardLocal">
+                <div class="mode-card__bg"></div>
+                <div class="mode-card__glow"></div>
+
+                <div class="mode-card__top">
+                    <div class="mode-card__icon-wrap">
+                        <img src="../spritesxadrez/sprites/spr_peao_verde.png" alt="" class="mode-card__icon" />
+                    </div>
+                    <span class="mode-badge mode-badge--local">LOCAL</span>
+                </div>
+
+                <div class="mode-card__body">
+                    <h2 class="mode-card__title">MESMO PC</h2>
+                    <p class="mode-card__desc">
+                        Jogue contra seu irmão, amigo ou prima no mesmo computador,
+                        se revezando nas jogadas. Sem internet necessária.
+                    </p>
+                    <ul class="mode-card__tags">
+                        <li>🖥 Mesmo PC</li>
+                        <li>👤↔👤 Turnos</li>
+                        <li>🚫 Sem internet</li>
+                    </ul>
+                </div>
+
+                <a href="jogo.html?mode=local" class="mode-card__btn mode-card__btn--green" onclick="startLocal(event)">
+                    <span>JOGAR AGORA</span>
+                    <span class="btn-play-shine"></span>
+                </a>
+            </div>
+
+        </div><!-- /mode-grid -->
+
+        <!-- ===== BOTTOM STATS BAR ===== -->
+        <div class="lobby-stats-bar">
+            <div class="lb-stat">
+                <span class="lb-stat__icon">🌐</span>
+                <span class="lb-stat__val" id="onlinePlayers">—</span>
+                <span class="lb-stat__lbl">jogadores online</span>
+            </div>
+            <div class="lb-stat-div"></div>
+            <div class="lb-stat">
+                <span class="lb-stat__icon">⚔</span>
+                <span class="lb-stat__val" id="activeMatches">—</span>
+                <span class="lb-stat__lbl">partidas ativas</span>
+            </div>
+            <div class="lb-stat-div"></div>
+            <div class="lb-stat">
+                <span class="lb-stat__icon">🏆</span>
+                <span class="lb-stat__val" id="totalMatches">—</span>
+                <span class="lb-stat__lbl">partidas jogadas hoje</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div class="toast" id="toast" aria-live="assertive"></div>
+
+    <!-- ===== SCRIPT ===== -->
+    <script>
+        // --------------------------------------------------------
+        //  PARTICLES
+        // --------------------------------------------------------
+        const pc = document.getElementById('lobbyParticles');
+        for (let i = 0; i < 28; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.cssText = `
+        left:${Math.random() * 100}vw;
+        animation-delay:${Math.random() * 10}s;
+        animation-duration:${8 + Math.random() * 9}s;
+        width:${2 + Math.random() * 3}px;
+        height:${2 + Math.random() * 3}px;
+        opacity:${(0.1 + Math.random() * 0.4).toFixed(2)};
+      `;
+            pc.appendChild(p);
+        }
+
+        // --------------------------------------------------------
+        //  MOCK STATS (TODO: replace with Supabase realtime)
+        // --------------------------------------------------------
+        document.getElementById('onlinePlayers').textContent = Math.floor(12 + Math.random() * 30);
+        document.getElementById('activeMatches').textContent = Math.floor(4 + Math.random() * 14);
+        document.getElementById('totalMatches').textContent = Math.floor(80 + Math.random() * 120);
+
+        // --------------------------------------------------------
+        //  TOAST HELPER
+        // --------------------------------------------------------
+        function toast(msg, type = 'info') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'toast toast--' + type + ' toast--show';
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.remove('toast--show'), 3200);
+        }
+
+        // --------------------------------------------------------
+        //  1 — MATCHMAKING
+        // --------------------------------------------------------
+        let queueInterval = null;
+        let queueSeconds = 0;
+
+        function enterQueue() {
+            const card = document.getElementById('cardMatchmaking');
+            const qs = document.getElementById('queueStatus');
+            card.classList.add('mode-card--searching');
+            qs.classList.add('active');
+
+            queueSeconds = 0;
+            queueInterval = setInterval(() => {
+                queueSeconds++;
+                const txt = document.querySelector('.queue-text');
+                if (txt) txt.dataset.sec = queueSeconds + 's';
+            }, 1000);
+
+            toast('Procurando adversário...', 'info');
+
+            // TODO: connect to Supabase realtime matchmaking here
+        }
+
+        function cancelQueue() {
+            clearInterval(queueInterval);
+            const card = document.getElementById('cardMatchmaking');
+            const qs = document.getElementById('queueStatus');
+            card.classList.remove('mode-card--searching');
+            qs.classList.remove('active');
+            toast('Fila cancelada.', 'warn');
+        }
+
+        // --------------------------------------------------------
+        //  2 — CRIAR SALA
+        // --------------------------------------------------------
+        function createRoom() {
+            const code = generateCode();
+            document.getElementById('roomCodeValue').textContent = code;
+            document.getElementById('roomCodeDisplay').classList.add('active');
+            document.getElementById('cardCreate').classList.add('mode-card--waiting');
+
+            toast('Sala criada! Compartilhe o código com seu amigo.', 'success');
+
+            // TODO: register code in Supabase and listen for opponent joining
+        }
+
+        function cancelRoom() {
+            document.getElementById('roomCodeDisplay').classList.remove('active');
+            document.getElementById('cardCreate').classList.remove('mode-card--waiting');
+            toast('Sala cancelada.', 'warn');
+            // TODO: delete room from Supabase
+        }
+
+        function copyCode() {
+            const code = document.getElementById('roomCodeValue').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                toast('Código copiado: ' + code, 'success');
+            }).catch(() => {
+                toast('Não foi possível copiar. Código: ' + code, 'warn');
+            });
+        }
+
+        function generateCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
+        // --------------------------------------------------------
+        //  3 — ENTRAR EM SALA
+        // --------------------------------------------------------
+        function joinRoom() {
+            const input = document.getElementById('joinCodeInput');
+            const msg = document.getElementById('joinMsg');
+            const code = input.value.trim().toUpperCase();
+
+            if (code.length < 4) {
+                msg.textContent = 'Digite um código válido.';
+                msg.className = 'join-msg join-msg--error';
+                return;
+            }
+
+            msg.textContent = 'Verificando código...';
+            msg.className = 'join-msg join-msg--info';
+
+            // TODO: look up code in Supabase and redirect to game
+            setTimeout(() => {
+                // Simulating not found for now
+                msg.textContent = 'Sala "' + code + '" não encontrada. Verifique o código.';
+                msg.className = 'join-msg join-msg--error';
+            }, 1200);
+        }
+
+        document.getElementById('joinCodeInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') joinRoom();
+        });
+
+        // --------------------------------------------------------
+        //  4 — LOCAL
+        // --------------------------------------------------------
+        function startLocal(e) {
+            e.preventDefault();
+            toast('Iniciando partida local...', 'success');
+            // TODO: navigate to game page in local mode
+            setTimeout(() => { window.location.href = '../paginas/jogo.html?mode=local'; }, 900);
+        }
+    </script>
+
+    <!-- ===== SUPABASE: session guard + player info ===== -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        // ── Guard: redireciona se não estiver logado ──────────
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.replace('login.html');
+        }
+
+        // ── Popula badge do jogador ───────────────────────────
+        if (session) {
+            const userId = session.user.id;
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('username, pontos, vitorias, derrotas, partidas')
+                .eq('id', userId)
+                .single();
+
+            if (profile) {
+                const nameEl = document.getElementById('playerName');
+                const ptsEl = document.getElementById('playerPts');
+                if (nameEl) nameEl.textContent = profile.username;
+                if (ptsEl) ptsEl.textContent = profile.pontos.toLocaleString('pt-BR');
+            }
+        }
+
+        // ── Botão Sair ────────────────────────────────────────
+        document.querySelector('.btn-nav-login')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+
+</html>

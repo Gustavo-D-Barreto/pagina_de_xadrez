@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xadrezinho — Entrar / Cadastrar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../visual/style.css" />
+    <link rel="stylesheet" href="../visual/login.css" />
+</head>
+
+<body class="login-page">
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="login-bg">
+        <div class="login-bg__img"></div>
+        <div class="login-bg__vignette"></div>
+        <div class="login-bg__particles" id="loginParticles"></div>
+    </div>
+
+    <!-- ===== FLOATING PIECES ===== -->
+    <div class="login-pieces" aria-hidden="true">
+        <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" class="lp lp--a" alt="" />
+        <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" class="lp lp--b" alt="" />
+        <img src="../spritesxadrez/sprites/spr_torre_verde.png" class="lp lp--c" alt="" />
+        <img src="../spritesxadrez/sprites/spr_peao_roxo.png" class="lp lp--d" alt="" />
+        <img src="../spritesxadrez/sprites/spr_rainha_verde.png" class="lp lp--e" alt="" />
+    </div>
+
+    <!-- ===== NAVBAR minimal ===== -->
+    <nav class="navbar navbar--slim">
+        <a href="index.html" class="nav-logo">
+            <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
+            <span class="nav-logo-text">XADREZINHO</span>
+        </a>
+        <a href="index.html" class="btn-nav-back">← Voltar ao início</a>
+    </nav>
+
+    <!-- ===== AUTH CARD ===== -->
+    <main class="auth-wrapper">
+        <div class="auth-card">
+
+            <!-- Card glow border -->
+            <div class="auth-card__glow"></div>
+
+            <!-- Logo / Header -->
+            <div class="auth-header">
+                <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="auth-logo" />
+                <h1 class="auth-title">XADREZINHO</h1>
+                <p class="auth-subtitle">Entre na arena. A glória espera por você.</p>
+            </div>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs" role="tablist">
+                <button class="auth-tab auth-tab--active" id="tab-login" role="tab" aria-selected="true"
+                    aria-controls="panel-login" onclick="switchTab('login')">
+                    ENTRAR
+                </button>
+                <button class="auth-tab" id="tab-register" role="tab" aria-selected="false"
+                    aria-controls="panel-register" onclick="switchTab('register')">
+                    CADASTRAR
+                </button>
+                <div class="auth-tab__indicator" id="tabIndicator"></div>
+            </div>
+
+            <!-- ===== LOGIN PANEL ===== -->
+            <div class="auth-panel auth-panel--active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                <form class="auth-form" id="formLogin" onsubmit="handleLogin(event)">
+
+                    <div class="form-field">
+                        <label class="form-label" for="login-user">Nome de usuário</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">⚔</span>
+                            <input type="text" id="login-user" name="username" class="form-input"
+                                placeholder="Seu nome de guerreiro" autocomplete="username" required />
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="login-pass">Senha</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">🔒</span>
+                            <input type="password" id="login-pass" name="password" class="form-input"
+                                placeholder="••••••••" autocomplete="current-password" required />
+                            <button type="button" class="form-eye" id="eyeLogin"
+                                onclick="togglePass('login-pass','eyeLogin')" title="Mostrar/ocultar senha">👁</button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="form-check">
+                            <input type="checkbox" name="remember" /> Lembrar de mim
+                        </label>
+                    </div>
+
+                    <div class="form-msg" id="login-msg"></div>
+
+                    <button type="submit" class="btn-auth">
+                        <span class="btn-auth__text">ENTRAR NA ARENA</span>
+                        <span class="btn-play-shine"></span>
+                    </button>
+
+                    <p class="auth-switch-hint">
+                        Não tem conta?
+                        <button type="button" class="auth-switch-link"
+                            onclick="switchTab('register')">Cadastre-se</button>
+                    </p>
+                </form>
+            </div>
+
+            <!-- ===== REGISTER PANEL ===== -->
+            <div class="auth-panel" id="panel-register" role="tabpanel" aria-labelledby="tab-register">
+                <form class="auth-form" id="formRegister" onsubmit="handleRegister(event)">
+
+                    <div class="form-field">
+                        <label class="form-label" for="reg-user">Nome de usuário</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">⚔</span>
+                            <input type="text" id="reg-user" name="username" class="form-input"
+                                placeholder="Escolha seu nome de guerreiro" autocomplete="username" minlength="3"
+                                maxlength="20" required />
+                        </div>
+                        <span class="form-hint">Entre 3 e 20 caracteres. Apenas letras, números e _</span>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="reg-email">E-mail</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">✉</span>
+                            <input type="email" id="reg-email" name="email" class="form-input"
+                                placeholder="seu@email.com" autocomplete="email" required />
+                        </div>
+                        <span class="form-hint">Usado para recuperação de conta.</span>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="reg-pass">Senha</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">🔒</span>
+                            <input type="password" id="reg-pass" name="password" class="form-input"
+                                placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6" required />
+                            <button type="button" class="form-eye" id="eyeReg" onclick="togglePass('reg-pass','eyeReg')"
+                                title="Mostrar/ocultar senha">👁</button>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="reg-pass2">Confirmar senha</label>
+                        <div class="form-input-wrap">
+                            <span class="form-icon">🔒</span>
+                            <input type="password" id="reg-pass2" name="password2" class="form-input"
+                                placeholder="Repita a senha" autocomplete="new-password" required />
+                            <button type="button" class="form-eye" id="eyeReg2"
+                                onclick="togglePass('reg-pass2','eyeReg2')" title="Mostrar/ocultar senha">👁</button>
+                        </div>
+                    </div>
+
+                    <!-- Password strength bar -->
+                    <div class="pass-strength" id="passStrength" aria-hidden="true">
+                        <div class="pass-strength__bar">
+                            <div class="pass-strength__fill" id="passStrengthFill"></div>
+                        </div>
+                        <span class="pass-strength__label" id="passStrengthLabel"></span>
+                    </div>
+
+                    <div class="form-msg" id="register-msg"></div>
+
+                    <button type="submit" class="btn-auth btn-auth--register">
+                        <span class="btn-auth__text">CRIAR CONTA</span>
+                        <span class="btn-play-shine"></span>
+                    </button>
+
+                    <p class="auth-switch-hint">
+                        Já tem conta?
+                        <button type="button" class="auth-switch-link" onclick="switchTab('login')">Entrar</button>
+                    </p>
+                </form>
+            </div>
+
+        </div><!-- /auth-card -->
+    </main>
+
+    <!-- ===== SCRIPT (UI helpers — sem módulo) ===== -->
+    <script>
+        /* ---- Particles ---- */
+        const pc = document.getElementById('loginParticles');
+        for (let i = 0; i < 35; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.cssText = `
+        left:${Math.random() * 100}vw;
+        animation-delay:${Math.random() * 10}s;
+        animation-duration:${7 + Math.random() * 9}s;
+        width:${2 + Math.random() * 3}px;
+        height:${2 + Math.random() * 3}px;
+        opacity:${(0.15 + Math.random() * 0.5).toFixed(2)};
+      `;
+            pc.appendChild(p);
+        }
+
+        /* ---- Tab switcher ---- */
+        function switchTab(tab) {
+            const panels = document.querySelectorAll('.auth-panel');
+            const tabs = document.querySelectorAll('.auth-tab');
+            const ind = document.getElementById('tabIndicator');
+            panels.forEach(p => p.classList.remove('auth-panel--active'));
+            tabs.forEach(t => { t.classList.remove('auth-tab--active'); t.setAttribute('aria-selected', 'false'); });
+            document.getElementById('panel-' + tab).classList.add('auth-panel--active');
+            const activeTab = document.getElementById('tab-' + tab);
+            activeTab.classList.add('auth-tab--active');
+            activeTab.setAttribute('aria-selected', 'true');
+            ind.style.left = tab === 'login' ? '0' : '50%';
+            ind.style.width = '50%';
+            document.getElementById('login-msg').textContent = '';
+            document.getElementById('register-msg').textContent = '';
+        }
+
+        /* ---- Toggle password visibility ---- */
+        function togglePass(inputId, btnId) {
+            const inp = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.style.opacity = inp.type === 'text' ? '1' : '0.5';
+        }
+
+        /* ---- Password strength ---- */
+        document.getElementById('reg-pass')?.addEventListener('input', function () {
+            const val = this.value;
+            const fill = document.getElementById('passStrengthFill');
+            const label = document.getElementById('passStrengthLabel');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const levels = [
+                { pct: '20%', color: '#e84040', text: 'Muito fraca' },
+                { pct: '40%', color: '#e87040', text: 'Fraca' },
+                { pct: '60%', color: '#c9a84c', text: 'Razoável' },
+                { pct: '80%', color: '#8bc34a', text: 'Forte' },
+                { pct: '100%', color: '#3fcf72', text: 'Muito forte' },
+            ];
+            const lvl = levels[Math.min(score, 4)];
+            fill.style.width = val.length ? lvl.pct : '0%';
+            fill.style.background = lvl.color;
+            label.textContent = val.length ? lvl.text : '';
+            label.style.color = lvl.color;
+        });
+
+        /* ---- UI helpers ---- */
+        function showMsg(elId, text, type) {
+            const el = document.getElementById(elId);
+            el.textContent = text;
+            el.className = 'form-msg form-msg--' + type;
+        }
+
+        function setLoading(btn, loading) {
+            btn.disabled = loading;
+            btn.style.opacity = loading ? '0.6' : '1';
+            const span = btn.querySelector('.btn-auth__text');
+            span.textContent = loading ? 'Aguarde...' : (btn.dataset.label || span.textContent);
+        }
+
+        // Salva labels originais
+        document.querySelectorAll('.btn-auth').forEach(b => {
+            b.dataset.label = b.querySelector('.btn-auth__text').textContent;
+        });
+    </script>
+
+    <!-- ===== SUPABASE AUTH ===== -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        // Se já estiver logado redireciona pro lobby
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        if (existingSession) window.location.replace('lobby.html');
+
+        // Supabase Auth exige e-mail; usamos username@xadrezinho.local internamente
+        const toEmail = u => u.toLowerCase().trim() + '@xadrezinho.local';
+
+        // ── LOGIN ──────────────────────────────────────────────
+        document.getElementById('formLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-user').value.trim();
+            const password = document.getElementById('login-pass').value;
+            const btn = e.target.querySelector('.btn-auth');
+
+            if (!username || !password) {
+                showMsg('login-msg', 'Preencha todos os campos.', 'error'); return;
+            }
+
+            setLoading(btn, true);
+
+            const { error } = await supabase.auth.signInWithPassword({
+                email: toEmail(username),
+                password: password
+            });
+
+            setLoading(btn, false);
+
+            if (error) {
+                showMsg('login-msg', 'Usuário ou senha incorretos.', 'error');
+            } else {
+                showMsg('login-msg', '⚔ Bem-vindo de volta, ' + username + '!', 'success');
+                setTimeout(() => window.location.href = 'lobby.html', 900);
+            }
+        });
+
+        // ── CADASTRO ───────────────────────────────────────────
+        document.getElementById('formRegister').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('reg-user').value.trim();
+            const password = document.getElementById('reg-pass').value;
+            const pass2 = document.getElementById('reg-pass2').value;
+            const btn = e.target.querySelector('.btn-auth');
+
+            // Validações frontend
+            if (/\s/.test(username)) {
+                showMsg('register-msg', 'Nome de usuário não pode ter espaços.', 'error'); return;
+            }
+            if (username.length < 3) {
+                showMsg('register-msg', 'Nome muito curto (mínimo 3 caracteres).', 'error'); return;
+            }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showMsg('register-msg', 'Use apenas letras, números e _ no username.', 'error'); return;
+            }
+            if (password.length < 6) {
+                showMsg('register-msg', 'Senha muito curta (mínimo 6 caracteres).', 'error'); return;
+            }
+            if (password !== pass2) {
+                showMsg('register-msg', 'As senhas não coincidem.', 'error'); return;
+            }
+
+            setLoading(btn, true);
+
+            // Verifica se username já está em uso
+            const { data: existing } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('username', username)
+                .maybeSingle();
+
+            if (existing) {
+                setLoading(btn, false);
+                showMsg('register-msg', 'Este nome de usuário já está em uso.', 'error');
+                return;
+            }
+
+            // Cria conta — trigger handle_new_user() cria o perfil automaticamente
+            const { error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: { data: { username: username } }
+            });
+
+            setLoading(btn, false);
+
+            if (error) {
+                showMsg('register-msg', 'Erro: ' + error.message, 'error');
+            } else {
+                showMsg('register-msg', '🎉 Conta criada! Bem-vindo, ' + username + '!', 'success');
+                setTimeout(() => {
+                    switchTab('login');
+                    document.getElementById('login-user').value = username;
+                }, 1800);
+            }
+        });
+    </script>
+</body>
+
+</html>

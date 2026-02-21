@@ -1,0 +1,586 @@
+/* ============================================
+   LOGIN.CSS — Auth page styles
+   Inherits base variables from style.css
+   ============================================ */
+
+/* ---- Full-page layout ---- */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ============================================
+   BACKGROUND LAYERS
+   ============================================ */
+.login-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.login-bg__img {
+    position: absolute;
+    inset: 0;
+    background-image: url('../spritesxadrez/sprites/background06.png');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.28) saturate(0.7);
+}
+
+.login-bg__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center,
+            transparent 30%,
+            rgba(8, 9, 13, 0.75) 100%);
+}
+
+.login-bg__particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* ============================================
+   FLOATING CHESS PIECES (decorative)
+   ============================================ */
+.login-pieces {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.lp {
+    position: absolute;
+    object-fit: contain;
+    opacity: 0.08;
+    animation: lpFloat linear infinite;
+}
+
+.lp--a {
+    width: 220px;
+    top: 5%;
+    right: -4%;
+    animation-duration: 14s;
+    animation-delay: 0s;
+    filter: drop-shadow(0 0 20px rgba(155, 89, 232, 0.3));
+    opacity: 0.12;
+}
+
+.lp--b {
+    width: 120px;
+    bottom: 10%;
+    left: 2%;
+    animation-duration: 10s;
+    animation-delay: -3s;
+    filter: drop-shadow(0 0 14px rgba(63, 207, 114, 0.3));
+}
+
+.lp--c {
+    width: 100px;
+    top: 35%;
+    left: 4%;
+    animation-duration: 12s;
+    animation-delay: -6s;
+    filter: drop-shadow(0 0 10px rgba(63, 207, 114, 0.2));
+}
+
+.lp--d {
+    width: 80px;
+    top: 15%;
+    left: 18%;
+    animation-duration: 9s;
+    animation-delay: -2s;
+}
+
+.lp--e {
+    width: 90px;
+    bottom: 20%;
+    right: 8%;
+    animation-duration: 11s;
+    animation-delay: -5s;
+    filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.2));
+}
+
+@keyframes lpFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-18px) rotate(2deg);
+    }
+
+    75% {
+        transform: translateY(10px) rotate(-2deg);
+    }
+}
+
+/* ============================================
+   NAVBAR (slim version)
+   ============================================ */
+.navbar--slim {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    background: linear-gradient(180deg, rgba(8, 9, 13, 0.9) 0%, transparent 100%);
+}
+
+.btn-nav-back {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--clr-muted);
+    transition: color 0.25s;
+}
+
+.btn-nav-back:hover {
+    color: var(--clr-gold);
+}
+
+/* ============================================
+   AUTH WRAPPER & CARD
+   ============================================ */
+.auth-wrapper {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px 60px;
+    min-height: 100vh;
+}
+
+.auth-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: rgba(13, 15, 24, 0.85);
+    border: 1px solid var(--clr-border);
+    backdrop-filter: blur(18px);
+    padding: 0 0 36px;
+    clip-path: polygon(0 0,
+            calc(100% - 24px) 0,
+            100% 24px,
+            100% 100%,
+            24px 100%,
+            0 calc(100% - 24px));
+    overflow: visible;
+}
+
+/* Glowing border effect */
+.auth-card__glow {
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg,
+            rgba(201, 168, 76, 0.4) 0%,
+            transparent 40%,
+            rgba(155, 89, 232, 0.3) 100%);
+    z-index: -1;
+    clip-path: polygon(0 0,
+            calc(100% - 24px) 0,
+            100% 24px,
+            100% 100%,
+            24px 100%,
+            0 calc(100% - 24px));
+    animation: glowBorderPulse 4s ease-in-out infinite;
+}
+
+@keyframes glowBorderPulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   AUTH HEADER
+   ============================================ */
+.auth-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 40px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--clr-border);
+    margin-bottom: 0;
+}
+
+.auth-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 14px var(--clr-green));
+    animation: charFloat 4s ease-in-out infinite;
+    margin-bottom: 10px;
+}
+
+.auth-title {
+    font-family: var(--font-title);
+    font-size: 1.6rem;
+    letter-spacing: 0.25em;
+    color: var(--clr-gold);
+    text-shadow: 0 0 24px rgba(201, 168, 76, 0.5);
+}
+
+.auth-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--clr-muted);
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+.auth-tabs {
+    position: relative;
+    display: flex;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+.auth-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 16px 0;
+    font-family: var(--font-title);
+    font-size: 0.82rem;
+    letter-spacing: 0.2em;
+    color: var(--clr-muted);
+    transition: color 0.3s;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-tab:hover {
+    color: var(--clr-text);
+}
+
+.auth-tab--active {
+    color: var(--clr-gold-light);
+}
+
+/* Sliding underline indicator */
+.auth-tab__indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--clr-gold), var(--clr-purple));
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   PANELS
+   ============================================ */
+.auth-panel {
+    display: none;
+    padding: 32px 40px 0;
+    animation: panelSlideIn 0.3s ease;
+}
+
+.auth-panel--active {
+    display: block;
+}
+
+@keyframes panelSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--clr-muted);
+}
+
+.form-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.form-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 0.9rem;
+    pointer-events: none;
+    opacity: 0.5;
+    line-height: 1;
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--clr-border);
+    color: var(--clr-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 400;
+    padding: 12px 44px 12px 40px;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.form-input::placeholder {
+    color: rgba(122, 126, 153, 0.6);
+}
+
+.form-input:focus {
+    border-color: var(--clr-gold);
+    background: rgba(201, 168, 76, 0.05);
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.12), inset 0 0 12px rgba(201, 168, 76, 0.04);
+}
+
+.form-input:focus+.form-icon,
+.form-input-wrap:focus-within .form-icon {
+    opacity: 0.9;
+}
+
+.form-eye {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    line-height: 1;
+    padding: 0;
+}
+
+.form-eye:hover {
+    opacity: 0.9;
+}
+
+.form-hint {
+    font-size: 0.72rem;
+    color: var(--clr-muted);
+    opacity: 0.7;
+    letter-spacing: 0.04em;
+}
+
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--clr-muted);
+    cursor: pointer;
+}
+
+.form-check input[type="checkbox"] {
+    accent-color: var(--clr-gold);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+/* ============================================
+   PASSWORD STRENGTH
+   ============================================ */
+.pass-strength {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: -8px;
+}
+
+.pass-strength__bar {
+    flex: 1;
+    height: 3px;
+    background: var(--clr-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pass-strength__fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.4s ease;
+}
+
+.pass-strength__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    min-width: 72px;
+    text-align: right;
+}
+
+/* ============================================
+   MESSAGES
+   ============================================ */
+.form-msg {
+    font-family: var(--font-body);
+    font-size: 0.83rem;
+    min-height: 1.2em;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+.form-msg--error {
+    color: var(--clr-red);
+}
+
+.form-msg--success {
+    color: var(--clr-green);
+}
+
+/* ============================================
+   AUTH BUTTON
+   ============================================ */
+.btn-auth {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    width: 100%;
+    padding: 15px;
+    margin-top: 4px;
+    background: linear-gradient(135deg, #b8830a 0%, #e6b23a 50%, #b8830a 100%);
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: filter 0.3s, transform 0.2s;
+}
+
+.btn-auth:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+}
+
+.btn-auth:active {
+    transform: translateY(0);
+}
+
+.btn-auth--register {
+    background: linear-gradient(135deg, #5a2eaa 0%, #9b59e8 50%, #5a2eaa 100%);
+}
+
+.btn-auth__text {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    letter-spacing: 0.22em;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Reuse shine from style.css */
+.btn-auth .btn-play-shine {
+    animation: btnShine 2.5s ease-in-out infinite;
+}
+
+/* ============================================
+   SWITCH HINT
+   ============================================ */
+.auth-switch-hint {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--clr-muted);
+}
+
+.auth-switch-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--clr-gold);
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: 700;
+    padding: 0;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+.auth-switch-link:hover {
+    color: var(--clr-gold-light);
+    text-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 520px) {
+    .auth-panel {
+        padding: 28px 24px 0;
+    }
+
+    .auth-header {
+        padding: 30px 24px 20px;
+    }
+
+    .navbar--slim {
+        padding: 0 20px;
+    }
+
+    .auth-card {
+        max-width: 100%;
+    }
+
+    .auth-wrapper {
+        padding: 80px 12px 40px;
+    }
+}
