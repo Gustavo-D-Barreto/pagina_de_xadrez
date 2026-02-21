@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="ingame-shared.css" />
     <link rel="stylesheet" href="ingame-local.css" />
     <script src="../funcionalidades/poderes.js"></script>
+    <script src="../funcionalidades/aleatoriedade.js"></script>
 </head>
 
 <body>
@@ -215,6 +216,7 @@
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
 
 
+            initAleatoriedade();
             initShop();
             render();
             updateTurnBanner();
@@ -505,6 +507,10 @@
                     : '👆 Clique em uma peça sua no tabuleiro';
                 outer.appendChild(banner);
             }
+
+            // Overlays de eventos aleatórios
+            renderMoedaOverlay();
+            renderMeteoroOverlay();
 
             updatePlayerCards();
         }
@@ -803,6 +809,10 @@
 
             const movedColor = turn;
             const movedPiece = board[toRow][toCol];
+
+            // Eventos aleatórios: moeda e meteoro
+            checkMoedaCapture(toRow, toCol, movedColor);
+            tickEventos(movedColor);
 
             turn = (turn === 'w') ? 'b' : 'w';
             selected = null;

@@ -1060,3 +1060,60 @@ body.pick-mode-pieces .sq {
 body.pick-mode-col .sq {
     cursor: cell !important;
 }
+
+/* ── Moeda no tabuleiro ───────────────────────────── */
+.coin-img {
+    position: absolute;
+    inset: 12%;
+    width: 76%;
+    height: 76%;
+    object-fit: contain;
+    pointer-events: none;
+    animation: coinBob 0.9s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 6px rgba(201, 168, 76, .9));
+    z-index: 5;
+}
+
+@keyframes coinBob {
+    from {
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        transform: translateY(-4px) scale(1.06);
+    }
+}
+
+/* ── Meteoro — aviso (3 turnos antes) ────────────── */
+.sq.meteor-warning {
+    background: rgba(232, 64, 64, .18);
+}
+
+/* ── Meteoro — iminente (último turno) ───────────── */
+.sq.meteor-imminent {
+    background: rgba(232, 64, 64, .45);
+    box-shadow: inset 0 0 0 3px rgba(232, 64, 64, .9);
+    animation: meteorPulse .35s ease-in-out infinite alternate;
+}
+
+@keyframes meteorPulse {
+    from {
+        background: rgba(232, 64, 64, .45);
+    }
+
+    to {
+        background: rgba(232, 64, 64, .72);
+    }
+}
+
+/* Badge de aviso do meteoro */
+.meteor-badge {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: .65rem;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 6;
+    text-shadow: 0 0 4px #000;
+}
