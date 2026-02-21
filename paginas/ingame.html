@@ -632,9 +632,33 @@
         }
 
         // ── Game over screens ──────────────────────────────────
+        let profileUpdated = false;
+        async function atualizarMeusStatus(won, drew) {
+            if (profileUpdated) return;
+            profileUpdated = true;
+            if (!session || !session.user) return;
+            try {
+                const { data: prof, error } = await supabase.from('profiles').select('vitorias, derrotas, partidas, pontos').eq('id', session.user.id).single();
+                if (error || !prof) return;
+
+                let v = prof.vitorias || 0;
+                let d = prof.derrotas || 0;
+                let p = prof.partidas || 0;
+                let pts = prof.pontos || 0;
+
+                p += 1; // Incrementa as partidas jogadas
+                if (won) { v += 1; pts += 50; }
+                else if (!drew) { d += 1; pts += 10; }
+                else { pts += 25; } // Empate
+
+                await supabase.from('profiles').update({ vitorias: v, derrotas: d, partidas: p, pontos: pts }).eq('id', session.user.id);
+            } catch (e) { console.error('Erro ao atualizar perfil:', e); }
+        }
+
         function showGameOver(won) {
             gameOver = true;
             const img = document.getElementById('gameoverImg');
+            // won === null is a draw
             if (won === null) {
                 img.src = '../spritesxadrez/sprites/spr_derrota.png';
             } else if (won) {
@@ -643,6 +667,9 @@
                 img.src = '../spritesxadrez/sprites/spr_derrota.png';
             }
             document.getElementById('gameoverOverlay').classList.add('active');
+
+            // Atualiza estatísticas do perfil no banco
+            atualizarMeusStatus(won === true, won === null);
         }
 
         // ── Surrender ──────────────────────────────────────────
@@ -676,7 +703,8 @@
                 // Detect surrender from opponent
                 if (row.status === 'finalizada' && !gameOver) {
                     // Check if opponent surrendered or we were defeated
-                    const isWinner = row.vencedor_id === session.user.id;
+                    const isDraw = !row.vencedor_id;
+                    const isWinner = isDraw ? null : (row.vencedor_id === session.user.id);
                     gameOver = true; if (pollInterval) clearInterval(pollInterval);
                     showGameOver(isWinner);
                     return;
@@ -752,7 +780,8 @@
                 const row = payload.new;
                 if (gameOver) return;
                 if (row.status === 'finalizada' && !gameOver) {
-                    const isWinner = row.vencedor_id === session.user.id;
+                    const isDraw = !row.vencedor_id;
+                    const isWinner = isDraw ? null : (row.vencedor_id === session.user.id);
                     gameOver = true; if (pollInterval) clearInterval(pollInterval); showGameOver(isWinner); return;
                 }
                 if (row.ultimo_turno > lastUltimoTurno && row.estado_json) {
