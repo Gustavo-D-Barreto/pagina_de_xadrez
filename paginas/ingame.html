@@ -232,7 +232,7 @@
         }
 
         // ── Shop ───────────────────────────────────────────────
-        function initShop() { const s = embaralharPoderes(TODOS_OS_PODERES, 6); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
+        function initShop() { const ativos = TODOS_OS_PODERES.filter(p => p.ativo); const s = embaralharPoderes(ativos, ativos.length); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
         function renderShop() {
             const cont = document.getElementById('shopSlots'); cont.innerHTML = '';
             shopPowers.forEach((p, i) => cont.appendChild(mkCard(p, i)));
@@ -257,9 +257,13 @@
             const myPts = MY_CC === 'w' ? pointsW : pointsB;
             if (myPts < p.custo) { showToast('🪙 Pontos insuficientes!'); return; }
             if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
-            p.sold = true;
-            if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800);
-            renderShop(); updateCards();
+            // Devolve o poder ao final do pool (ciclo infinito) e traz o próximo
+            remainingPool.push({ id: p.id, nome: p.nome, descricao: p.descricao, icone: p.icone, custo: p.custo, ativo: p.ativo });
+            const next = remainingPool.shift();
+            shopPowers[i] = { ...next, entrando: true };
+            renderShop();
+            setTimeout(() => { if (shopPowers[i] && shopPowers[i].entrando) { delete shopPowers[i].entrando; renderShop(); } }, 50);
+            updateCards();
 
             if (p.id === 'escudo_covarde') {
                 enterPickMode('piece', ['K'], async (row, col) => {
@@ -267,7 +271,7 @@
                     showToast('🛡️ Escudo aplicado!'); render();
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
             } else if (p.id === 'espelho') {
                 enterPickMode('piece', ['K', 'Q'], async (row, col) => {
                     const adj = getAdjacentEmpty(row, col);
@@ -282,7 +286,7 @@
                     }
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
             } else if (p.id === 'caminho_congelante') {
                 enterPickMode('col', [], async (row, col) => {
                     frozenCols = frozenCols.filter(f => f.col !== col);
@@ -290,7 +294,7 @@
                     showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
             } else if (p.id === 'sonegar_impostos') {
                 taxEvasion = { turnsLeft: 6, owner: MY_CC };
                 showToast('💰 Pontos dobrados por 6 turnos!'); render();
