@@ -147,6 +147,17 @@
         );
     }
 
+    function ativarMaldicaoPeao(row, col, piece, context) {
+        const { showToast, onAfterActivation } = context;
+
+        // Marca que a maldição foi usada
+        piece.cursed = false;
+        piece.curseUsed = true;
+
+        showToast('💀 Maldição do Peão! Pelo resto de sua vida ele moverá como o Rei (capturando normalmente).');
+        if (onAfterActivation) onAfterActivation();
+    }
+
     /**
      * Ponto de entrada para ativar qualquer maldição.
      * Detecta o tipo da peça e chama a habilidade correspondente.
@@ -163,9 +174,8 @@
             case 'N':
                 ativarMaldicaoCavalo(row, col, piece, context);
                 break;
-            // Peão e Torre: habilidades a implementar futuramente
             case 'P':
-                context.showToast('⚠️ Habilidade do Peão ainda não implementada!');
+                ativarMaldicaoPeao(row, col, piece, context);
                 break;
             case 'R':
                 context.showToast('⚠️ Habilidade da Torre ainda não implementada!');

@@ -1069,9 +1069,20 @@
                 case 'P': {
                     const dir = p.color === 'w' ? -1 : 1;
                     const startRow = p.color === 'w' ? 6 : 1;
-                    addIfEmpty(r + dir, c);
-                    if (r === startRow && !b[r + dir][c] && !b[r + 2 * dir][c])
-                        moves.push({ row: r + 2 * dir, col: c, capture: false });
+
+                    if (p.curseUsed) {
+                        [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => {
+                            const nr = r + dr, nc = c + dc;
+                            if (inBounds(nr, nc) && !b[nr][nc]) {
+                                moves.push({ row: nr, col: nc, capture: false });
+                            }
+                        });
+                    } else {
+                        addIfEmpty(r + dir, c);
+                        if (r === startRow && !b[r + dir][c] && !b[r + 2 * dir][c])
+                            moves.push({ row: r + 2 * dir, col: c, capture: false });
+                    }
+
                     addIfCapture(r + dir, c - 1);
                     addIfCapture(r + dir, c + 1);
                     if (enPassantTarget) {
