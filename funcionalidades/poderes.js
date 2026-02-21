@@ -65,10 +65,31 @@ const TODOS_OS_PODERES = [
 ];
 
 // Embaralha o array e retorna os primeiros N itens
-function embaralharPoderes(lista, quantidade = 4) {
+// Cria um gerador de números quase-aleatórios com base em uma string (semente)
+function criarGeradorAleatorio(semente) {
+    let t = 0;
+    for (let i = 0; i < semente.length; i++) {
+        t = Math.imul(t ^ semente.charCodeAt(i), 3432918353);
+        t = (t << 13) | (t >>> 19);
+    }
+    return function () {
+        t = Math.imul(t ^ (t >>> 16), 2246822507);
+        t = Math.imul(t ^ (t >>> 13), 3266489909);
+        return ((t ^= t >>> 16) >>> 0) / 4294967296;
+    };
+}
+
+// Embaralha o array e retorna os primeiros N itens
+function embaralharPoderes(lista, quantidade = 4, seedString = null) {
     const copia = [...lista];
+    let geradorAleatorio = Math.random;
+
+    if (seedString) {
+        geradorAleatorio = criarGeradorAleatorio(seedString);
+    }
+
     for (let i = copia.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(geradorAleatorio() * (i + 1));
         [copia[i], copia[j]] = [copia[j], copia[i]];
     }
     return copia.slice(0, quantidade);

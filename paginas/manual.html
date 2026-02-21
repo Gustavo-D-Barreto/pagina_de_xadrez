@@ -4,38 +4,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xadrezinho - Manual</title>
+    <title>Xadrezinho - Manual do Jogador</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../visual/style.css">
+
+    <!-- CSS Adicional para o Manual -->
     <style>
-        .content-section {
-            padding: 120px 80px;
+        .manual-hero {
+            padding: 140px 20px 80px;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(30, 0, 80, 0.4) 0%, transparent 60%);
+            position: relative;
+        }
+
+        .manual-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('../visual/background05.png') center/cover no-repeat;
+            opacity: 0.15;
+            z-index: -1;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        .manual-title {
+            font-family: var(--font-title);
+            font-size: 4rem;
+            color: var(--clr-gold-light);
+            text-shadow: 0 0 20px rgba(230, 190, 110, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .manual-subtitle {
+            font-size: 1.5rem;
+            color: var(--clr-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Tópicos Gerais */
+        .manual-section {
+            padding: 80px 20px;
             max-width: 1200px;
             margin: 0 auto;
-            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .content-title {
+        .manual-section-title {
             font-family: var(--font-title);
-            font-size: 3rem;
-            color: var(--clr-gold-light);
-            margin-bottom: 24px;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .content-text {
-            font-size: 1.2rem;
+        .manual-section-title span {
+            color: var(--clr-gold-light);
+        }
+
+        /* Grid Valores de Peças */
+        .pieces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .piece-value-card {
+            background: rgba(20, 25, 40, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .piece-value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: var(--clr-gold-light);
+        }
+
+        .piece-value-card img {
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .piece-value-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .piece-value-card .value {
+            font-size: 2.5rem;
+            font-family: var(--font-title);
+            color: var(--clr-gold-light);
+            display: block;
+            margin-top: 10px;
+        }
+
+        .piece-value-card .coin-icon {
+            font-size: 1.5rem;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        /* Grid de Poderes */
+        .powers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .power-card {
+            background: linear-gradient(145deg, rgba(30, 20, 60, 0.8), rgba(15, 10, 30, 0.9));
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .power-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.2), transparent 70%);
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        .power-icon {
+            font-size: 3rem;
+            background: rgba(0, 0, 0, 0.3);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+        }
+
+        .power-title {
+            color: var(--clr-accent-purple);
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .power-desc {
             color: var(--clr-muted);
-            max-width: 800px;
-            margin: 0 auto;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .power-cost {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--clr-gold-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(230, 190, 110, 0.3);
+        }
+
+        /* Eventos Mutiplos (Maldições e Clima) */
+        .event-split {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .event-split:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .event-split-text {
+            flex: 1;
+        }
+
+        .event-split-visual {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .event-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .tag-red {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+        }
+
+        .tag-green {
+            background: rgba(40, 167, 69, 0.2);
+            color: #51cf66;
+            border: 1px solid rgba(40, 167, 69, 0.4);
+        }
+
+        .tag-gold {
+            background: rgba(230, 190, 110, 0.2);
+            color: var(--clr-gold-light);
+            border: 1px solid rgba(230, 190, 110, 0.4);
+        }
+
+        .event-title {
+            font-family: var(--font-title);
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .event-desc {
+            color: var(--clr-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .curse-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .curse-list li {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .curse-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .curse-info strong {
+            color: var(--clr-accent-red);
+        }
+
+        .meteor-board,
+        .coin-board {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: url('../spritesxadrez/sprites/spr_tabuleiro.png') center/contain no-repeat;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .meteor-zone {
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 25%;
+            height: 25%;
+            background: rgba(255, 0, 0, 0.4);
+            border: 2px dashed #ff4444;
+            border-radius: 4px;
+            animation: pulse-red 2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .coin-spawn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: url('../spritesxadrez/sprites/spr_moeda.png') center/contain no-repeat;
+            animation: bounce-hover 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        @keyframes pulse-red {
+            0% {
+                background: rgba(255, 0, 0, 0.2);
+                border-color: rgba(255, 0, 0, 0.4);
+            }
+
+            50% {
+                background: rgba(255, 0, 0, 0.5);
+                border-color: rgba(255, 0, 0, 1);
+                text-shadow: 0 0 10px red;
+            }
+
+            100% {
+                background: rgba(255, 0, 0, 0.2);
+                border-color: rgba(255, 0, 0, 0.4);
+            }
+        }
+
+        @keyframes bounce-hover {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%);
+            }
+
+            50% {
+                transform: translate(-50%, -60%);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .event-split {
+                flex-direction: column !important;
+                gap: 40px;
+            }
+
+            .pieces-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .pieces-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="index-page">
+    <!-- ===== NAVIGATION ===== -->
     <nav class="navbar">
         <a href="../index.html" class="nav-logo">
             <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
@@ -53,12 +388,209 @@
         </div>
     </nav>
 
-    <main class="content-section">
-        <h1 class="content-title">Manual de Jogo</h1>
-        <p class="content-text">Esta página está em construção. Em breve você encontrará aqui todas as informações sobre
-            o Xadrezinho!</p>
+    <!-- ===== HEADER DO MANUAL ===== -->
+    <header class="manual-hero">
+        <h1 class="manual-title">MANUAL DO JOGADOR</h1>
+        <p class="manual-subtitle">Descubra as regras, poderes, maldições e eventos caóticos que governam as partidas de
+            Xadrezinho e crie suas melhores estratégias.</p>
+    </header>
+
+    <!-- ===== PONTUAÇÃO E VALOR DAS PEÇAS ===== -->
+    <main>
+        <section class="manual-section">
+            <h2 class="manual-section-title">Valor e <span>Recompensas</span></h2>
+            <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto;">No Xadrezinho, capturar
+                uma peça não apenas enfraquece o adversário, mas também alimenta a sua conta do banco! Cada peça tem um
+                valor e garante pontos essenciais para comprar na Loja de Feitiços durante a batalha. Eis a cotação de
+                cada abate:</p>
+
+            <div class="pieces-grid">
+                <div class="piece-value-card">
+                    <img src="../spritesxadrez/sprites/spr_peao_roxo.png" alt="Peão">
+                    <h3>Peão</h3>
+                    <span class="value">3 <span class="coin-icon">🪙</span></span>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top: 10px;">Comida de canhão, mas valem
+                        alguma coisa.</p>
+                </div>
+                <div class="piece-value-card">
+                    <img src="../spritesxadrez/sprites/spr_torre_verde.png" alt="Torre">
+                    <h3>Torre</h3>
+                    <span class="value">5 <span class="coin-icon">🪙</span></span>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top: 10px;">As muralhas que valem uma boa
+                        grana.</p>
+                </div>
+                <div class="piece-value-card" style="border-color: rgba(40, 167, 69, 0.4);">
+                    <div
+                        style="font-size: 5rem; line-height: 100px; margin-bottom: 20px; color: lightblue; text-shadow: 0 0 10px currentColor;">
+                        ♝</div>
+                    <h3>Bispo</h3>
+                    <span class="value">6 <span class="coin-icon">🪙</span></span>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top: 10px;">Atiradores furtivos valiosos.</p>
+                </div>
+                <div class="piece-value-card">
+                    <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo">
+                    <h3>Cavalo</h3>
+                    <span class="value">7 <span class="coin-icon">🪙</span></span>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top: 10px;">Um prêmio de alto valor
+                        estratégico.</p>
+                </div>
+                <div class="piece-value-card"
+                    style="border-color: rgba(230, 190, 110, 0.6); background: rgba(30, 20, 10, 0.6);">
+                    <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha">
+                    <h3 style="color: var(--clr-gold-light);">Rainha</h3>
+                    <span class="value" style="color: white;">12 <span class="coin-icon">🪙</span></span>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top: 10px;">A joia da coroa. Recompensa
+                        máxima!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== LOJA DE PODERES ===== -->
+        <section class="manual-section"
+            style="background: rgba(10,5,20,0.5); box-shadow: inset 0 0 50px rgba(0,0,0,0.8);">
+            <h2 class="manual-section-title">Loja de <span>Magia</span></h2>
+            <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto 50px;">Use suas moedas
+                arduamente ganhas para comprar feitiços na loja diretamente do tabuleiro de batalha. Os feitiços dão
+                vantagens táticas inigualáveis e podem virar o jogo de cabeça para baixo.</p>
+
+            <div class="powers-grid">
+                <div class="power-card">
+                    <div class="power-icon">🛡️</div>
+                    <h3 class="power-title">Escudo Covarde</h3>
+                    <p class="power-desc">Escolha uma peça (exceto rei) para abençoá-la com um feitiço de proteção,
+                        bloqueando imunidade e evitando que ela seja capturada um ataque completo apenas uma vez.</p>
+                    <span class="power-cost">Custa 5 Moedas</span>
+                </div>
+                <div class="power-card">
+                    <div class="power-icon">🪞</div>
+                    <h3 class="power-title">Espelho</h3>
+                    <p class="power-desc">Um truque milagroso: clona instantaneamente uma de suas peças (exceto rei ou
+                        rainha) e materializa uma cópia idêntica na casa adjacente se ela estiver vazia.</p>
+                    <span class="power-cost">Custa 6 Moedas</span>
+                </div>
+                <div class="power-card">
+                    <div class="power-icon">💰</div>
+                    <h3 class="power-title">Sonegar Impostos</h3>
+                    <p class="power-desc">Adentre o mercado negro e ganhe o DOBRO de pontos por cada captura
+                        bem-sucedida durante os próximos 6 turnos. Perfeito para combar capturas.</p>
+                    <span class="power-cost">Custa 10 Moedas</span>
+                </div>
+                <div class="power-card">
+                    <div class="power-icon">❄️</div>
+                    <h3 class="power-title">Caminho Congelante</h3>
+                    <p class="power-desc">Seleciona uma coluna inteira do tabuleiro e evoca uma nevasca. Pelos próximos
+                        3 turnos, o adversário fica totalmente paralisado e impedido de se mover por ali!</p>
+                    <span class="power-cost">Custa 10 Moedas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== EVENTOS E MALDIÇÕES ===== -->
+        <section class="manual-section">
+            <h2 class="manual-section-title">Eventos &amp; <span>Maldições</span></h2>
+
+            <!-- Maldição -->
+            <div class="event-split">
+                <div class="event-split-text">
+                    <span class="event-tag tag-red">Mecânica de Maldição</span>
+                    <h3 class="event-title">O PREÇO DO SANGUE</h3>
+                    <p class="event-desc">Nem toda peça foi feita para derramar tanto sangue sem consequências. Quando
+                        uma de suas peças captura inimigos sucessivas vezes, as almas acumuladas a **amaldiçoam**, dando
+                        à peça o poder de realizar uma habilidade devastadora. <strong>Utilize o botão direito do
+                            mouse</strong> em uma peça amaldiçoada (com o ícone 💀) para ativar a habilidade e drenar a
+                        maldição de uma vez.</p>
+
+                    <ul class="curse-list">
+                        <li>
+                            <img src="../spritesxadrez/sprites/spr_peao_roxo.png" alt="Peão" class="curse-img">
+                            <div class="curse-info">
+                                <strong>Peões (2 Capturas)</strong>
+                                <div>Ganha o poder vital de se mover como Rei e capturar de forma clássica.</div>
+                            </div>
+                        </li>
+                        <li>
+                            <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo" class="curse-img">
+                            <div class="curse-info">
+                                <strong>Cavalos (3 Capturas)</strong>
+                                <div>Troca misticamente de posição através do tabuleiro com outra peça aliada sua
+                                    (exceto o rei). Permite resgates surpresas inigualáveis!</div>
+                            </div>
+                        </li>
+                    </ul>
+                    <p class="event-desc" style="font-size: 0.9rem; margin-top:15px; font-style: italic;">*Mais
+                        maldições lendárias e ocultas continuam sendo desenterradas pelos nossos magos.*</p>
+                </div>
+                <div class="event-split-visual">
+                    <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha Assassina"
+                        style="width: 250px; filter: drop-shadow(0 0 20px #ff0000); animation: pulse-red 3s infinite;">
+                </div>
+            </div>
+
+            <!-- Moeda -->
+            <div class="event-split">
+                <div class="event-split-visual">
+                    <div class="coin-board">
+                        <div class="coin-spawn"></div>
+                    </div>
+                </div>
+                <div class="event-split-text">
+                    <span class="event-tag tag-gold">Fenômeno Aleatório</span>
+                    <h3 class="event-title">A MOEDA MILAGROSA</h3>
+                    <p class="event-desc">
+                        A economia do mundo do xadrezinho é turbulenta. <strong>A cada 5 turnos</strong> consecutivos
+                        sem nenhuma captura efetuada por qualquer jogador, uma Moeda de Ouro radiante aparece em uma
+                        casa totalmente aleatória que esteja vazia no campo!
+                    </p>
+                    <p class="event-desc">
+                        Corra! O primeiro general que mover corajosamente sua peça em cima dessa casa coletará
+                        instantaneamente impressionantes <strong>+10 MOEDAS</strong> para sua própria bolsa! O placar e
+                        a vez são passados imediatamente, zerando a contagem de turnos novamente e reiniciando a caça do
+                        tesouro.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Meteoro -->
+            <div class="event-split">
+                <div class="event-split-text">
+                    <span class="event-tag tag-red">Mártir Climático</span>
+                    <h3 class="event-title">O FURACÃO CELESTIAL METEORO</h3>
+                    <p class="event-desc">Enquanto batalham pela vida abaixo, o cosmos também não perdoa heróis ou
+                        vilões acima. O tabuleiro é fustigado ocasionalmente pela queda catastrófica de <strong>um
+                            meteoro flamejante!</strong></p>
+                    <p class="event-desc">Isso acontece exatamente a cada <strong>12 turnos totais.</strong> Um aviso
+                        ardente aparecerá destacando uma zona central de <strong>2x2 blocos</strong> (tamanho a3-h6),
+                        avisando a calamidade que está por vir. Um letreiro de pânico de 3 TURNOS será ativado –
+                        qualquer general que deixar as suas peças em uma daquelas 4 casas ao final deste terceiro aviso
+                        provará as chamas e de zero recompensa por morrer! Nada, até mesmo escudos covardes mortais
+                        podem ser destruídos nisso!</p>
+                </div>
+                <div class="event-split-visual">
+                    <div class="meteor-board">
+                        <div class="meteor-zone">☄️</div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
     </main>
 
+    <!-- ===== BANNER CTA ===== -->
+    <section class="banner-cta">
+        <div class="banner-bg"></div>
+        <div class="banner-content">
+            <h2 class="banner-title">MUITO BEM, COMANDANTE!</h2>
+            <p class="banner-subtitle">Conhecimento é poder! Agora que conhece todas as peças, regras e armadilhas,
+                mostre a todos por que você joga Xadrezinho.</p>
+            <a href="lobby.html" class="btn-play btn-play-large">
+                <span class="btn-play-text">JOGAR AGORA</span>
+                <span class="btn-play-shine"></span>
+            </a>
+        </div>
+        <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha" class="banner-char" />
+    </section>
+
+    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="footer-logo">
             <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="footer-logo-img" />

@@ -211,7 +211,7 @@
 
         // ── Serialize / Deserialize ────────────────────────────
         function saveState() {
-            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove, pointsW, pointsB, shieldedPieces, noReshieldKeys: [...noReshieldKeys], frozenCols, taxEvasion });
+            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove, pointsW, pointsB, shieldedPieces, noReshieldKeys: [...noReshieldKeys], frozenCols, taxEvasion, shopPowers, remainingPool });
         }
         function loadState(json) {
             try {
@@ -224,6 +224,8 @@
                 noReshieldKeys = new Set(s.noReshieldKeys || []);
                 frozenCols = s.frozenCols || [];
                 taxEvasion = s.taxEvasion || null;
+                if (s.shopPowers) shopPowers = s.shopPowers;
+                if (s.remainingPool) remainingPool = s.remainingPool;
                 kingChecked = null;
                 const k = findKIn(turn, board);
                 if (k && isSqAttacked(k.row, k.col, turn === 'w' ? 'b' : 'w', board)) kingChecked = k;
@@ -248,7 +250,7 @@
         }
 
         // ── Shop ───────────────────────────────────────────────
-        function initShop() { const ativos = TODOS_OS_PODERES.filter(p => p.ativo); const s = embaralharPoderes(ativos, ativos.length); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
+        function initShop() { const ativos = TODOS_OS_PODERES.filter(p => p.ativo); const s = embaralharPoderes(ativos, ativos.length, SALA); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
         function renderShop() {
             const cont = document.getElementById('shopSlots'); cont.innerHTML = '';
             shopPowers.forEach((p, i) => cont.appendChild(mkCard(p, i)));
