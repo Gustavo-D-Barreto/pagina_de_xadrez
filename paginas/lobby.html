@@ -25,13 +25,13 @@
 
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar lobby-navbar">
-        <a href="index.html" class="nav-logo">
+        <a href="../index.html" class="nav-logo">
             <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
             <span class="nav-logo-text">XADREZINHO</span>
         </a>
 
         <ul class="nav-links">
-            <li><a href="index.html" class="nav-link">Início</a></li>
+            <li><a href="../index.html" class="nav-link">Início</a></li>
             <li><a href="lobby.html" class="nav-link active">Lobby</a></li>
             <li><a href="manual.html" class="nav-link">Manual</a></li>
         </ul>
@@ -214,7 +214,7 @@
                     </ul>
                 </div>
 
-                <a href="jogo.html?mode=local" class="mode-card__btn mode-card__btn--green" onclick="startLocal(event)">
+                <a href="ingamelocal.html" class="mode-card__btn mode-card__btn--green" onclick="startLocal(event)">
                     <span>JOGAR AGORA</span>
                     <span class="btn-play-shine"></span>
                 </a>
@@ -389,10 +389,8 @@
         //  4 — LOCAL
         // --------------------------------------------------------
         function startLocal(e) {
-            e.preventDefault();
+            // Let the anchor's href="ingamelocal.html" handle navigation naturally
             toast('Iniciando partida local...', 'success');
-            // TODO: navigate to game page in local mode
-            setTimeout(() => { window.location.href = '../paginas/jogo.html?mode=local'; }, 900);
         }
     </script>
 

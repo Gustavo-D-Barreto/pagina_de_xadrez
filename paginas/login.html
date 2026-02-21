@@ -34,11 +34,11 @@
 
     <!-- ===== NAVBAR minimal ===== -->
     <nav class="navbar navbar--slim">
-        <a href="index.html" class="nav-logo">
+        <a href="../index.html" class="nav-logo">
             <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="Logo" class="nav-logo-img" />
             <span class="nav-logo-text">XADREZINHO</span>
         </a>
-        <a href="index.html" class="btn-nav-back">← Voltar ao início</a>
+        <a href="../index.html" class="btn-nav-back">← Voltar ao início</a>
     </nav>
 
     <!-- ===== AUTH CARD ===== -->
@@ -126,16 +126,6 @@
                                 maxlength="20" required />
                         </div>
                         <span class="form-hint">Entre 3 e 20 caracteres. Apenas letras, números e _</span>
-                    </div>
-
-                    <div class="form-field">
-                        <label class="form-label" for="reg-email">E-mail</label>
-                        <div class="form-input-wrap">
-                            <span class="form-icon">✉</span>
-                            <input type="email" id="reg-email" name="email" class="form-input"
-                                placeholder="seu@email.com" autocomplete="email" required />
-                        </div>
-                        <span class="form-hint">Usado para recuperação de conta.</span>
                     </div>
 
                     <div class="form-field">
@@ -301,8 +291,9 @@
 
             setLoading(btn, true);
 
+            // Login usa username convertido para e-mail interno
             const { error } = await supabase.auth.signInWithPassword({
-                email: toEmail(username),
+                email: username.toLowerCase().trim() + '@xadrezinho.local',
                 password: password
             });
 
@@ -356,9 +347,9 @@
                 return;
             }
 
-            // Cria conta — trigger handle_new_user() cria o perfil automaticamente
+            // Cria conta usando e-mail interno — sem envio de e-mail, sem rate limit
             const { error } = await supabase.auth.signUp({
-                email: email,
+                email: username.toLowerCase().trim() + '@xadrezinho.local',
                 password: password,
                 options: { data: { username: username } }
             });
