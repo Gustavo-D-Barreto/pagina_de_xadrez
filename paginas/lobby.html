@@ -320,25 +320,13 @@
         }
 
         // --------------------------------------------------------
-        //  2 — CRIAR SALA
+        //  2 — CRIAR SALA  (implementação real no módulo Supabase abaixo)
+        //    O módulo sobrescreve window.createRoom / cancelRoom / joinRoom
         // --------------------------------------------------------
-        function createRoom() {
-            const code = generateCode();
-            document.getElementById('roomCodeValue').textContent = code;
-            document.getElementById('roomCodeDisplay').classList.add('active');
-            document.getElementById('cardCreate').classList.add('mode-card--waiting');
+        function createRoom() { /* aguarda módulo carregar */ }
+        function cancelRoom() { /* aguarda módulo carregar */ }
+        function joinRoom() { /* aguarda módulo carregar */ }
 
-            toast('Sala criada! Compartilhe o código com seu amigo.', 'success');
-
-            // TODO: register code in Supabase and listen for opponent joining
-        }
-
-        function cancelRoom() {
-            document.getElementById('roomCodeDisplay').classList.remove('active');
-            document.getElementById('cardCreate').classList.remove('mode-card--waiting');
-            toast('Sala cancelada.', 'warn');
-            // TODO: delete room from Supabase
-        }
 
         function copyCode() {
             const code = document.getElementById('roomCodeValue').textContent;
@@ -356,10 +344,114 @@
             return code;
         }
 
+
         // --------------------------------------------------------
-        //  3 — ENTRAR EM SALA
+        //  4 — LOCAL
         // --------------------------------------------------------
-        function joinRoom() {
+        function startLocal(e) {
+            toast('Iniciando partida local...', 'success');
+        }
+    </script>
+
+
+    <!-- ===== SUPABASE: session guard + player info + salas ===== -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        // ── Guard ──────────────────────────────────────────────
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.replace('login.html'); }
+
+        // ── Perfil do jogador ──────────────────────────────────
+        let myProfile = null;
+        let myPartidaId = null;  // ID da partida criada (para cancelar)
+        let roomSub = null;      // subscription Realtime da sala
+
+        if (session) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id, username, pontos')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profile) {
+                myProfile = profile;
+                const nameEl = document.getElementById('playerName');
+                const ptsEl = document.getElementById('playerPts');
+                if (nameEl) nameEl.textContent = profile.username;
+                if (ptsEl) ptsEl.textContent = profile.pontos.toLocaleString('pt-BR');
+            }
+        }
+
+        // ── Botão Sair ─────────────────────────────────────────
+        document.querySelector('.btn-nav-login')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        // ── CRIAR SALA ─────────────────────────────────────────
+        window.createRoom = async function () {
+            if (!myProfile) { toast('Você precisa estar logado.', 'warn'); return; }
+
+            const code = generateCode();
+            document.getElementById('roomCodeValue').textContent = code;
+            document.getElementById('roomCodeDisplay').classList.add('active');
+            document.getElementById('cardCreate').classList.add('mode-card--waiting');
+
+            // Insere partida no Supabase
+            const { data: partida, error } = await supabase
+                .from('partidas')
+                .insert({
+                    jogador_branco: session.user.id,
+                    jogador_preto: session.user.id, // placeholder — será trocado ao entrar
+                    modo: 'privado',
+                    codigo_sala: code,
+                    status: 'aguardando'
+                })
+                .select()
+                .single();
+
+            if (error) { toast('Erro ao criar sala: ' + error.message, 'warn'); return; }
+
+            myPartidaId = partida.id;
+            toast('Sala criada! Compartilhe o código com seu amigo.', 'success');
+
+            // Escuta Realtime — aguarda o adversário entrar (jogador_preto muda para outro ID)
+            roomSub = supabase
+                .channel('sala_' + code)
+                .on('postgres_changes', {
+                    event: 'UPDATE', schema: 'public', table: 'partidas',
+                    filter: `codigo_sala=eq.${code}`
+                }, (payload) => {
+                    const p = payload.new;
+                    if (p.status === 'em_andamento' && p.jogador_preto !== session.user.id) {
+                        // Adversário entrou! Vai para o jogo como branco
+                        window.location.href = `ingame.html?sala=${code}&cor=branco`;
+                    }
+                })
+                .subscribe();
+        };
+
+        // ── CANCELAR SALA ──────────────────────────────────────
+        window.cancelRoom = async function () {
+            document.getElementById('roomCodeDisplay').classList.remove('active');
+            document.getElementById('cardCreate').classList.remove('mode-card--waiting');
+
+            if (roomSub) { supabase.removeChannel(roomSub); roomSub = null; }
+            if (myPartidaId) {
+                await supabase.from('partidas').delete().eq('id', myPartidaId);
+                myPartidaId = null;
+            }
+            toast('Sala cancelada.', 'warn');
+        };
+
+        // ── ENTRAR EM SALA ─────────────────────────────────────
+        window.joinRoom = async function () {
             const input = document.getElementById('joinCodeInput');
             const msg = document.getElementById('joinMsg');
             const code = input.value.trim().toUpperCase();
@@ -373,66 +465,48 @@
             msg.textContent = 'Verificando código...';
             msg.className = 'join-msg join-msg--info';
 
-            // TODO: look up code in Supabase and redirect to game
-            setTimeout(() => {
-                // Simulating not found for now
-                msg.textContent = 'Sala "' + code + '" não encontrada. Verifique o código.';
-                msg.className = 'join-msg join-msg--error';
-            }, 1200);
-        }
-
-        document.getElementById('joinCodeInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') joinRoom();
-        });
-
-        // --------------------------------------------------------
-        //  4 — LOCAL
-        // --------------------------------------------------------
-        function startLocal(e) {
-            // Let the anchor's href="ingamelocal.html" handle navigation naturally
-            toast('Iniciando partida local...', 'success');
-        }
-    </script>
-
-    <!-- ===== SUPABASE: session guard + player info ===== -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
-        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-        // ── Guard: redireciona se não estiver logado ──────────
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            window.location.replace('login.html');
-        }
-
-        // ── Popula badge do jogador ───────────────────────────
-        if (session) {
-            const userId = session.user.id;
-
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('username, pontos, vitorias, derrotas, partidas')
-                .eq('id', userId)
+            // Busca partida pelo código
+            const { data: partida, error } = await supabase
+                .from('partidas')
+                .select('id, status, jogador_branco')
+                .eq('codigo_sala', code)
+                .eq('status', 'aguardando')
                 .single();
 
-            if (profile) {
-                const nameEl = document.getElementById('playerName');
-                const ptsEl = document.getElementById('playerPts');
-                if (nameEl) nameEl.textContent = profile.username;
-                if (ptsEl) ptsEl.textContent = profile.pontos.toLocaleString('pt-BR');
+            if (error || !partida) {
+                msg.textContent = 'Sala "' + code + '" não encontrada ou já iniciada.';
+                msg.className = 'join-msg join-msg--error';
+                return;
             }
-        }
 
-        // ── Botão Sair ────────────────────────────────────────
-        document.querySelector('.btn-nav-login')?.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.href = 'login.html';
+            if (partida.jogador_branco === session.user.id) {
+                msg.textContent = 'Você mesmo criou esta sala — compartilhe com um amigo!';
+                msg.className = 'join-msg join-msg--error';
+                return;
+            }
+
+            // Entra na sala — atualiza jogador_preto e status
+            const { error: upErr } = await supabase
+                .from('partidas')
+                .update({ jogador_preto: session.user.id, status: 'em_andamento' })
+                .eq('id', partida.id);
+
+            if (upErr) {
+                msg.textContent = 'Erro ao entrar na sala: ' + upErr.message;
+                msg.className = 'join-msg join-msg--error';
+                return;
+            }
+
+            // Redireciona como preto
+            window.location.href = `ingame.html?sala=${code}&cor=preto`;
+        };
+
+        document.getElementById('joinCodeInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.joinRoom();
         });
+
     </script>
+
 
 </body>
 

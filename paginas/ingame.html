@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xadrezinho — Partida Online</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gold: #c9a227;
+            --purple: #7b2ff7;
+            --green: #2dd17e;
+            --dark: #0a0b0f;
+            --panel: #12141c;
+            --border: rgba(201, 162, 39, .25);
+            --text: #e8dcc8;
+            --muted: #7a7a8a;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── TOP BAR ────────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .5rem 1.5rem;
+            background: rgba(10, 11, 15, .9);
+            border-bottom: 1px solid var(--border);
+            height: 52px;
+        }
+
+        .topbar-logo {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: .9rem;
+            letter-spacing: 3px;
+        }
+
+        .topbar-room {
+            font-size: .8rem;
+            color: var(--muted);
+        }
+
+        .topbar-room span {
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .btn-lobby {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: .8rem;
+            font-weight: 700;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: .3rem .9rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: color .2s, border-color .2s;
+        }
+
+        .btn-lobby:hover {
+            color: var(--text);
+            border-color: var(--gold);
+        }
+
+        /* ── MAIN LAYOUT ─────────────────────────────────── */
+        .game-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 220px 1fr 220px;
+            gap: 1rem;
+            padding: 1rem;
+            max-height: calc(100vh - 52px);
+        }
+
+        /* ── SIDE PANELS ─────────────────────────────────── */
+        .side-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+        }
+
+        .player-card {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+
+        .player-card__name {
+            font-family: 'Cinzel', serif;
+            font-size: .85rem;
+            color: var(--text);
+        }
+
+        .player-card__pts {
+            font-size: .75rem;
+            color: var(--gold);
+        }
+
+        .player-card__color {
+            font-size: .7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .player-card__avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 2px;
+            border: 2px solid var(--border);
+            object-fit: contain;
+            background: rgba(0, 0, 0, .4);
+            padding: 4px;
+        }
+
+        .panel-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .turn-indicator {
+            padding: .6rem;
+            text-align: center;
+            border-radius: 3px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all .3s;
+        }
+
+        .turn-indicator.my-turn {
+            background: rgba(45, 209, 126, .12);
+            color: var(--green);
+            border: 1px solid rgba(45, 209, 126, .3);
+        }
+
+        .turn-indicator.opp-turn {
+            background: rgba(123, 47, 247, .08);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .turn-indicator.game-over {
+            background: rgba(201, 162, 39, .12);
+            color: var(--gold);
+            border: 1px solid rgba(201, 162, 39, .3);
+        }
+
+        .move-log {
+            flex: 1;
+            overflow-y: auto;
+            font-size: .72rem;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            gap: .15rem;
+        }
+
+        .move-log-entry {
+            padding: .15rem .3rem;
+            border-radius: 2px;
+        }
+
+        .move-log-entry.branco {
+            color: #d4c89a;
+        }
+
+        .move-log-entry.preto {
+            color: #9a8fb5;
+        }
+
+        .captured-pieces {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            min-height: 24px;
+        }
+
+        .captured-img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            opacity: .7;
+        }
+
+        .captured-label {
+            font-size: .65rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ── BOARD AREA ──────────────────────────────────── */
+        .board-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+        }
+
+        .board-container {
+            position: relative;
+        }
+
+        .board-wrapper {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            width: min(60vh, 480px);
+            height: min(60vh, 480px);
+            border: 2px solid var(--border);
+            box-shadow: 0 0 40px rgba(201, 162, 39, .15);
+        }
+
+        .square {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .square.light {
+            background: #c8b06a;
+        }
+
+        .square.dark {
+            background: #7a5530;
+        }
+
+        .square.selected {
+            background: rgba(45, 209, 126, .55) !important;
+        }
+
+        .square.legal-move {
+            cursor: pointer;
+        }
+
+        .square.legal-move::after {
+            content: '';
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            background: rgba(45, 209, 126, .6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .square.legal-capture::after {
+            display: none;
+        }
+
+        .square.legal-capture {
+            box-shadow: inset 0 0 0 3px rgba(45, 209, 126, .7);
+        }
+
+        .square.in-check {
+            background: rgba(255, 60, 60, .55) !important;
+        }
+
+        .square.last-from {
+            background: rgba(201, 162, 39, .3) !important;
+        }
+
+        .square.last-to {
+            background: rgba(201, 162, 39, .45) !important;
+        }
+
+        .piece {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            pointer-events: none;
+            transition: transform .1s;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .6));
+        }
+
+        .piece.flipped {
+            transform: rotate(180deg);
+        }
+
+        /* Notation labels */
+        .board-coords-files,
+        .board-coords-ranks {
+            display: flex;
+            font-size: .55rem;
+            color: var(--muted);
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .board-coords-files {
+            justify-content: space-around;
+            width: min(60vh, 480px);
+            padding: 0 0 .1rem;
+        }
+
+        .board-coords-ranks {
+            flex-direction: column;
+            justify-content: space-around;
+            height: min(60vh, 480px);
+            position: absolute;
+            left: -1rem;
+            top: 0;
+        }
+
+        /* ── PROMOTION MODAL ─────────────────────────────── */
+        .promo-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .75);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .promo-overlay.active {
+            display: flex;
+        }
+
+        .promo-box {
+            background: var(--panel);
+            border: 1px solid var(--gold);
+            padding: 1.5rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .promo-box h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            font-size: .9rem;
+        }
+
+        .promo-choices {
+            display: flex;
+            gap: .75rem;
+            justify-content: center;
+        }
+
+        .promo-btn {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color .2s, background .2s;
+        }
+
+        .promo-btn:hover {
+            border-color: var(--gold);
+            background: rgba(201, 162, 39, .1);
+        }
+
+        .promo-btn img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        /* ── CONNECTING OVERLAY ──────────────────────────── */
+        .connecting-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 11, 15, .92);
+            z-index: 90;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .connecting-overlay.active {
+            display: flex;
+        }
+
+        .connecting-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+        }
+
+        .connecting-sub {
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── GAME OVER OVERLAY ───────────────────────────── */
+        .gameover-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 11, 15, .88);
+            z-index: 95;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+        }
+
+        .gameover-overlay.active {
+            display: flex;
+        }
+
+        .gameover-img {
+            width: min(50vw, 300px);
+        }
+
+        .gameover-msg {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+            text-align: center;
+        }
+
+        .gameover-sub {
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .btn-back-lobby {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, var(--gold), #a07818);
+            color: #0a0b0f;
+            border: none;
+            padding: .7rem 2.5rem;
+            font-size: .85rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: opacity .2s;
+        }
+
+        .btn-back-lobby:hover {
+            opacity: .85;
+        }
+
+        @media (max-width: 800px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel:first-child,
+            .side-panel:last-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== TOP BAR ===== -->
+    <div class="topbar">
+        <span class="topbar-logo">XADREZINHO</span>
+        <span class="topbar-room">Sala: <span id="roomCodeDisplay">——</span></span>
+        <button class="btn-lobby" onclick="voltarLobby()">← Lobby</button>
+    </div>
+
+    <!-- ===== CONNECTING OVERLAY ===== -->
+    <div class="connecting-overlay active" id="connectingOverlay">
+        <div class="spinner"></div>
+        <span class="connecting-title">CONECTANDO</span>
+        <span class="connecting-sub" id="connectingMsg">Carregando partida...</span>
+    </div>
+
+    <!-- ===== GAME OVER OVERLAY ===== -->
+    <div class="gameover-overlay" id="gameoverOverlay">
+        <img id="gameoverImg" class="gameover-img" src="" alt="Resultado" />
+        <p class="gameover-msg" id="gameoverMsg">FIM DE JOGO</p>
+        <p class="gameover-sub" id="gameoverSub"></p>
+        <button class="btn-back-lobby" onclick="voltarLobby()">VOLTAR AO LOBBY</button>
+    </div>
+
+    <!-- ===== PROMOTION MODAL ===== -->
+    <div class="promo-overlay" id="promoOverlay">
+        <div class="promo-box">
+            <h3>ESCOLHA A PROMOÇÃO</h3>
+            <div class="promo-choices" id="promoChoices"></div>
+        </div>
+    </div>
+
+    <!-- ===== GAME LAYOUT ===== -->
+    <div class="game-layout" id="gameLayout" style="display:none">
+
+        <!-- LEFT: Adversário -->
+        <div class="side-panel" id="panelOpponent">
+            <div class="player-card">
+                <img class="player-card__avatar" src="../spritesxadrez/sprites/spr_rainha_roxa.png" id="opponentAvatar"
+                    alt="" />
+                <span class="player-card__name" id="opponentName">Adversário</span>
+                <span class="player-card__color" id="opponentColor">—</span>
+                <span class="player-card__pts" id="opponentPts">— pts</span>
+            </div>
+            <hr class="panel-divider" />
+            <span class="captured-label">Peças capturadas</span>
+            <div class="captured-pieces" id="capturedByMe"></div>
+        </div>
+
+        <!-- CENTER: Board -->
+        <div class="board-area">
+            <div class="board-coords-files" id="coordFiles"></div>
+            <div style="position:relative">
+                <div class="board-coords-ranks" id="coordRanks"></div>
+                <div class="board-wrapper" id="board"></div>
+            </div>
+            <div class="turn-indicator opp-turn" id="turnIndicator">Aguardando...</div>
+        </div>
+
+        <!-- RIGHT: Eu -->
+        <div class="side-panel" id="panelMe">
+            <div class="player-card">
+                <img class="player-card__avatar" src="../spritesxadrez/sprites/spr_rainha_verde.png" id="myAvatar"
+                    alt="" />
+                <span class="player-card__name" id="myName">Você</span>
+                <span class="player-card__color" id="myColor">—</span>
+                <span class="player-card__pts" id="myPts">— pts</span>
+            </div>
+            <hr class="panel-divider" />
+            <span class="captured-label">Peças capturadas</span>
+            <div class="captured-pieces" id="capturedByOpponent"></div>
+            <hr class="panel-divider" />
+            <span class="captured-label">Jogadas</span>
+            <div class="move-log" id="moveLog"></div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        import { XadrezEngine } from '../funcionalidades/xadrez_engine.js';
+
+        // ── Config ─────────────────────────────────────────────
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        // Sprites por tipo/cor
+        const SPRITE = {
+            branco: {
+                rei: '../spritesxadrez/sprites/spr_rainha_verde.png',
+                rainha: '../spritesxadrez/sprites/spr_rainha_verde.png',
+                torre: '../spritesxadrez/sprites/spr_torre_verde.png',
+                bispo: '../spritesxadrez/sprites/spr_torre_verde.png',
+                cavalo: '../spritesxadrez/sprites/spr_cavalo_verde.png',
+                peao: '../spritesxadrez/sprites/spr_peao_verde.png',
+            },
+            preto: {
+                rei: '../spritesxadrez/sprites/spr_rainha_roxa.png',
+                rainha: '../spritesxadrez/sprites/spr_rainha_roxa.png',
+                torre: '../spritesxadrez/sprites/spr_torre_verde.png',
+                bispo: '../spritesxadrez/sprites/spr_torre_verde.png',
+                cavalo: '../spritesxadrez/sprites/spr_cavalo_verde.png',
+                peao: '../spritesxadrez/sprites/spr_peao_roxo.png',
+            }
+        };
+
+        // Emojis para o log de jogadas
+        const PIECE_EMOJI = { rei: '♚', rainha: '♛', torre: '♜', bispo: '♝', cavalo: '♞', peao: '♟' };
+
+        // ── URL params ─────────────────────────────────────────
+        const params = new URLSearchParams(location.search);
+        const SALA = params.get('sala');
+        const MY_COR = params.get('cor'); // 'branco' | 'preto'
+        const OPP_COR = MY_COR === 'branco' ? 'preto' : 'branco';
+
+        if (!SALA || !MY_COR) { window.location.href = 'lobby.html'; }
+
+        // ── State ──────────────────────────────────────────────
+        const engine = new XadrezEngine();
+        let partida = null;
+        let myProfile = null;
+        let oppProfile = null;
+        let selectedSquare = null; // {lin, col}
+        let legalMoves = [];
+        let lastMove = null; // {de, para}
+        let turnCount = 0;
+        let pendingPromo = null; // {lin, col, toLin, toCol} waiting for choice
+
+        // ── Init ───────────────────────────────────────────────
+        document.getElementById('roomCodeDisplay').textContent = SALA;
+        setConnecting('Verificando sessão...');
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; }
+
+        setConnecting('Carregando perfil...');
+        const { data: prof } = await supabase.from('profiles').select('id,username,pontos')
+            .eq('id', session.user.id).single();
+        myProfile = prof;
+
+        setConnecting('Carregando partida...');
+        const { data: p, error: pErr } = await supabase.from('partidas')
+            .select('*').eq('codigo_sala', SALA).single();
+        if (pErr || !p) { alert('Sala não encontrada!'); window.location.href = 'lobby.html'; }
+        partida = p;
+
+        // Perfil do adversário
+        const oppId = MY_COR === 'branco' ? partida.jogador_preto : partida.jogador_branco;
+        const { data: opp } = await supabase.from('profiles').select('id,username,pontos')
+            .eq('id', oppId).single();
+        oppProfile = opp;
+
+        // Renderiza info dos jogadores
+        renderPlayerInfo();
+
+        // Carrega jogadas existentes (reconexão)
+        setConnecting('Sincronizando...');
+        const { data: jogadasExistentes } = await supabase
+            .from('jogadas').select('*').eq('partida_id', partida.id).order('turno');
+        if (jogadasExistentes?.length) {
+            // Reconstrói estado a partir da última jogada
+            const ultima = jogadasExistentes[jogadasExistentes.length - 1];
+            if (ultima.estado_json) engine.deserialize(ultima.estado_json);
+            turnCount = jogadasExistentes.length;
+            // Popula log
+            jogadasExistentes.forEach(j => addMoveLog(j.cor, j.peca, j.de, j.para, j.captura));
+            lastMove = {
+                de: XadrezEngine.strCasa(jogadasExistentes.at(-1).de),
+                para: XadrezEngine.strCasa(jogadasExistentes.at(-1).para)
+            };
+        }
+
+        // Subscrição Realtime — recebe jogadas do adversário
+        supabase.channel('jogadas_' + partida.id)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'jogadas',
+                filter: `partida_id=eq.${partida.id}`
+            }, (payload) => {
+                const j = payload.new;
+                if (j.cor !== MY_COR) applyOpponentMove(j);
+            })
+            .subscribe();
+
+        // Mostra tabuleiro
+        hideConnecting();
+        buildBoard();
+        renderBoard();
+        updateTurnIndicator();
+
+        // ── Construir tabuleiro HTML ───────────────────────────
+        function buildBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            // Letras das colunas
+            const files = document.getElementById('coordFiles');
+            files.innerHTML = '';
+            const cols = MY_COR === 'branco'
+                ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+                : ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
+            cols.forEach(l => {
+                const s = document.createElement('span'); s.textContent = l; files.appendChild(s);
+            });
+            // Números das linhas
+            const ranks = document.getElementById('coordRanks');
+            ranks.innerHTML = '';
+            const rowNums = MY_COR === 'branco'
+                ? [8, 7, 6, 5, 4, 3, 2, 1]
+                : [1, 2, 3, 4, 5, 6, 7, 8];
+            rowNums.forEach(n => {
+                const s = document.createElement('span'); s.textContent = n; ranks.appendChild(s);
+            });
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const sq = document.createElement('div');
+                    // Se sou preto, flipar o tabuleiro (linha 7-r, col 7-c)
+                    const displayLin = MY_COR === 'preto' ? 7 - r : r;
+                    const displayCol = MY_COR === 'preto' ? 7 - c : c;
+                    sq.dataset.lin = displayLin;
+                    sq.dataset.col = displayCol;
+                    sq.className = 'square ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+                    sq.addEventListener('click', () => onSquareClick(displayLin, displayCol));
+                    board.appendChild(sq);
+                }
+            }
+            document.getElementById('gameLayout').style.display = 'grid';
+        }
+
+        function renderBoard() {
+            const squares = document.querySelectorAll('.square');
+            squares.forEach(sq => {
+                const lin = +sq.dataset.lin, col = +sq.dataset.col;
+                // Reset classes
+                sq.className = 'square ' + (((MY_COR === 'branco' ? lin : 7 - lin) + (MY_COR === 'branco' ? col : 7 - col)) % 2 === 0 ? 'light' : 'dark');
+
+                // Último movimento
+                if (lastMove) {
+                    if (lin === lastMove.de.lin && col === lastMove.de.col) sq.classList.add('last-from');
+                    if (lin === lastMove.para.lin && col === lastMove.para.col) sq.classList.add('last-to');
+                }
+                // Selecionada + movimentos legais
+                if (selectedSquare && selectedSquare.lin === lin && selectedSquare.col === col)
+                    sq.classList.add('selected');
+                if (selectedSquare && legalMoves.some(([ml, mc]) => ml === lin && mc === col)) {
+                    const hasPiece = !!engine.tabuleiro[lin][col];
+                    sq.classList.add(hasPiece ? 'legal-capture' : 'legal-move');
+                }
+                // Xeque no rei
+                if (engine.status !== 'xeque_mate' && engine._emXeque(engine.turno)) {
+                    for (let l = 0; l < 8; l++) for (let c2 = 0; c2 < 8; c2++)
+                        if (engine.tabuleiro[l][c2]?.tipo === 'rei' && engine.tabuleiro[l][c2]?.cor === engine.turno)
+                            if (l === lin && c2 === col) sq.classList.add('in-check');
+                }
+
+                sq.innerHTML = '';
+                const peca = engine.tabuleiro[lin][col];
+                if (peca) {
+                    const img = document.createElement('img');
+                    img.className = 'piece';
+                    img.src = SPRITE[peca.cor][peca.tipo];
+                    img.alt = peca.tipo;
+                    sq.appendChild(img);
+                }
+            });
+        }
+
+        // ── Click handler ──────────────────────────────────────
+        function onSquareClick(lin, col) {
+            if (engine.status !== 'em_andamento') return;
+            if (engine.turno !== MY_COR) return; // não é meu turno
+
+            const peca = engine.tabuleiro[lin][col];
+
+            if (selectedSquare) {
+                // Tenta mover
+                const isLegal = legalMoves.some(([ml, mc]) => ml === lin && mc === col);
+                if (isLegal) {
+                    // Verifica promoção
+                    const pecaSel = engine.tabuleiro[selectedSquare.lin][selectedSquare.col];
+                    if (pecaSel?.tipo === 'peao' && (MY_COR === 'branco' ? lin === 0 : lin === 7)) {
+                        // Pede promoção
+                        pendingPromo = { deLin: selectedSquare.lin, deCol: selectedSquare.col, paraLin: lin, paraCol: col };
+                        showPromoModal();
+                    } else {
+                        doMove(selectedSquare.lin, selectedSquare.col, lin, col);
+                    }
+                    selectedSquare = null; legalMoves = [];
+                    return;
+                }
+            }
+
+            // Seleciona peça
+            if (peca && peca.cor === MY_COR) {
+                selectedSquare = { lin, col };
+                legalMoves = engine.movimentosLegais(lin, col);
+            } else {
+                selectedSquare = null; legalMoves = [];
+            }
+            renderBoard();
+        }
+
+        // ── Fazer jogada local + enviar ao Supabase ────────────
+        async function doMove(deLin, deCol, paraLin, paraCol, promocao = 'rainha') {
+            const deLin_ = deLin, deCol_ = deCol;
+            const de = XadrezEngine.casaStr(deLin, deCol);
+            const para = XadrezEngine.casaStr(paraLin, paraCol);
+            const peca = engine.tabuleiro[deLin][deCol];
+
+            const resultado = engine.mover(deLin, deCol, paraLin, paraCol, promocao);
+            if (!resultado.ok) return;
+
+            turnCount++;
+            lastMove = { de: { lin: deLin_, col: deCol_ }, para: { lin: paraLin, col: paraCol } };
+
+            renderBoard();
+            updateTurnIndicator();
+            addMoveLog(MY_COR, peca.tipo, de, para, resultado.captura);
+            if (resultado.captura) addCapturedPiece('capturedByMe', OPP_COR, resultado.captura);
+
+            // Envia para Supabase
+            await supabase.from('jogadas').insert({
+                partida_id: partida.id,
+                turno: turnCount,
+                cor: MY_COR,
+                de: de,
+                para: para,
+                peca: peca.tipo,
+                captura: resultado.captura || null,
+                promocao: resultado.promocao || null,
+                estado_json: engine.serialize()
+            });
+
+            // Fim de jogo?
+            if (resultado.xequeMate) {
+                await supabase.from('partidas').update({ status: 'finalizada', vencedor_id: session.user.id }).eq('id', partida.id);
+                showGameOver(true, 'XEQUE-MATE');
+            } else if (resultado.empate) {
+                await supabase.from('partidas').update({ status: 'finalizada' }).eq('id', partida.id);
+                showGameOver(null, 'EMPATE');
+            }
+        }
+
+        // ── Receber jogada do adversário via Realtime ──────────
+        function applyOpponentMove(j) {
+            const de = XadrezEngine.strCasa(j.de);
+            const para = XadrezEngine.strCasa(j.para);
+            const peca = engine.tabuleiro[de.lin][de.col];
+
+            const resultado = engine.mover(de.lin, de.col, para.lin, para.col, j.promocao || 'rainha');
+
+            turnCount++;
+            lastMove = { de, para };
+
+            renderBoard();
+            updateTurnIndicator();
+            addMoveLog(j.cor, j.peca, j.de, j.para, j.captura);
+            if (j.captura) addCapturedPiece('capturedByOpponent', MY_COR, j.captura);
+
+            if (resultado.xequeMate) showGameOver(false, 'XEQUE-MATE');
+            else if (resultado.empate) showGameOver(null, 'EMPATE');
+        }
+
+        // ── UI Helpers ─────────────────────────────────────────
+        function updateTurnIndicator() {
+            const el = document.getElementById('turnIndicator');
+            if (engine.status === 'xeque_mate') {
+                el.className = 'turn-indicator game-over'; el.textContent = 'FIM DE JOGO';
+            } else if (engine.status === 'empate') {
+                el.className = 'turn-indicator game-over'; el.textContent = 'EMPATE';
+            } else if (engine.turno === MY_COR) {
+                const emXeque = engine._emXeque(MY_COR);
+                el.className = 'turn-indicator my-turn';
+                el.textContent = emXeque ? '⚠ XEQUE — Sua vez' : '⚔ SUA VEZ';
+            } else {
+                const emXeque = engine._emXeque(OPP_COR);
+                el.className = 'turn-indicator opp-turn';
+                el.textContent = emXeque ? '⚠ Adversário em xeque' : 'Vez do adversário...';
+            }
+        }
+
+        function addMoveLog(cor, tipo, de, para, captura) {
+            const log = document.getElementById('moveLog');
+            const el = document.createElement('div');
+            el.className = 'move-log-entry ' + cor;
+            el.textContent = `${PIECE_EMOJI[tipo] || ''} ${de}→${para}${captura ? ' ×' + PIECE_EMOJI[captura] : ''}`;
+            log.appendChild(el);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        const capturedImgCache = {};
+        function addCapturedPiece(containerId, quemCapturou, tipo) {
+            const wrap = document.getElementById(containerId);
+            const img = document.createElement('img');
+            img.src = SPRITE[quemCapturou === MY_COR ? OPP_COR : MY_COR][tipo];
+            img.className = 'captured-img';
+            img.title = tipo;
+            wrap.appendChild(img);
+        }
+
+        function renderPlayerInfo() {
+            document.getElementById('myName').textContent = myProfile?.username || 'Você';
+            document.getElementById('myPts').textContent = (myProfile?.pontos || 0).toLocaleString('pt-BR') + ' pts';
+            document.getElementById('myColor').textContent = MY_COR === 'branco' ? '♔ Brancas' : '♚ Pretas';
+            document.getElementById('opponentName').textContent = oppProfile?.username || 'Adversário';
+            document.getElementById('opponentPts').textContent = (oppProfile?.pontos || 0).toLocaleString('pt-BR') + ' pts';
+            document.getElementById('opponentColor').textContent = OPP_COR === 'branco' ? '♔ Brancas' : '♚ Pretas';
+            if (MY_COR === 'preto') {
+                document.getElementById('myAvatar').src = '../spritesxadrez/sprites/spr_rainha_roxa.png';
+                document.getElementById('opponentAvatar').src = '../spritesxadrez/sprites/spr_rainha_verde.png';
+            }
+        }
+
+        function setConnecting(msg) {
+            document.getElementById('connectingMsg').textContent = msg;
+            document.getElementById('connectingOverlay').classList.add('active');
+        }
+        function hideConnecting() {
+            document.getElementById('connectingOverlay').classList.remove('active');
+        }
+
+        function showGameOver(win, titulo) {
+            const overlay = document.getElementById('gameoverOverlay');
+            const img = document.getElementById('gameoverImg');
+            const msg = document.getElementById('gameoverMsg');
+            const sub = document.getElementById('gameoverSub');
+            if (win === true) {
+                img.src = MY_COR === 'branco'
+                    ? '../spritesxadrez/sprites/spr_vitoria_brancas.png'
+                    : '../spritesxadrez/sprites/spr_vitoria_pretas.png';
+                msg.textContent = titulo;
+                sub.textContent = 'Você venceu!';
+            } else if (win === false) {
+                img.src = '../spritesxadrez/sprites/spr_derrota.png';
+                msg.textContent = titulo;
+                sub.textContent = 'Você perdeu. Tente novamente!';
+            } else {
+                img.src = ''; img.style.display = 'none';
+                msg.textContent = 'EMPATE';
+                sub.textContent = 'Nenhum dos jogadores tem movimentos válidos.';
+            }
+            overlay.classList.add('active');
+        }
+
+        // ── Promoção ───────────────────────────────────────────
+        function showPromoModal() {
+            const choices = document.getElementById('promoChoices');
+            choices.innerHTML = '';
+            const opcoes = ['rainha', 'torre', 'bispo', 'cavalo'];
+            opcoes.forEach(tipo => {
+                const btn = document.createElement('button');
+                btn.className = 'promo-btn';
+                btn.title = tipo;
+                const img = document.createElement('img');
+                img.src = SPRITE[MY_COR][tipo];
+                btn.appendChild(img);
+                btn.addEventListener('click', () => {
+                    document.getElementById('promoOverlay').classList.remove('active');
+                    if (pendingPromo) {
+                        doMove(pendingPromo.deLin, pendingPromo.deCol, pendingPromo.paraLin, pendingPromo.paraCol, tipo);
+                        pendingPromo = null;
+                    }
+                });
+                choices.appendChild(btn);
+            });
+            document.getElementById('promoOverlay').classList.add('active');
+        }
+
+        // ── Voltar ao lobby ────────────────────────────────────
+        window.voltarLobby = function () { window.location.href = 'lobby.html'; };
+    </script>
+
+</body>
+
+</html>

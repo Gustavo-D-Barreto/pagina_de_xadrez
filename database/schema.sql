@@ -130,9 +130,40 @@ FROM public.profiles
 ORDER BY pontos DESC;
 COMMENT ON VIEW public.ranking IS 'Ranking global dos jogadores por pontos';
 -- ============================================================
+--  7. TABELA DE JOGADAS (um registro por movimento online)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.jogadas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    partida_id UUID NOT NULL REFERENCES public.partidas(id) ON DELETE CASCADE,
+    turno INTEGER NOT NULL,
+    cor TEXT NOT NULL CHECK (cor IN ('branco', 'preto')),
+    de TEXT NOT NULL,
+    -- ex: "e2"
+    para TEXT NOT NULL,
+    -- ex: "e4"
+    peca TEXT NOT NULL,
+    -- ex: "peao"
+    captura TEXT,
+    promocao TEXT,
+    estado_json TEXT,
+    -- JSON do estado completo do engine
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE public.jogadas ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Jogadas visíveis para todos" ON public.jogadas;
+DROP POLICY IF EXISTS "Jogadores inserem jogadas" ON public.jogadas;
+CREATE POLICY "Jogadas visíveis para todos" ON public.jogadas FOR
+SELECT USING (true);
+CREATE POLICY "Jogadores inserem jogadas" ON public.jogadas FOR
+INSERT WITH CHECK (auth.role() = 'authenticated');
+-- ============================================================
 --  CONCLUÍDO ✓
---    ✓ profiles  — perfis de jogadores (com email)
---    ✓ partidas  — histórico e salas de partidas
+--    ✓ profiles  — perfis de jogadores
+--    ✓ partidas  — salas e histórico de partidas
+--    ✓ jogadas   — movimentos online em tempo real
 --    ✓ ranking   — view do ranking global
---  Idempotente: seguro de rodar múltiplas vezes
+--
+--  ⚠ IMPORTANTE — Ativar Realtime no painel Supabase:
+--    Database → Replication → supabase_realtime
+--    Adicionar as tabelas: partidas  e  jogadas
 -- ============================================================
