@@ -97,6 +97,9 @@
         </div>
     </div>
 
+    <!-- ===== SONS ===== -->
+    <script type="module" src="../funcionalidades/sons.js"></script>
+
     <!-- Promotion chooser -->
     <div class="promo-overlay" id="promoOverlay">
         <div class="promo-box">
@@ -470,6 +473,7 @@
                 if (movedColor === 'w') { capturedW.push(captured.color + captured.type); pointsW += pts; }
                 else { capturedB.push(captured.color + captured.type); pointsB += pts; }
                 if (shieldedPieces[targetKey]) delete shieldedPieces[targetKey];
+                if (window.XqSons) window.XqSons.somCaptura();
             }
             if (mv.enPassant) {
                 const epr = (movedColor === 'w') ? tr + 1 : tr - 1;
@@ -491,8 +495,8 @@
             board[tr][tc] = piece; board[fr][fc] = null;
             lastMove = { fr, fc, tr, tc };
 
-            if (mv.castle === 'K') { board[tr][5] = board[tr][7]; board[tr][7] = null; }
-            if (mv.castle === 'Q') { board[tr][3] = board[tr][0]; board[tr][0] = null; }
+            if (mv.castle === 'K') { board[tr][5] = board[tr][7]; board[tr][7] = null; if (window.XqSons) window.XqSons.somRoque(); }
+            if (mv.castle === 'Q') { board[tr][3] = board[tr][0]; board[tr][0] = null; if (!mv.castle !== 'K' && window.XqSons) window.XqSons.somRoque(); }
             if (piece.type === 'K') { castlingRights[movedColor + 'K'] = false; castlingRights[movedColor + 'Q'] = false; }
             if (piece.type === 'R') { if (fc === 7) castlingRights[movedColor + 'K'] = false; if (fc === 0) castlingRights[movedColor + 'Q'] = false; }
             enPassantTarget = null;
@@ -502,6 +506,7 @@
             if (piece.type === 'P' && (tr === 0 || tr === 7)) {
                 promo = isRemote ? (mv.promo || 'Q') : await askPromo(movedColor);
                 board[tr][tc] = { color: movedColor, type: promo };
+                if (window.XqSons) window.XqSons.somPromocao();
             }
 
             const nextTurn = movedColor === 'w' ? 'b' : 'w';
@@ -515,6 +520,14 @@
             const allMoves = getAllLegal(nextTurn);
             const mated = allMoves.length === 0 && (kingChecked != null);
             const stale = allMoves.length === 0 && !kingChecked;
+
+            // ── Sons pós-jogada ──────────────────────────────────
+            if (window.XqSons) {
+                if (mated) window.XqSons.somFimDeJogo(!isRemote);
+                else if (stale) window.XqSons.somEmpate();
+                else if (kingChecked) window.XqSons.somXeque();
+                else if (!captured && !mv.castle) window.XqSons.somMovimento();
+            }
 
             const alg = algebraic({ col: tc, row: tr, castle: mv.castle, enPassant: mv.enPassant, fromCol: fc },
                 board[tr][tc], captured, !!kingChecked, mated);

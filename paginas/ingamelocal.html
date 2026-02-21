@@ -112,6 +112,9 @@
         </div>
     </div>
 
+    <!-- ===== SONS ===== -->
+    <script type="module" src="../funcionalidades/sons.js"></script>
+
     <!-- Promotion chooser -->
     <div class="promo-overlay" id="promoOverlay">
         <div class="promo-box">
@@ -754,6 +757,7 @@
                 if (turn === 'w') { capturedW.push(captured.color + captured.type); pointsW += pts; }
                 else { capturedB.push(captured.color + captured.type); pointsB += pts; }
                 if (shieldedPieces[targetKey]) delete shieldedPieces[targetKey];
+                if (window.XqSons) window.XqSons.somCaptura();
             }
 
             // en passant capture
@@ -788,6 +792,7 @@
             if (move.castle) {
                 if (move.castle === 'K') { board[toRow][5] = board[toRow][7]; board[toRow][7] = null; }
                 else { board[toRow][3] = board[toRow][0]; board[toRow][0] = null; }
+                if (window.XqSons) window.XqSons.somRoque();
             }
 
             // update castling rights
@@ -806,6 +811,7 @@
             if (piece.type === 'P' && (toRow === 0 || toRow === 7)) {
                 const promoted = await askPromotion(turn);
                 board[toRow][toCol] = { color: turn, type: promoted };
+                if (window.XqSons) window.XqSons.somPromocao();
             }
 
             const movedColor = turn;
@@ -827,6 +833,13 @@
             const allMoves = getAllLegalMoves(turn);
             const isMate = allMoves.length === 0 && newCheck;
 
+            // ── Sons pós-jogada ──────────────────────────────────
+            if (window.XqSons) {
+                if (isMate) window.XqSons.somFimDeJogo(false);
+                else if (newCheck) window.XqSons.somXeque();
+                else if (!captured && !move.castle) window.XqSons.somMovimento();
+            }
+
             const notation = toAlgebraic(
                 { ...move, fromCol: fromCol },
                 movedPiece,
@@ -847,7 +860,7 @@
 
             if (allMoves.length === 0) {
                 if (isMate) setTimeout(() => showEndModal(turn === 'w' ? 'Pretas' : 'Brancas'), 400);
-                else setTimeout(() => showStalemateModal(), 400);
+                else { if (window.XqSons) window.XqSons.somEmpate(); setTimeout(() => showStalemateModal(), 400); }
             }
         }
 

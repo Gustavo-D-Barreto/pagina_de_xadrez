@@ -248,6 +248,9 @@
 
     </main>
 
+    <!-- ===== SONS ===== -->
+    <script type="module" src="../funcionalidades/sons.js"></script>
+
     <!-- ===== TOAST NOTIFICATION ===== -->
     <div class="toast" id="toast" aria-live="assertive"></div>
 
@@ -296,6 +299,7 @@
         let queueSeconds = 0;
 
         function enterQueue() {
+            if (window.XqSons) window.XqSons.somBotaoPrimario();
             const card = document.getElementById('cardMatchmaking');
             const qs = document.getElementById('queueStatus');
             card.classList.add('mode-card--searching');
@@ -314,6 +318,7 @@
         }
 
         function cancelQueue() {
+            if (window.XqSons) window.XqSons.somCancelar();
             clearInterval(queueInterval);
             const card = document.getElementById('cardMatchmaking');
             const qs = document.getElementById('queueStatus');
@@ -332,6 +337,7 @@
 
 
         function copyCode() {
+            if (window.XqSons) window.XqSons.somSucesso();
             const code = document.getElementById('roomCodeValue').textContent;
             navigator.clipboard.writeText(code).then(() => {
                 toast('Código copiado: ' + code, 'success');
@@ -352,6 +358,7 @@
         //  4 — LOCAL
         // --------------------------------------------------------
         function startLocal(e) {
+            if (window.XqSons) window.XqSons.somBotaoPrimario();
             toast('Iniciando partida local...', 'success');
         }
     </script>
@@ -399,6 +406,7 @@
 
         // ── CRIAR SALA ─────────────────────────────────────────
         window.createRoom = async function () {
+            if (window.XqSons) window.XqSons.somBotaoPrimario();
             if (!myProfile) { toast('Você precisa estar logado.', 'warn'); return; }
 
             const code = generateCode();
@@ -465,6 +473,7 @@
 
         // ── CANCELAR SALA ──────────────────────────────────────
         window.cancelRoom = async function () {
+            if (window.XqSons) window.XqSons.somCancelar();
             document.getElementById('roomCodeDisplay').classList.remove('active');
             document.getElementById('cardCreate').classList.remove('mode-card--waiting');
 
@@ -484,6 +493,7 @@
             const code = input.value.trim().toUpperCase();
 
             if (code.length < 4) {
+                if (window.XqSons) window.XqSons.somErro();
                 msg.textContent = 'Digite um código válido.';
                 msg.className = 'join-msg join-msg--error';
                 return;
@@ -501,6 +511,7 @@
                 .single();
 
             if (error || !partida) {
+                if (window.XqSons) window.XqSons.somErro();
                 msg.textContent = 'Sala "' + code + '" não encontrada ou já iniciada.';
                 msg.className = 'join-msg join-msg--error';
                 return;
@@ -525,11 +536,19 @@
             }
 
             // Redireciona como preto
+            if (window.XqSons) window.XqSons.somSucesso();
             window.location.href = `ingame.html?sala=${code}&cor=preto`;
         };
 
         document.getElementById('joinCodeInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') window.joinRoom();
+        });
+
+        // ── Sons de hover nos cards ─────────────────────────────
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (window.XqSons) window.XqSons.somHover();
+            });
         });
 
     </script>
