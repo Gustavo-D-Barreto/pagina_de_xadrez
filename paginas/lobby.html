@@ -33,21 +33,24 @@
         <ul class="nav-links">
             <li><a href="../index.html" class="nav-link">Início</a></li>
             <li><a href="lobby.html" class="nav-link active">Lobby</a></li>
+            <li><a href="perfil.html" class="nav-link">Perfil</a></li>
             <li><a href="manual.html" class="nav-link">Manual</a></li>
         </ul>
 
         <div class="nav-actions lobby-nav-right">
             <!-- Player badge (TODO: populate from Supabase) -->
-            <div class="player-badge">
-                <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Avatar" class="player-badge__avatar" />
-                <div class="player-badge__info">
-                    <span class="player-badge__name" id="playerName">Guerreiro</span>
-                    <span class="player-badge__pts">
-                        <img src="../spritesxadrez/sprites/spr_moeda.png" alt="pts" class="badge-coin" />
-                        <span id="playerPts">0</span> pts
-                    </span>
+            <a href="perfil.html" class="player-badge-link" style="text-decoration: none;">
+                <div class="player-badge">
+                    <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Avatar" class="player-badge__avatar" />
+                    <div class="player-badge__info">
+                        <span class="player-badge__name" id="playerName">Guerreiro</span>
+                        <span class="player-badge__pts">
+                            <img src="../spritesxadrez/sprites/spr_moeda.png" alt="pts" class="badge-coin" />
+                            <span id="playerPts">0</span> pts
+                        </span>
+                    </div>
                 </div>
-            </div>
+            </a>
             <a href="login.html" class="btn-nav-login">Sair</a>
         </div>
     </nav>

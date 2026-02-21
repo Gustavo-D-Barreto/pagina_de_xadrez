@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xaque Mage – Perfil</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+        :root {
+            --gold: #c9a84c;
+            --gold-lt: #f0d080;
+            --gold-dk: #7a5f1a;
+            --ember: #e05c1a;
+            --ember-lt: #ff8040;
+            --bg-void: #06080d;
+            --bg-deep: #0a0e18;
+            --bg-card: #0f1520;
+            --bg-card2: #141c2e;
+            --border: rgba(201, 168, 76, 0.25);
+            --border-hi: rgba(201, 168, 76, 0.7);
+            --text-muted: #6b7a99;
+            --text-body: #a8b5cc;
+            --text-head: #dce8ff;
+            --font-title: 'Cinzel Decorative', serif;
+            --font-deco: 'Cinzel', serif;
+            --font-ui: 'Rajdhani', sans-serif;
+            --glow-gold: 0 0 18px rgba(201, 168, 76, 0.55), 0 0 40px rgba(201, 168, 76, 0.2);
+            --glow-ember: 0 0 18px rgba(224, 92, 26, 0.6), 0 0 40px rgba(224, 92, 26, 0.2);
+            --radius: 4px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-body);
+            font-family: var(--font-ui);
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+       BACKGROUND ATMOSPHERE
+    ============================================================ */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201, 168, 76, 0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(224, 92, 26, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 10% 80%, rgba(20, 40, 100, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated particle dust */
+        .dust {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .dust span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: var(--gold);
+            opacity: 0;
+            animation: floatDust linear infinite;
+        }
+
+        @keyframes floatDust {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-10vh) translateX(40px);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================================
+       HEADER / NAV
+    ============================================================ */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 72px;
+            background: linear-gradient(180deg, rgba(6, 8, 13, 0.98) 0%, rgba(6, 8, 13, 0.85) 100%);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .header-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(var(--glow-gold));
+        }
+
+        .header-logo .logo-text {
+            font-family: var(--font-title);
+            font-size: 1.15rem;
+            color: var(--gold);
+            letter-spacing: 0.08em;
+            text-shadow: var(--glow-gold);
+            line-height: 1;
+        }
+
+        .header-logo .logo-text span {
+            color: var(--gold-lt);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav a {
+            font-family: var(--font-deco);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            transition: color 0.25s, background 0.25s;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            right: 50%;
+            height: 1px;
+            background: var(--gold);
+            transition: left 0.25s, right 0.25s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--gold-lt);
+        }
+
+        nav a:hover::after,
+        nav a.active::after {
+            left: 18px;
+            right: 18px;
+        }
+
+        .nav-btn {
+            margin-left: 16px;
+            font-family: var(--font-deco);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--bg-void);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+            border: none;
+            padding: 9px 22px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: box-shadow 0.25s, transform 0.15s;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            box-shadow: var(--glow-gold);
+            transform: translateY(-1px);
+        }
+
+        /* header separator rune */
+        .nav-sep {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        /* ============================================================
+       PAGE WRAPPER
+    ============================================================ */
+        .page {
+            position: relative;
+            z-index: 1;
+            padding-top: 72px;
+        }
+
+        /* ============================================================
+       PROFILE HERO SECTION
+    ============================================================ */
+        .profile-hero {
+            position: relative;
+            padding: 80px 48px 60px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Decorative line top */
+        .section-rule {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 56px;
+        }
+
+        .section-rule .rule-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-dk), transparent);
+        }
+
+        .section-rule .rule-diamond {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            box-shadow: var(--glow-gold);
+        }
+
+        .section-rule .rule-label {
+            font-family: var(--font-deco);
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        /* Profile card layout */
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* ---- Left: avatar card ---- */
+        .avatar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .avatar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        /* Corner ornaments */
+        .avatar-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 40% at 50% 0%, rgba(201, 168, 76, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .avatar-frame {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 28px;
+        }
+
+        .avatar-frame::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: conic-gradient(var(--gold) 0deg,
+                    var(--gold-dk) 90deg,
+                    var(--gold) 180deg,
+                    var(--gold-dk) 270deg,
+                    var(--gold) 360deg);
+            animation: rotateBorder 6s linear infinite;
+        }
+
+        @keyframes rotateBorder {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .avatar-frame img {
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+            object-fit: cover;
+            background: var(--bg-deep);
+            border: 3px solid var(--bg-card);
+            z-index: 1;
+        }
+
+        /* Crown rank icon */
+        .avatar-rank {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 2;
+            box-shadow: var(--glow-gold);
+        }
+
+        .username {
+            font-family: var(--font-deco);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold-lt);
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+        }
+
+        .user-since {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+        }
+
+        /* Mini stat pills in card */
+        .mini-stats {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .mini-stat {
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-body);
+        }
+
+        .mini-stat b {
+            color: var(--gold-lt);
+            font-size: 1rem;
+            display: block;
+        }
+
+        /* Avatar picker */
+        .avatar-picker-title {
+            font-family: var(--font-deco);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-dk);
+            margin-bottom: 12px;
+        }
+
+        .avatar-picker {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            object-fit: cover;
+            background: var(--bg-deep);
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .avatar-option.selected,
+        .avatar-option:hover {
+            border-color: var(--gold);
+            box-shadow: var(--glow-gold);
+            transform: translateY(-2px);
+        }
+
+        .save-avatar-btn {
+            width: 100%;
+            font-family: var(--font-deco);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--bg-void);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+            border: none;
+            padding: 11px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: box-shadow 0.25s, transform 0.15s, opacity 0.2s;
+        }
+
+        .save-avatar-btn:hover {
+            box-shadow: var(--glow-gold);
+            transform: translateY(-1px);
+        }
+
+        .save-avatar-btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ---- Right: stats panel ---- */
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .panel-title {
+            font-family: var(--font-deco);
+            font-size: 0.68rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--gold-dk);
+            margin-bottom: 16px;
+        }
+
+        /* Big stat row */
+        .big-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .stat-box:hover {
+            border-color: var(--border-hi);
+            transform: translateY(-3px);
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .stat-box.win::before {
+            background: linear-gradient(90deg, transparent, #4caf76, transparent);
+        }
+
+        .stat-box.loss::before {
+            background: linear-gradient(90deg, transparent, #e05c4c, transparent);
+        }
+
+        .stat-box.game::before {
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .stat-box.pts::before {
+            background: linear-gradient(90deg, transparent, var(--ember), transparent);
+        }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-value {
+            font-family: var(--font-deco);
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-head);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-box.win .stat-value {
+            color: #6dd99a;
+            text-shadow: 0 0 20px rgba(77, 200, 130, 0.4);
+        }
+
+        .stat-box.loss .stat-value {
+            color: #e87676;
+            text-shadow: 0 0 20px rgba(230, 80, 80, 0.4);
+        }
+
+        .stat-box.game .stat-value {
+            color: var(--gold-lt);
+            text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+        }
+
+        .stat-box.pts .stat-value {
+            color: var(--ember-lt);
+            text-shadow: 0 0 20px rgba(224, 92, 26, 0.4);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Win rate bar */
+        .winrate-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winrate-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .winrate-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .winrate-pct {
+            font-family: var(--font-deco);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold-lt);
+        }
+
+        .winrate-bar-wrap {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .winrate-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dk), var(--gold), var(--gold-lt));
+            border-radius: 6px;
+            transition: width 1.2s cubic-bezier(.23, 1, .32, 1);
+            position: relative;
+        }
+
+        .winrate-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: white;
+            opacity: 0.5;
+            border-radius: 2px;
+        }
+
+        .winrate-sub {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+
+        .winrate-leg {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .winrate-leg .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Rank progress */
+        .rank-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ember), transparent);
+        }
+
+        .rank-emblem {
+            font-size: 4rem;
+            line-height: 1;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 16px rgba(224, 92, 26, 0.5));
+        }
+
+        .rank-info {
+            flex: 1;
+        }
+
+        .rank-title-text {
+            font-family: var(--font-deco);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-head);
+            margin-bottom: 4px;
+        }
+
+        .rank-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .rank-bar-wrap {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .rank-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ember), var(--ember-lt));
+            border-radius: 4px;
+            transition: width 1.4s cubic-bezier(.23, 1, .32, 1);
+        }
+
+        .rank-pts-label {
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Recent history */
+        .history-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .history-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .history-header span {
+            font-family: var(--font-deco);
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .history-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 100px 90px;
+            align-items: center;
+            padding: 14px 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.88rem;
+            transition: background 0.15s;
+        }
+
+        .history-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .history-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-deco);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 2px;
+        }
+
+        .result-badge.vitoria {
+            background: rgba(77, 180, 110, 0.15);
+            border: 1px solid rgba(77, 180, 110, 0.4);
+            color: #6dd99a;
+        }
+
+        .result-badge.derrota {
+            background: rgba(224, 80, 80, 0.12);
+            border: 1px solid rgba(224, 80, 80, 0.35);
+            color: #e87676;
+        }
+
+        .result-badge.empate {
+            background: rgba(150, 150, 180, 0.1);
+            border: 1px solid rgba(150, 150, 180, 0.3);
+            color: #9999bb;
+        }
+
+        .history-opp {
+            color: var(--text-body);
+        }
+
+        .history-mode {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: capitalize;
+        }
+
+        .history-dur {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ============================================================
+       TOP 5 LEADERBOARD
+    ============================================================ */
+        .leaderboard-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px 100px;
+        }
+
+        .leaderboard-title {
+            font-family: var(--font-title);
+            font-size: 1.6rem;
+            color: var(--gold);
+            text-align: center;
+            letter-spacing: 0.1em;
+            text-shadow: var(--glow-gold);
+            margin-bottom: 8px;
+        }
+
+        .leaderboard-sub {
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .leaderboard-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .lb-header {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px 120px 120px;
+            padding: 14px 28px;
+            background: rgba(201, 168, 76, 0.06);
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-deco);
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-dk);
+        }
+
+        .lb-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px 120px 120px;
+            align-items: center;
+            padding: 16px 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s;
+            animation: rowIn 0.5s ease both;
+        }
+
+        @keyframes rowIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .lb-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .lb-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Top 3 special styles */
+        .lb-row.rank-1 {
+            background: linear-gradient(90deg, rgba(201, 168, 76, 0.1) 0%, transparent 100%);
+        }
+
+        .lb-row.rank-2 {
+            background: linear-gradient(90deg, rgba(180, 180, 200, 0.07) 0%, transparent 100%);
+        }
+
+        .lb-row.rank-3 {
+            background: linear-gradient(90deg, rgba(176, 120, 60, 0.07) 0%, transparent 100%);
+        }
+
+        .lb-pos {
+            font-family: var(--font-deco);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .lb-pos.p1 {
+            color: #f0d060;
+            text-shadow: 0 0 12px rgba(240, 208, 80, 0.6);
+        }
+
+        .lb-pos.p2 {
+            color: #c8c8d8;
+            text-shadow: 0 0 12px rgba(200, 200, 220, 0.4);
+        }
+
+        .lb-pos.p3 {
+            color: #d08050;
+            text-shadow: 0 0 12px rgba(200, 120, 60, 0.5);
+        }
+
+        .lb-pos.other {
+            color: var(--text-muted);
+        }
+
+        .lb-player {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lb-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            object-fit: cover;
+            background: var(--bg-deep);
+        }
+
+        .lb-row.rank-1 .lb-avatar {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
+        }
+
+        .lb-row.rank-2 .lb-avatar {
+            border-color: #c8c8d8;
+        }
+
+        .lb-row.rank-3 .lb-avatar {
+            border-color: #d08050;
+        }
+
+        .lb-name {
+            font-family: var(--font-deco);
+            font-size: 0.95rem;
+            color: var(--text-head);
+        }
+
+        .lb-wins {
+            color: #6dd99a;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .lb-games {
+            color: var(--gold-lt);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .lb-losses {
+            color: #e87676;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .lb-pts {
+            color: var(--ember-lt);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        /* Crown for #1 */
+        .crown {
+            position: relative;
+        }
+
+        .crown::before {
+            content: '👑';
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            animation: floatCrown 2s ease-in-out infinite;
+        }
+
+        @keyframes floatCrown {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-4px);
+            }
+        }
+
+        /* ============================================================
+       LOADING / EMPTY STATES
+    ============================================================ */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card2) 25%, rgba(255, 255, 255, 0.04) 50%, var(--bg-card2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 3px;
+        }
+
+        @keyframes shimmer {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        .loading-row {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* ============================================================
+       NOTIFICATION TOAST
+    ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            background: var(--bg-card2);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            font-family: var(--font-deco);
+            font-size: 0.85rem;
+            color: var(--gold-lt);
+            box-shadow: var(--glow-gold);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ============================================================
+       UTILITIES
+    ============================================================ */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-8 {
+            margin-top: 8px;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 40px 0;
+        }
+
+        /* Play button CTA */
+        .cta-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 40px 48px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .cta-play {
+            font-family: var(--font-deco);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--bg-void);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+            border: none;
+            padding: 14px 40px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-decoration: none;
+            transition: box-shadow 0.25s, transform 0.15s;
+        }
+
+        .cta-play:hover {
+            box-shadow: var(--glow-gold);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+        @media (max-width: 1024px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .avatar-card {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .big-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0 20px;
+            }
+
+            .profile-hero,
+            .leaderboard-section {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            nav a {
+                display: none;
+            }
+
+            .big-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .lb-header,
+            .lb-row {
+                grid-template-columns: 40px 1fr 80px 80px;
+            }
+
+            .lb-losses,
+            .lb-pts {
+                display: none;
+            }
+
+            .history-row {
+                grid-template-columns: 70px 1fr 80px;
+            }
+
+            .history-mode,
+            .history-dur {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle dust -->
+    <div class="dust" id="dust"></div>
+
+    <!-- ================================================================
+     HEADER
+================================================================ -->
+    <header>
+        <a href="../index.html" class="header-logo">
+            <div class="logo-icon">
+                <!-- Chess king SVG icon -->
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 4 L22 10 L28 10 L23 14 L25 20 L20 16 L15 20 L17 14 L12 10 L18 10 Z" fill="#c9a84c"
+                        opacity="0.9" />
+                    <rect x="12" y="28" width="16" height="4" rx="1" fill="#c9a84c" opacity="0.8" />
+                    <rect x="10" y="32" width="20" height="4" rx="1" fill="#c9a84c" />
+                    <rect x="18" y="20" width="4" height="8" fill="#c9a84c" opacity="0.7" />
+                </svg>
+            </div>
+            <div class="logo-text">Xaque<span>Mage</span></div>
+        </a>
+
+        <nav>
+            <a href="../index.html">Início</a>
+            <div class="nav-sep"></div>
+            <a href="lobby.html">Jogar</a>
+            <div class="nav-sep"></div>
+            <a href="perfil.html" class="active">Perfil</a>
+            <div class="nav-sep"></div>
+            <a href="ranking.html">Ranking</a>
+        </nav>
+
+        <a href="lobby.html" class="nav-btn">Jogar Agora</a>
+    </header>
+
+    <!-- ================================================================
+     MAIN PAGE
+================================================================ -->
+    <main class="page">
+
+        <!-- PROFILE HERO -->
+        <section class="profile-hero">
+
+            <div class="section-rule">
+                <div class="rule-line"></div>
+                <div class="rule-diamond"></div>
+                <div class="rule-label">Perfil do Cavaleiro</div>
+                <div class="rule-diamond"></div>
+                <div class="rule-line"></div>
+            </div>
+
+            <div class="profile-layout">
+
+                <!-- LEFT: Avatar Card -->
+                <div class="avatar-card">
+                    <div class="avatar-frame">
+                        <img id="main-avatar" src="../spritesxadrez/sprites/perfil01.png" alt="Avatar"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgdmlld0JveD0iMCAwIDE2MCAxNjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNjAiIGZpbGw9IiMwZjE1MjAiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjYwIiByPSIyNSIgZmlsbD0iIzFhMmEzYSIvPjxwYXRoIGQ9Ik0yMCAxNDAgQzIwIDEwMCA1NSA4MCA4MCA4MCBDMTA1IDgwIDE0MCAxMDAgMTQwIDE0MCIgZmlsbD0iIzFhMmEzYSIvPjwvc3ZnPg=='" />
+                        <div class="avatar-rank">♟</div>
+                    </div>
+
+                    <div class="username" id="display-username">Carregando...</div>
+                    <div class="user-since" id="display-since">Membro desde —</div>
+
+                    <div class="mini-stats">
+                        <div class="mini-stat">
+                            <b id="card-vitorias">—</b>
+                            Vitórias
+                        </div>
+                        <div class="mini-stat">
+                            <b id="card-pontos">—</b>
+                            Pontos
+                        </div>
+                        <div class="mini-stat">
+                            <b id="card-partidas">—</b>
+                            Partidas
+                        </div>
+                    </div>
+
+                    <div class="avatar-picker-title">Escolha seu Avatar</div>
+                    <div class="avatar-picker">
+                        <img src="../spritesxadrez/sprites/perfil01.png" class="avatar-option selected"
+                            data-avatar="../spritesxadrez/sprites/perfil01.png" alt="Avatar 1"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgZmlsbD0iIzFhMmEzYSIvPjx0ZXh0IHg9IjMwIiB5PSIzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2M5YTg0YyI+8J+RtjwvdGV4dD48L3N2Zz4='" />
+                        <img src="../spritesxadrez/sprites/perfil02.png" class="avatar-option"
+                            data-avatar="../spritesxadrez/sprites/perfil02.png" alt="Avatar 2"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgZmlsbD0iIzFhMmEzYSIvPjx0ZXh0IHg9IjMwIiB5PSIzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2M5YTg0YyI+8J+Qu/CfjLo8L3RleHQ+PC9zdmc+'" />
+                        <img src="../spritesxadrez/sprites/perfil03.png" class="avatar-option"
+                            data-avatar="../spritesxadrez/sprites/perfil03.png" alt="Avatar 3"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgZmlsbD0iIzFhMmEzYSIvPjx0ZXh0IHg9IjMwIiB5PSIzNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2M5YTg0YyI+8J+RuTwvdGV4dD48L3N2Zz4='" />
+                    </div>
+
+                    <button class="save-avatar-btn" id="save-avatar-btn" disabled>
+                        ✦ Salvar Avatar
+                    </button>
+                </div>
+
+                <!-- RIGHT: Stats Panel -->
+                <div class="stats-panel">
+                    <div>
+                        <div class="panel-title">⟡ Estatísticas Gerais</div>
+                        <div class="big-stats">
+                            <div class="stat-box win">
+                                <span class="stat-icon">🏆</span>
+                                <div class="stat-value" id="stat-vitorias">—</div>
+                                <div class="stat-label">Vitórias</div>
+                            </div>
+                            <div class="stat-box loss">
+                                <span class="stat-icon">💀</span>
+                                <div class="stat-value" id="stat-derrotas">—</div>
+                                <div class="stat-label">Derrotas</div>
+                            </div>
+                            <div class="stat-box game">
+                                <span class="stat-icon">⚔️</span>
+                                <div class="stat-value" id="stat-partidas">—</div>
+                                <div class="stat-label">Partidas</div>
+                            </div>
+                            <div class="stat-box pts">
+                                <span class="stat-icon">🔥</span>
+                                <div class="stat-value" id="stat-pontos">—</div>
+                                <div class="stat-label">Pontos</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Win rate -->
+                    <div class="winrate-card">
+                        <div class="winrate-header">
+                            <div class="panel-title" style="margin:0">⟡ Taxa de Vitória</div>
+                            <div class="winrate-pct" id="winrate-pct">—%</div>
+                        </div>
+                        <div class="winrate-bar-wrap">
+                            <div class="winrate-bar-fill" id="winrate-bar" style="width:0%"></div>
+                        </div>
+                        <div class="winrate-sub">
+                            <div class="winrate-leg">
+                                <div class="dot" style="background:#6dd99a"></div>
+                                <span id="leg-wins">0 vitórias</span>
+                            </div>
+                            <div class="winrate-leg">
+                                <div class="dot" style="background:#e87676"></div>
+                                <span id="leg-losses">0 derrotas</span>
+                            </div>
+                            <div class="winrate-leg">
+                                <div class="dot" style="background:#9999bb"></div>
+                                <span id="leg-draws">0 empates</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rank -->
+                    <div class="rank-card">
+                        <div class="rank-emblem" id="rank-emblem">🥉</div>
+                        <div class="rank-info">
+                            <div class="panel-title" style="margin-bottom:4px">⟡ Classificação</div>
+                            <div class="rank-title-text" id="rank-title">Aprendiz</div>
+                            <div class="rank-sub" id="rank-sub">Continue jogando para subir de rank!</div>
+                            <div class="rank-bar-wrap">
+                                <div class="rank-bar-fill" id="rank-bar" style="width:0%"></div>
+                            </div>
+                            <div class="rank-pts-label" id="rank-pts-label">0 / 100 pts para próximo rank</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent games -->
+                    <div class="history-card">
+                        <div class="history-header">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <rect x="1" y="1" width="5" height="5" fill="#c9a84c" opacity="0.8" />
+                                <rect x="8" y="1" width="5" height="5" fill="white" opacity="0.2" />
+                                <rect x="1" y="8" width="5" height="5" fill="white" opacity="0.2" />
+                                <rect x="8" y="8" width="5" height="5" fill="#c9a84c" opacity="0.8" />
+                            </svg>
+                            <span>Partidas Recentes</span>
+                        </div>
+
+                        <div class="history-row"
+                            style="background:rgba(201,168,76,0.05); font-size:0.72rem; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase;">
+                            <div>Resultado</div>
+                            <div>Modo</div>
+                            <div>Adversário</div>
+                            <div>Duração</div>
+                            <div>Data</div>
+                        </div>
+
+                        <div id="history-body">
+                            <!-- preenchido por JS -->
+                            <div
+                                style="padding:24px 28px; text-align:center; color:var(--text-muted); font-size:0.85rem;">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /stats-panel -->
+            </div><!-- /profile-layout -->
+        </section>
+
+        <!-- CTA -->
+        <div class="cta-bar">
+            <a href="lobby.html" class="cta-play">⚔ Nova Partida</a>
+        </div>
+
+        <!-- DIVIDER -->
+        <div style="max-width:1280px;margin:0 auto;padding:0 48px">
+            <div class="divider"></div>
+        </div>
+
+        <!-- TOP 5 LEADERBOARD -->
+        <section class="leaderboard-section">
+            <div class="section-rule">
+                <div class="rule-line"></div>
+                <div class="rule-diamond"></div>
+                <div class="rule-label">Hall da Fama</div>
+                <div class="rule-diamond"></div>
+                <div class="rule-line"></div>
+            </div>
+
+            <div class="leaderboard-title">Top 5 Campeões</div>
+            <div class="leaderboard-sub">Os maiores mestres do tabuleiro</div>
+
+            <div class="leaderboard-table">
+                <div class="lb-header">
+                    <div style="text-align:center">#</div>
+                    <div>Jogador</div>
+                    <div style="text-align:center">Vitórias</div>
+                    <div style="text-align:center">Partidas</div>
+                    <div style="text-align:center">Derrotas</div>
+                    <div style="text-align:center">Pontos</div>
+                </div>
+                <div id="leaderboard-body">
+                    <!-- filled by JS -->
+                    <div style="padding:40px; text-align:center; color:var(--text-muted);">
+                        Carregando ranking...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+    <script>
+        // ----------------------------------------------------------------
+        // CONFIG – substitua pelas suas credenciais Supabase
+        // ----------------------------------------------------------------
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+
+        const { createClient } = supabase;
+        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ----------------------------------------------------------------
+        // PARTICLES
+        // ----------------------------------------------------------------
+        const dust = document.getElementById('dust');
+        for (let i = 0; i < 30; i++) {
+            const s = document.createElement('span');
+            const x = Math.random() * 100;
+            const delay = Math.random() * 12;
+            const dur = 8 + Math.random() * 12;
+            const size = 1 + Math.random() * 2;
+            s.style.cssText = `left:${x}%;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s`;
+            dust.appendChild(s);
+        }
+
+        // ----------------------------------------------------------------
+        // UTILS
+        // ----------------------------------------------------------------
+        function toast(msg, isError = false) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.style.borderColor = isError ? 'rgba(224,80,80,0.7)' : 'rgba(201,168,76,0.7)';
+            el.style.color = isError ? '#e87676' : 'var(--gold-lt)';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        }
+
+        function calcRank(pontos) {
+            const ranks = [
+                { min: 0, max: 99, title: 'Aprendiz', emblem: '🥉', next: 100 },
+                { min: 100, max: 299, title: 'Escudeiro', emblem: '⚔️', next: 300 },
+                { min: 300, max: 599, title: 'Cavaleiro', emblem: '🗡️', next: 600 },
+                { min: 600, max: 999, title: 'Paladino', emblem: '🛡️', next: 1000 },
+                { min: 1000, max: 1999, title: 'Archimago', emblem: '🧙', next: 2000 },
+                { min: 2000, max: Infinity, title: 'Grão-Mestre', emblem: '👑', next: null },
+            ];
+            return ranks.find(r => pontos >= r.min && pontos <= r.max) || ranks[0];
+        }
+
+        // ----------------------------------------------------------------
+        // AVATAR PICKER
+        // ----------------------------------------------------------------
+        let selectedAvatar = '../spritesxadrez/sprites/perfil01.png';
+        let currentUserId = null;
+
+        document.querySelectorAll('.avatar-option').forEach(img => {
+            img.addEventListener('click', () => {
+                document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected'));
+                img.classList.add('selected');
+                selectedAvatar = img.dataset.avatar;
+                document.getElementById('main-avatar').src = selectedAvatar;
+                document.getElementById('save-avatar-btn').disabled = false;
+            });
+        });
+
+        document.getElementById('save-avatar-btn').addEventListener('click', async () => {
+            if (!currentUserId) { toast('Você precisa estar logado!', true); return; }
+            const btn = document.getElementById('save-avatar-btn');
+            btn.disabled = true;
+            btn.textContent = '⌛ Salvando...';
+            const { error } = await sb.from('profiles')
+                .update({ avatar_url: selectedAvatar })
+                .eq('id', currentUserId);
+            if (error) {
+                toast('Erro ao salvar avatar: ' + error.message, true);
+                btn.textContent = '✦ Salvar Avatar';
+                btn.disabled = false;
+            } else {
+                toast('✦ Avatar atualizado com sucesso!');
+                btn.textContent = '✦ Salvar Avatar';
+            }
+        });
+
+        // ----------------------------------------------------------------
+        // LOAD PROFILE
+        // ----------------------------------------------------------------
+        async function loadProfile() {
+            const { data: { user }, error: authErr } = await sb.auth.getUser();
+
+            if (authErr || !user) {
+                // Demo mode with fake data
+                renderProfile({
+                    id: 'demo',
+                    username: 'GrandMestre',
+                    pontos: 1420,
+                    vitorias: 87,
+                    derrotas: 34,
+                    partidas: 134,
+                    avatar_url: '../spritesxadrez/sprites/perfil01.png',
+                    criado_em: '2024-03-15T00:00:00Z',
+                }, true);
+                loadHistory('demo');
+                return;
+            }
+
+            currentUserId = user.id;
+
+            const { data: profile, error } = await sb.from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                toast('Erro ao carregar perfil: ' + error.message, true);
+                return;
+            }
+
+            renderProfile(profile);
+            loadHistory(user.id);
+        }
+
+        function renderProfile(p, demo = false) {
+            // Avatar
+            const avatarSrc = p.avatar_url || '../spritesxadrez/sprites/perfil01.png';
+            document.getElementById('main-avatar').src = avatarSrc;
+            selectedAvatar = avatarSrc;
+            document.querySelectorAll('.avatar-option').forEach(img => {
+                img.classList.toggle('selected', img.dataset.avatar === avatarSrc);
+            });
+
+            // Username & since
+            document.getElementById('display-username').textContent = p.username || 'Usuário';
+            document.getElementById('display-since').textContent =
+                'Membro desde ' + formatDate(p.criado_em);
+
+            // Mini card
+            document.getElementById('card-vitorias').textContent = p.vitorias ?? 0;
+            document.getElementById('card-pontos').textContent = p.pontos ?? 0;
+            document.getElementById('card-partidas').textContent = p.partidas ?? 0;
+
+            // Big stats
+            const vit = p.vitorias ?? 0;
+            const der = p.derrotas ?? 0;
+            const par = p.partidas ?? 0;
+            const pts = p.pontos ?? 0;
+            const emp = Math.max(0, par - vit - der);
+
+            document.getElementById('stat-vitorias').textContent = vit;
+            document.getElementById('stat-derrotas').textContent = der;
+            document.getElementById('stat-partidas').textContent = par;
+            document.getElementById('stat-pontos').textContent = pts;
+
+            // Win rate
+            const wr = par > 0 ? Math.round((vit / par) * 100) : 0;
+            document.getElementById('winrate-pct').textContent = wr + '%';
+            setTimeout(() => {
+                document.getElementById('winrate-bar').style.width = wr + '%';
+            }, 300);
+            document.getElementById('leg-wins').textContent = vit + ' vitórias';
+            document.getElementById('leg-losses').textContent = der + ' derrotas';
+            document.getElementById('leg-draws').textContent = emp + ' empates';
+
+            // Rank
+            const rank = calcRank(pts);
+            document.getElementById('rank-emblem').textContent = rank.emblem;
+            document.getElementById('rank-title').textContent = rank.title;
+            if (rank.next) {
+                const progress = Math.min(100, Math.round(((pts - rank.min) / (rank.next - rank.min)) * 100));
+                document.getElementById('rank-sub').textContent = `${progress}% para o próximo rank`;
+                document.getElementById('rank-pts-label').textContent = `${pts} / ${rank.next} pts para próximo rank`;
+                setTimeout(() => {
+                    document.getElementById('rank-bar').style.width = progress + '%';
+                }, 400);
+            } else {
+                document.getElementById('rank-sub').textContent = 'Você atingiu o rank máximo!';
+                document.getElementById('rank-pts-label').textContent = pts + ' pts totais';
+                setTimeout(() => { document.getElementById('rank-bar').style.width = '100%'; }, 400);
+            }
+
+            if (!demo) {
+                document.getElementById('save-avatar-btn').disabled = false;
+            }
+        }
+
+        // ----------------------------------------------------------------
+        // LOAD HISTORY
+        // ----------------------------------------------------------------
+        async function loadHistory(userId) {
+            // Try fetching from partidas table
+            const { data: partidas, error } = await sb.from('partidas')
+                .select('*')
+                .or(`jogador_branco.eq.${userId},jogador_preto.eq.${userId}`)
+                .eq('status', 'finalizada')
+                .order('finalizada_em', { ascending: false })
+                .limit(6);
+
+            const body = document.getElementById('history-body');
+
+            if (error || !partidas || partidas.length === 0) {
+                // Demo rows
+                const demos = [
+                    { result: 'vitoria', opp: 'DragonKnight', mode: 'online', dur: '12min', date: '20/02/26' },
+                    { result: 'derrota', opp: 'ShadowBishop', mode: 'ranqueada', dur: '28min', date: '19/02/26' },
+                    { result: 'vitoria', opp: 'IronCastle', mode: 'online', dur: '8min', date: '18/02/26' },
+                    { result: 'empate', opp: 'MageKnight', mode: 'amistoso', dur: '45min', date: '17/02/26' },
+                    { result: 'vitoria', opp: 'RuinQueen', mode: 'ranqueada', dur: '19min', date: '16/02/26' },
+                ];
+                body.innerHTML = demos.map(d => historyRowHTML(d.result, d.opp, d.mode, d.dur, d.date)).join('');
+                return;
+            }
+
+            body.innerHTML = partidas.map(p => {
+                const isWhite = p.jogador_branco === userId;
+                const won = p.vencedor_id === userId;
+                const drew = !p.vencedor_id;
+                const result = drew ? 'empate' : won ? 'vitoria' : 'derrota';
+                const oppId = isWhite ? p.jogador_preto : p.jogador_branco;
+                const dur = p.iniciada_em && p.finalizada_em
+                    ? Math.round((new Date(p.finalizada_em) - new Date(p.iniciada_em)) / 60000) + 'min'
+                    : '—';
+                return historyRowHTML(result, oppId ? oppId.slice(0, 8) + '…' : 'CPU', p.modo || 'online', dur, formatDate(p.finalizada_em));
+            }).join('');
+        }
+
+        function historyRowHTML(result, opp, mode, dur, date) {
+            const label = result === 'vitoria' ? 'Vitória' : result === 'derrota' ? 'Derrota' : 'Empate';
+            return `
+    <div class="history-row">
+      <div><span class="result-badge ${result}">${label}</span></div>
+      <div class="history-mode">${mode}</div>
+      <div class="history-opp">${opp}</div>
+      <div class="history-dur">${dur}</div>
+      <div class="history-dur">${date}</div>
+    </div>`;
+        }
+
+        // ----------------------------------------------------------------
+        // LOAD LEADERBOARD (Top 5)
+        // ----------------------------------------------------------------
+        async function loadLeaderboard() {
+            const { data, error } = await sb.from('profiles')
+                .select('username, vitorias, partidas, derrotas, pontos, avatar_url')
+                .order('vitorias', { ascending: false })
+                .limit(5);
+
+            const body = document.getElementById('leaderboard-body');
+
+            if (error || !data || data.length === 0) {
+                // Demo leaderboard
+                const demos = [
+                    { username: 'GrandMestre_XII', vitorias: 312, partidas: 420, derrotas: 88, pontos: 5420, avatar_url: 'perfil01.png' },
+                    { username: 'ShadowQueen', vitorias: 287, partidas: 390, derrotas: 90, pontos: 4870, avatar_url: 'perfil02.png' },
+                    { username: 'IronBishop', vitorias: 241, partidas: 350, derrotas: 99, pontos: 4020, avatar_url: 'perfil03.png' },
+                    { username: 'DragonKnight99', vitorias: 198, partidas: 310, derrotas: 102, pontos: 3200, avatar_url: 'perfil01.png' },
+                    { username: 'EmberKing', vitorias: 155, partidas: 260, derrotas: 95, pontos: 2780, avatar_url: 'perfil02.png' },
+                ];
+                body.innerHTML = demos.map((p, i) => lbRowHTML(p, i + 1)).join('');
+                return;
+            }
+
+            body.innerHTML = data.map((p, i) => lbRowHTML(p, i + 1)).join('');
+        }
+
+        function lbRowHTML(p, pos) {
+            const posClass = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : 'other';
+            const rowClass = pos <= 3 ? `rank-${pos}` : '';
+            const crownClass = pos === 1 ? 'crown' : '';
+            const avatarSrc = p.avatar_url || 'perfil01.png';
+            const delay = (pos - 1) * 0.1;
+            return `
+    <div class="lb-row ${rowClass}" style="animation-delay:${delay}s">
+      <div class="lb-pos ${posClass} ${crownClass}">${pos}°</div>
+      <div class="lb-player">
+        <img class="lb-avatar" src="${avatarSrc}" alt="${p.username}"
+             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSIyMCIgZmlsbD0iIzFhMmEzYSIvPjx0ZXh0IHg9IjIwIiB5PSIyNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2M5YTg0YyI+8J+RtjwvdGV4dD48L3N2Zz4='" />
+        <span class="lb-name">${p.username || 'Anônimo'}</span>
+      </div>
+      <div class="lb-wins">${p.vitorias ?? 0}</div>
+      <div class="lb-games">${p.partidas ?? 0}</div>
+      <div class="lb-losses">${p.derrotas ?? 0}</div>
+      <div class="lb-pts">${p.pontos ?? 0}</div>
+    </div>`;
+        }
+
+        // ----------------------------------------------------------------
+        // INIT
+        // ----------------------------------------------------------------
+        loadProfile();
+        loadLeaderboard();
+    </script>
+
+</body>
+
+</html>
