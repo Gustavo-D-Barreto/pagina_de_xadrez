@@ -24,7 +24,6 @@
             --gold-light: #f0d080;
             --bg: #08090d;
             --surface: #111523;
-            --surface2: #161b2e;
             --border: #2a2d45;
             --text: #d5d8e8;
             --muted: #7a7e99;
@@ -73,6 +72,7 @@
             padding: 14px;
         }
 
+        /* Left panel */
         .left-panel {
             display: flex;
             flex-direction: column;
@@ -214,20 +214,6 @@
             color: #aab8d0;
         }
 
-        /* ONLINE badge */
-        .online-badge {
-            font-size: .6rem;
-            padding: 2px 7px;
-            border-radius: 3px;
-            background: rgba(63, 207, 114, .15);
-            color: var(--green);
-            border: 1px solid rgba(63, 207, 114, .3);
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            margin-top: 2px;
-            display: inline-block;
-        }
-
         /* Center col */
         .center-col {
             display: flex;
@@ -256,7 +242,6 @@
 
         .board-outer {
             position: relative;
-            transition: transform .55s cubic-bezier(.4, 0, .2, 1);
         }
 
         .board-bg-img {
@@ -314,10 +299,6 @@
 
         .sq.last-to {
             background: rgba(201, 168, 76, .30);
-        }
-
-        .sq.blocked {
-            cursor: not-allowed;
         }
 
         .piece {
@@ -457,7 +438,18 @@
             background: rgba(201, 168, 76, .08);
         }
 
-        /* Right panel */
+        .btn-surrender {
+            border-color: rgba(232, 64, 64, .5);
+            color: rgba(232, 64, 64, .7);
+        }
+
+        .btn-surrender:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(232, 64, 64, .08);
+        }
+
+        /* Right panel / shop */
         .right-panel {
             display: flex;
             flex-direction: column;
@@ -592,60 +584,44 @@
             border-radius: 3px;
         }
 
-        /* Modal */
-        .modal-overlay {
+        /* ── GAME OVER OVERLAY (fullscreen image) ── */
+        .gameover-overlay {
             position: fixed;
             inset: 0;
-            z-index: 100;
-            background: rgba(8, 9, 13, .88);
-            backdrop-filter: blur(8px);
+            z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(8, 9, 13, .85);
             opacity: 0;
             pointer-events: none;
-            transition: opacity .4s;
+            transition: opacity .5s;
         }
 
-        .modal-overlay.active {
+        .gameover-overlay.active {
             opacity: 1;
             pointer-events: all;
         }
 
-        .modal-box {
-            background: var(--surface);
-            border: 1px solid var(--gold);
-            padding: 48px 56px;
-            text-align: center;
-            clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
-            transform: translateY(20px);
-            transition: transform .4s;
+        .gameover-img {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            cursor: pointer;
+            filter: drop-shadow(0 0 60px rgba(201, 168, 76, .4));
+            animation: imgPop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
         }
 
-        .modal-overlay.active .modal-box {
-            transform: translateY(0);
-        }
+        @keyframes imgPop {
+            from {
+                transform: scale(.7);
+                opacity: 0
+            }
 
-        .modal-title {
-            font-family: var(--font-title);
-            font-size: 1.8rem;
-            letter-spacing: .2em;
-            color: var(--gold-light);
-            text-shadow: 0 0 30px rgba(201, 168, 76, .6);
-            margin-bottom: 12px;
-        }
-
-        .modal-sub {
-            color: var(--muted);
-            font-size: 1rem;
-            margin-bottom: 32px;
-            letter-spacing: .06em;
-        }
-
-        .modal-btns {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
         }
 
         /* Promo */
@@ -741,7 +717,7 @@
             color: var(--gold-light);
             border-radius: 4px;
             animation: fadeUp .3s ease, fadeOut .4s ease 2s forwards;
-            z-index: 200;
+            z-index: 201;
             pointer-events: none;
         }
 
@@ -768,7 +744,7 @@
             animation: scorePop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
         }
 
-        /* Waiting overlay */
+        /* Wait overlay */
         .wait-overlay {
             position: fixed;
             inset: 0;
@@ -817,11 +793,16 @@
 <body>
     <div class="page-bg"></div>
 
-    <!-- Waiting overlay (shown while connecting) -->
+    <!-- Waiting overlay -->
     <div class="wait-overlay" id="waitOverlay">
         <div class="spinner"></div>
         <div class="wait-title">CONECTANDO</div>
         <div class="wait-sub" id="waitMsg">Carregando partida...</div>
+    </div>
+
+    <!-- Game over fullscreen overlay -->
+    <div class="gameover-overlay" id="gameoverOverlay">
+        <img id="gameoverImg" class="gameover-img" src="" alt="Resultado" onclick="window.location.href='lobby.html'" />
     </div>
 
     <div class="game-root" id="gameRoot" style="display:none">
@@ -834,7 +815,6 @@
                     <div>
                         <div class="player-name" id="nameBlack">Pretas</div>
                         <span class="turn-badge">Vez deles</span>
-                        <span class="online-badge" id="badgeBlack">online</span>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
@@ -854,7 +834,6 @@
                     <div>
                         <div class="player-name" id="nameWhite">Brancas</div>
                         <span class="turn-badge">Vez deles</span>
-                        <span class="online-badge" id="badgeWhite">online</span>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
@@ -880,6 +859,7 @@
                 <div class="board-grid" id="boardGrid"></div>
             </div>
             <div class="btn-row">
+                <button class="btn btn-surrender" id="btnSurrender">⚑ Render</button>
                 <button class="btn" onclick="window.location.href='lobby.html'">← Lobby</button>
             </div>
         </div>
@@ -895,17 +875,6 @@
         </div>
     </div>
 
-    <!-- End-game modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-box">
-            <div class="modal-title" id="modalTitle">Xeque-Mate!</div>
-            <div class="modal-sub" id="modalSub">As Brancas venceram</div>
-            <div class="modal-btns">
-                <button class="btn" onclick="window.location.href='lobby.html'">Lobby</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Promotion chooser -->
     <div class="promo-overlay" id="promoOverlay">
         <div class="promo-box">
@@ -917,19 +886,17 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        // ── Supabase ───────────────────────────────────────────
         const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
         const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-        // ── URL params ─────────────────────────────────────────
+        // ── URL params ────────────────────────────────────────
         const params = new URLSearchParams(location.search);
         const SALA = params.get('sala');
         const MY_COR = params.get('cor'); // 'branco' | 'preto'
         if (!SALA || !MY_COR) { window.location.href = 'lobby.html'; }
-        const MY_COLOR_CHESS = MY_COR === 'branco' ? 'w' : 'b'; // local engine uses 'w'/'b'
+        const MY_CC = MY_COR === 'branco' ? 'w' : 'b'; // chess color
 
-        // ── Session check ──────────────────────────────────────
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; }
 
@@ -937,291 +904,289 @@
         const { data: partida } = await supabase.from('partidas').select('*').eq('codigo_sala', SALA).single();
         if (!partida) { alert('Sala não encontrada'); window.location.href = 'lobby.html'; }
 
-        // ── Load both profiles ─────────────────────────────────
-        const whiteId = partida.jogador_branco;
-        const blackId = partida.jogador_preto;
         const [{ data: profW }, { data: profB }] = await Promise.all([
-            supabase.from('profiles').select('username').eq('id', whiteId).single(),
-            supabase.from('profiles').select('username').eq('id', blackId).single()
+            supabase.from('profiles').select('username').eq('id', partida.jogador_branco).single(),
+            supabase.from('profiles').select('username').eq('id', partida.jogador_preto).single()
         ]);
         document.getElementById('nameWhite').textContent = profW?.username || 'Brancas';
         document.getElementById('nameBlack').textContent = profB?.username || 'Pretas';
 
-        // ── Chess engine constants (same as local) ─────────────
-        const PIECE_UNICODE = { wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙', bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟' };
-        const PIECE_COLOR_STYLE = {
-            w: 'color:#fff;text-shadow:0 1px 4px #000,0 0 12px rgba(255,255,255,.3);',
-            b: 'color:#1a1a2e;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.8);-webkit-text-stroke:0.5px #555;'
-        };
+        // ── Chess constants ───────────────────────────────────
+        const PU = { wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙', bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟' };
+        const PS = { w: 'color:#fff;text-shadow:0 1px 4px #000,0 0 12px rgba(255,255,255,.3);', b: 'color:#1a1a2e;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.8);-webkit-text-stroke:0.5px #555;' };
+        const COL = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const PL = { K: 'R', Q: 'D', R: 'T', B: 'B', N: 'C', P: '' };
 
-        // ── State ──────────────────────────────────────────────
+        // ── State ─────────────────────────────────────────────
         let board = [], turn = 'w', selected = null, legalSquares = [], capturedW = [], capturedB = [];
         let enPassantTarget = null, castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
-        let lastMove = null, halfMoveClock = 0, kingChecked = null, boardSize = 560, promoResolve = null;
+        let lastMove = null, kingChecked = null, promoResolve = null;
         let moveHistory = [], pendingWhiteMove = null, shopPowers = [], remainingPool = [];
-        let myTurn = false; // true only when it's this client's color to move
-        let turnCount = 0;
-        let sending = false; // prevent double-sending
+        let myTurn = false, lastSeenTurn = 0, gameOver = false;
 
-        // ── Init ───────────────────────────────────────────────
+        // ── Init board ────────────────────────────────────────
         function initBoard() {
             board = Array.from({ length: 8 }, () => Array(8).fill(null));
-            const back = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
-            for (let c = 0; c < 8; c++) { board[0][c] = { color: 'b', type: back[c] }; board[1][c] = { color: 'b', type: 'P' }; board[6][c] = { color: 'w', type: 'P' }; board[7][c] = { color: 'w', type: back[c] }; }
+            const bk = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+            for (let c = 0; c < 8; c++) { board[0][c] = { color: 'b', type: bk[c] }; board[1][c] = { color: 'b', type: 'P' }; board[6][c] = { color: 'w', type: 'P' }; board[7][c] = { color: 'w', type: bk[c] }; }
             turn = 'w'; selected = null; legalSquares = []; capturedW = []; capturedB = [];
             enPassantTarget = null; castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
-            lastMove = null; halfMoveClock = 0; kingChecked = null; moveHistory = []; pendingWhiteMove = null; turnCount = 0;
-            initShop(); render(); updateTurnBanner(); updatePlayerCards(); renderHistory();
-            myTurn = (MY_COLOR_CHESS === 'w');
+            lastMove = null; kingChecked = null; moveHistory = []; pendingWhiteMove = null; lastSeenTurn = 0; gameOver = false;
+            myTurn = (MY_CC === 'w');
+            initShop(); render(); updateBanner(); updateCards(); renderHistory();
         }
 
-        // ── Shop (same as local) ───────────────────────────────
-        function initShop() {
-            const shuffled = embaralharPoderes(TODOS_OS_PODERES, 6);
-            shopPowers = shuffled.slice(0, 4); remainingPool = shuffled.slice(4);
-            renderShop();
-        }
-        function renderShop() {
-            const container = document.getElementById('shopSlots');
-            container.innerHTML = '';
-            shopPowers.forEach((poder, idx) => container.appendChild(createPowerCard(poder, idx)));
-        }
-        function createPowerCard(poder, idx) {
-            const card = document.createElement('div');
-            card.className = 'power-card' + (poder.sold ? ' sold-out' : '');
-            card.innerHTML = `<div class="power-card-top"><span class="power-icon">${poder.icone}</span><div><div class="power-name">${poder.nome}</div></div></div><div class="power-desc">${poder.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${poder.custo} moedas</div>${poder.sold ? '<div class="sold-badge">Vendido</div>' : `<button class="buy-btn" onclick="buyPower(${idx})">Comprar</button>`}</div>`;
-            return card;
-        }
-        window.buyPower = function (idx) {
-            const poder = shopPowers[idx]; if (!poder || poder.sold) return;
-            poder.sold = true;
-            if (remainingPool.length > 0) setTimeout(() => { shopPowers[idx] = remainingPool.shift(); renderShop(); }, 800);
-            showToast(`${poder.icone} ${poder.nome} comprado! Turno perdido.`);
-            renderShop();
-            // Buying costs a turn — only if it's currently my turn
-            if (myTurn) {
-                turn = (turn === 'w') ? 'b' : 'w';
-                myTurn = false;
-                selected = null; legalSquares = []; render(); updateTurnBanner();
-            }
-        };
-        function showToast(message) {
-            const old = document.querySelector('.purchase-toast'); if (old) old.remove();
-            const t = document.createElement('div'); t.className = 'purchase-toast'; t.textContent = message;
-            document.body.appendChild(t); setTimeout(() => t.remove(), 2700);
-        }
+        // ── Shop ──────────────────────────────────────────────
+        function initShop() { const s = embaralharPoderes(TODOS_OS_PODERES, 6); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
+        function renderShop() { const c = document.getElementById('shopSlots'); c.innerHTML = ''; shopPowers.forEach((p, i) => c.appendChild(mkCard(p, i))); }
+        function mkCard(p, i) { const c = document.createElement('div'); c.className = 'power-card' + (p.sold ? ' sold-out' : ''); c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${p.sold ? '<div class="sold-badge">Vendido</div>' : `<button class="buy-btn" onclick="buyPower(${i})">Comprar</button>`}</div>`; return c; }
+        window.buyPower = function (i) { const p = shopPowers[i]; if (!p || p.sold) return; p.sold = true; if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800); showToast(`${p.icone} ${p.nome} comprado! Turno perdido.`); renderShop(); if (myTurn) { turn = turn === 'w' ? 'b' : 'w'; myTurn = false; selected = null; legalSquares = []; render(); updateBanner(); } };
+        function showToast(m) { const o = document.querySelector('.purchase-toast'); if (o) o.remove(); const t = document.createElement('div'); t.className = 'purchase-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2700); }
 
-        // ── Render ─────────────────────────────────────────────
+        // ── Render ────────────────────────────────────────────
         function render() {
-            const grid = document.getElementById('boardGrid'); grid.innerHTML = '';
-            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+            const g = document.getElementById('boardGrid'); g.innerHTML = '';
+            for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) {
                 const sq = document.createElement('div'); sq.className = 'sq'; sq.dataset.row = r; sq.dataset.col = c;
-                if (lastMove) { if (r === lastMove.fromRow && c === lastMove.fromCol) sq.classList.add('last-from'); if (r === lastMove.toRow && c === lastMove.toCol) sq.classList.add('last-to'); }
+                if (lastMove) { if (r === lastMove.fr && c === lastMove.fc) sq.classList.add('last-from'); if (r === lastMove.tr && c === lastMove.tc) sq.classList.add('last-to'); }
                 if (selected && selected.row === r && selected.col === c) sq.classList.add('selected');
-                const legal = legalSquares.find(m => m.row === r && m.col === c);
-                if (legal) sq.classList.add(legal.capture ? 'legal-capture' : 'legal-move');
+                const lg = legalSquares.find(m => m.row === r && m.col === c);
+                if (lg) sq.classList.add(lg.capture ? 'legal-capture' : 'legal-move');
                 if (kingChecked && r === kingChecked.row && c === kingChecked.col) sq.classList.add('in-check');
-                const piece = board[r][c];
-                if (piece) { const pDiv = document.createElement('div'); pDiv.className = 'piece'; const pText = document.createElement('div'); pText.className = 'piece-text'; pText.style.cssText = PIECE_COLOR_STYLE[piece.color]; pText.textContent = PIECE_UNICODE[piece.color + piece.type]; pDiv.appendChild(pText); sq.appendChild(pDiv); }
-                sq.addEventListener('click', onSquareClick);
-                grid.appendChild(sq);
+                const pc = board[r][c];
+                if (pc) { const d = document.createElement('div'); d.className = 'piece'; const t = document.createElement('div'); t.className = 'piece-text'; t.style.cssText = PS[pc.color]; t.textContent = PU[pc.color + pc.type]; d.appendChild(t); sq.appendChild(d); }
+                sq.addEventListener('click', onSqClick); g.appendChild(sq);
             }
-            updatePlayerCards();
+            updateCards();
         }
 
-        // ── UI ─────────────────────────────────────────────────
-        function updateTurnBanner() {
-            const banner = document.getElementById('turnBanner');
-            banner.textContent = turn === 'w' ? 'Vez das Brancas' : 'Vez das Pretas';
-            banner.className = 'turn-banner' + (turn === 'b' ? ' black-turn' : '');
-        }
-        const COL_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-        const PIECE_LETTER = { K: 'R', Q: 'D', R: 'T', B: 'B', N: 'C', P: '' };
-        function toAlgebraic(move, piece, captured, isCheck, isMate) {
-            if (move.castle === 'K') return isMate ? '0-0#' : isCheck ? '0-0+' : '0-0';
-            if (move.castle === 'Q') return isMate ? '0-0-0#' : isCheck ? '0-0-0+' : '0-0-0';
-            const col = COL_LETTERS[move.col], row = 8 - move.row, pLetter = PIECE_LETTER[piece.type];
-            const capSign = (captured || move.enPassant) ? 'x' : '', suffix = isMate ? '#' : isCheck ? '+' : '';
-            const originCol = (piece.type === 'P' && capSign) ? COL_LETTERS[move.fromCol ?? 'x'] : '';
-            return `${pLetter}${originCol}${capSign}${col}${row}${suffix}`;
-        }
-        function recordMove(notation, color) {
-            if (color === 'w') { pendingWhiteMove = { num: moveHistory.length + 1, white: notation, black: null }; }
-            else { if (pendingWhiteMove) { pendingWhiteMove.black = notation; moveHistory.push(pendingWhiteMove); pendingWhiteMove = null; } else { moveHistory.push({ num: moveHistory.length + 1, white: '—', black: notation }); } }
-            renderHistory();
-        }
-        function renderHistory() {
-            const list = document.getElementById('historyList'); list.innerHTML = '';
-            let rows = [...moveHistory]; if (pendingWhiteMove) rows.push(pendingWhiteMove);
-            rows = rows.slice(-6);
-            rows.forEach((entry, i) => { const row = document.createElement('div'); row.className = 'history-row' + (i === rows.length - 1 ? ' latest' : ''); row.innerHTML = `<span class="history-num">${entry.num}.</span><span class="history-move-w">${entry.white || ''}</span><span class="history-move-b">${entry.black || ''}</span>`; list.appendChild(row); });
-            list.scrollTop = list.scrollHeight;
-        }
-        function updatePlayerCards() {
-            const cardW = document.getElementById('cardWhite'), cardB = document.getElementById('cardBlack');
-            if (turn === 'w') { cardW.classList.add('active-turn'); cardB.classList.remove('active-turn'); }
-            else { cardB.classList.add('active-turn'); cardW.classList.remove('active-turn'); }
-            document.getElementById('captWhite').textContent = capturedW.slice(-6).map(p => PIECE_UNICODE[p]).join(' ');
-            document.getElementById('captBlack').textContent = capturedB.slice(-6).map(p => PIECE_UNICODE[p]).join(' ');
-            animCount('captWhiteCount', capturedW.length); animCount('captBlackCount', capturedB.length);
-        }
-        function animCount(id, v) { const el = document.getElementById(id), old = el.textContent; el.textContent = v; if (String(old) !== String(v)) { el.classList.remove('score-pop'); void el.offsetWidth; el.classList.add('score-pop'); } }
+        // ── UI ────────────────────────────────────────────────
+        function updateBanner() { const b = document.getElementById('turnBanner'); b.textContent = turn === 'w' ? 'Vez das Brancas' : 'Vez das Pretas'; b.className = 'turn-banner' + (turn === 'b' ? ' black-turn' : ''); if (myTurn) b.textContent += ' (sua vez)'; }
+        function recordMove(n, c) { if (c === 'w') { pendingWhiteMove = { num: moveHistory.length + 1, white: n, black: null }; } else { if (pendingWhiteMove) { pendingWhiteMove.black = n; moveHistory.push(pendingWhiteMove); pendingWhiteMove = null; } else { moveHistory.push({ num: moveHistory.length + 1, white: '—', black: n }); } } renderHistory(); }
+        function renderHistory() { const l = document.getElementById('historyList'); l.innerHTML = ''; let rs = [...moveHistory]; if (pendingWhiteMove) rs.push(pendingWhiteMove); rs = rs.slice(-6); rs.forEach((e, i) => { const r = document.createElement('div'); r.className = 'history-row' + (i === rs.length - 1 ? ' latest' : ''); r.innerHTML = `<span class="history-num">${e.num}.</span><span class="history-move-w">${e.white || ''}</span><span class="history-move-b">${e.black || ''}</span>`; l.appendChild(r); }); l.scrollTop = l.scrollHeight; }
+        function updateCards() { const W = document.getElementById('cardWhite'), B = document.getElementById('cardBlack'); if (turn === 'w') { W.classList.add('active-turn'); B.classList.remove('active-turn'); } else { B.classList.add('active-turn'); W.classList.remove('active-turn'); } document.getElementById('captWhite').textContent = capturedW.slice(-6).map(p => PU[p]).join(' '); document.getElementById('captBlack').textContent = capturedB.slice(-6).map(p => PU[p]).join(' '); animC('captWhiteCount', capturedW.length); animC('captBlackCount', capturedB.length); }
+        function animC(id, v) { const el = document.getElementById(id), old = el.textContent; el.textContent = v; if (String(old) !== String(v)) { el.classList.remove('score-pop'); void el.offsetWidth; el.classList.add('score-pop'); } }
 
-        // ── Board sizing ───────────────────────────────────────
-        function resizeBoard() {
-            const available = Math.min((window.innerWidth - 480) * .95, window.innerHeight * .72);
-            boardSize = Math.max(280, Math.floor(available / 8) * 8);
-            const outer = document.getElementById('boardOuter');
-            outer.style.width = boardSize + 'px'; outer.style.height = boardSize + 'px';
-        }
+        // ── Board size ────────────────────────────────────────
+        function resizeBoard() { const a = Math.min((window.innerWidth - 480) * .95, window.innerHeight * .72), s = Math.max(280, Math.floor(a / 8) * 8), o = document.getElementById('boardOuter'); o.style.width = s + 'px'; o.style.height = s + 'px'; }
         window.addEventListener('resize', () => { resizeBoard(); render(); }); resizeBoard();
 
-        // ── Click handler ──────────────────────────────────────
-        async function onSquareClick(e) {
-            if (!myTurn) return; // block opponent's turn
+        // ── Click handler ─────────────────────────────────────
+        async function onSqClick(e) {
+            if (!myTurn || gameOver) return;
             const sq = e.currentTarget, row = +sq.dataset.row, col = +sq.dataset.col;
             if (selected) {
-                const move = legalSquares.find(m => m.row === row && m.col === col);
-                if (move) { await executeMove(move); return; }
-                if (board[row][col] && board[row][col].color === turn) { selected = { row, col }; legalSquares = getLegalMoves(row, col); render(); return; }
+                const mv = legalSquares.find(m => m.row === row && m.col === col);
+                if (mv) { await execMove(mv); return; }
+                if (board[row][col] && board[row][col].color === MY_CC) { selected = { row, col }; legalSquares = getLegal(row, col); render(); return; }
                 selected = null; legalSquares = []; render(); return;
             }
-            const piece = board[row][col];
-            if (!piece || piece.color !== MY_COLOR_CHESS) return; // can only pick own color
-            selected = { row, col }; legalSquares = getLegalMoves(row, col); render();
+            const p = board[row][col];
+            if (!p || p.color !== MY_CC) return;
+            selected = { row, col }; legalSquares = getLegal(row, col); render();
         }
 
-        // ── Execute move (local state + send to Supabase) ──────
-        async function executeMove(move, fromRemote = false) {
-            const { row: fromRow, col: fromCol } = fromRemote ? { row: move.fromRow, col: move.fromCol } : selected;
-            const { row: toRow, col: toCol } = move;
-            const piece = board[fromRow][fromCol];
-            const captured = board[toRow][toCol];
-            if (captured) { if (turn === 'w') capturedW.push(captured.color + captured.type); else capturedB.push(captured.color + captured.type); }
-            if (move.enPassant) { const epRow = (turn === 'w') ? toRow + 1 : toRow - 1; const ep = board[epRow][toCol]; if (ep) { if (turn === 'w') capturedW.push(ep.color + ep.type); else capturedB.push(ep.color + ep.type); } board[epRow][toCol] = null; }
-            board[toRow][toCol] = piece; board[fromRow][fromCol] = null;
-            lastMove = { fromRow, fromCol, toRow, toCol };
-            if (move.castle === 'K') { board[toRow][5] = board[toRow][7]; board[toRow][7] = null; }
-            if (move.castle === 'Q') { board[toRow][3] = board[toRow][0]; board[toRow][0] = null; }
-            if (piece.type === 'K') { castlingRights[turn + 'K'] = false; castlingRights[turn + 'Q'] = false; }
-            if (piece.type === 'R') { if (fromCol === 7) castlingRights[turn + 'K'] = false; if (fromCol === 0) castlingRights[turn + 'Q'] = false; }
-            enPassantTarget = null;
-            if (piece.type === 'P' && Math.abs(toRow - fromRow) === 2) enPassantTarget = { row: (fromRow + toRow) / 2, col: toCol };
-
-            let promotedTo = null;
-            if (piece.type === 'P' && (toRow === 0 || toRow === 7)) {
-                if (!fromRemote) { promotedTo = await askPromotion(turn); }
-                else { promotedTo = move.promo || 'Q'; }
-                board[toRow][toCol] = { color: turn, type: promotedTo };
-            }
-
-            const movedColor = turn, movedPiece = board[toRow][toCol];
-            turn = (turn === 'w') ? 'b' : 'w';
-            selected = null; legalSquares = [];
-            kingChecked = null;
-            const oppKing = findKing(turn);
-            const newCheck = oppKing && isInCheck(turn, board);
-            if (newCheck) kingChecked = oppKing;
-            const allMoves = getAllLegalMoves(turn);
-            const isMate = allMoves.length === 0 && newCheck;
-            const notation = toAlgebraic({ ...move, fromCol }, movedPiece, captured, newCheck, isMate);
-            recordMove(notation, movedColor);
-
-            // NO board flip for online game
-            render(); updateTurnBanner();
-
-            // Send to Supabase (only if this was our move, not a remote one)
-            if (!fromRemote && !sending) {
-                sending = true; turnCount++;
-                await supabase.from('jogadas').insert({
-                    partida_id: partida.id, turno: turnCount, cor: MY_COR,
-                    de: COL_LETTERS[fromCol] + (8 - fromRow), para: COL_LETTERS[toCol] + (8 - toRow),
-                    peca: piece.type, captura: captured ? captured.type : null,
-                    promocao: promotedTo,
-                    estado_json: JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, moveHistory, pendingWhiteMove, turnCount })
-                });
-                sending = false;
-                myTurn = false; // now opponent's turn
-            } else if (fromRemote) {
-                myTurn = true; // now my turn
-            }
-
-            if (allMoves.length === 0) {
-                setTimeout(() => { if (isMate) showEndModal(turn === 'w' ? 'Pretas' : 'Brancas'); else showStalemateModal(); }, 400);
-                // Update partida status
-                await supabase.from('partidas').update({ status: 'finalizada' }).eq('id', partida.id);
-            }
-        }
-
-        // ── Apply remote move received via Realtime ────────────
-        function applyRemoteMove(j) {
-            const fromCol = j.de.charCodeAt(0) - 97, fromRow = 8 - parseInt(j.de[1]);
-            const toCol = j.para.charCodeAt(0) - 97, toRow = 8 - parseInt(j.para[1]);
-            const piece = board[fromRow][fromCol];
+        // ── Execute move ──────────────────────────────────────
+        async function execMove(mv, fromRemote = false, remoteFrom = null) {
+            const fr = fromRemote ? remoteFrom.fr : selected.row;
+            const fc = fromRemote ? remoteFrom.fc : selected.col;
+            const tr = mv.row, tc = mv.col;
+            const piece = board[fr][fc];
+            const captured = board[tr][tc];
             if (!piece) return;
-            // reconstruct move object
-            const captured = board[toRow][toCol];
-            const isEP = piece.type === 'P' && !captured && fromCol !== toCol;
-            const isCastleK = piece.type === 'K' && toCol - fromCol === 2;
-            const isCastleQ = piece.type === 'K' && fromCol - toCol === 2;
-            const move = { row: toRow, col: toCol, capture: !!captured, enPassant: isEP, castle: isCastleK ? 'K' : isCastleQ ? 'Q' : null, fromRow, fromCol, promo: j.promocao };
-            executeMove(move, true);
+            if (captured) { if (turn === 'w') capturedW.push(captured.color + captured.type); else capturedB.push(captured.color + captured.type); }
+            if (mv.enPassant) { const epr = (turn === 'w') ? tr + 1 : tr - 1; const ep = board[epr][tc]; if (ep) { if (turn === 'w') capturedW.push(ep.color + ep.type); else capturedB.push(ep.color + ep.type); } board[epr][tc] = null; }
+            board[tr][tc] = piece; board[fr][fc] = null;
+            lastMove = { fr, fc, tr, tc };
+            if (mv.castle === 'K') { board[tr][5] = board[tr][7]; board[tr][7] = null; }
+            if (mv.castle === 'Q') { board[tr][3] = board[tr][0]; board[tr][0] = null; }
+            if (piece.type === 'K') { castlingRights[turn + 'K'] = false; castlingRights[turn + 'Q'] = false; }
+            if (piece.type === 'R') { if (fc === 7) castlingRights[turn + 'K'] = false; if (fc === 0) castlingRights[turn + 'Q'] = false; }
+            enPassantTarget = null;
+            if (piece.type === 'P' && Math.abs(tr - fr) === 2) enPassantTarget = { row: (fr + tr) / 2, col: tc };
+
+            let promo = null;
+            if (piece.type === 'P' && (tr === 0 || tr === 7)) {
+                if (!fromRemote) { promo = await askPromo(turn); }
+                else { promo = mv.promo || 'Q'; }
+                board[tr][tc] = { color: turn, type: promo };
+            }
+
+            const mc = turn, mp = board[tr][tc];
+            turn = turn === 'w' ? 'b' : 'w';
+            selected = null; legalSquares = []; kingChecked = null;
+            const ok = findKing(turn); const nc = ok && isCheck(turn, board);
+            if (nc) kingChecked = ok;
+            const all = getAllLegal(turn); const mate = all.length === 0 && nc;
+            const alg = algebraic({ ...mv, fromCol: fc }, mp, captured, nc, mate);
+            recordMove(alg, mc);
+            render(); updateBanner();
+
+            // Send to Supabase (my move only)
+            if (!fromRemote) {
+                lastSeenTurn++;
+                await supabase.from('jogadas').insert({
+                    partida_id: partida.id, turno: lastSeenTurn, cor: MY_COR,
+                    de: COL[fc] + (8 - fr), para: COL[tc] + (8 - tr),
+                    peca: piece.type, captura: captured ? captured.type : null, promocao: promo,
+                    estado_json: serializeState()
+                });
+                myTurn = false;
+            } else {
+                lastSeenTurn++;
+                myTurn = true;
+            }
+
+            if (all.length === 0) {
+                if (mate) {
+                    const winner = turn === 'w' ? 'preto' : 'branco'; // who just mated
+                    await finalizaPartida(winner);
+                    showGameOver(mc === 'w');
+                } else {
+                    await finalizaPartida(null);
+                    showGameOver(null);
+                }
+            }
         }
 
-        // ── Legal moves (same engine as local) ─────────────────
-        function getLegalMoves(row, col) { return getPseudoMoves(row, col, board).filter(m => !isInCheck(board[row][col].color, simulateMove(board, row, col, m.row, m.col, m))); }
-        function getAllLegalMoves(color) { const ms = []; for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if (board[r][c] && board[r][c].color === color) getLegalMoves(r, c).forEach(m => ms.push({ fromRow: r, fromCol: c, ...m })); return ms; }
-        function simulateMove(b, fr, fc, tr, tc, move) { const sim = b.map(r => r.map(p => p ? { ...p } : null)); const piece = sim[fr][fc]; sim[tr][tc] = piece; sim[fr][fc] = null; if (move && move.enPassant) { const epr = (piece.color === 'w') ? tr + 1 : tr - 1; sim[epr][tc] = null; } if (move && move.castle === 'K') { sim[tr][5] = sim[tr][7]; sim[tr][7] = null; } if (move && move.castle === 'Q') { sim[tr][3] = sim[tr][0]; sim[tr][0] = null; } return sim; }
-        function isInCheck(color, b) { const kPos = findKingIn(color, b); if (!kPos) return false; return isSquareAttacked(kPos.row, kPos.col, color === 'w' ? 'b' : 'w', b); }
-        function findKing(color) { return findKingIn(color, board); }
-        function findKingIn(color, b) { for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if (b[r][c] && b[r][c].color === color && b[r][c].type === 'K') return { row: r, col: c }; return null; }
-        function isSquareAttacked(row, col, byColor, b) { for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = b[r][c]; if (!p || p.color !== byColor) continue; if (getAttacks(r, c, b).some(a => a.row === row && a.col === col)) return true; } return false; }
-        function getAttacks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], add = (row, col) => { if (inBounds(row, col)) ms.push({ row, col }); }, slide = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inBounds(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) break; nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const dir = p.color === 'w' ? -1 : 1; add(r + dir, c - 1); add(r + dir, c + 1); break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; case 'R': slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1); break; case 'B': slide(-1, -1); slide(-1, 1); slide(1, -1); slide(1, 1); break; case 'Q': slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1); slide(-1, -1); slide(-1, 1); slide(1, -1); slide(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; } return ms; }
-        function getPseudoMoves(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], enemy = p.color === 'w' ? 'b' : 'w', addE = (row, col) => { if (inBounds(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, addC = (row, col) => { if (inBounds(row, col) && b[row][col] && b[row][col].color === enemy) ms.push({ row, col, capture: true }); }, slide = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inBounds(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === enemy) ms.push({ row: nr, col: nc, capture: true }); break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const dir = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; addE(r + dir, c); if (r === sr && !b[r + dir][c] && !b[r + 2 * dir][c]) ms.push({ row: r + 2 * dir, col: c, capture: false }); addC(r + dir, c - 1); addC(r + dir, c + 1); if (enPassantTarget) { const { row: epr, col: epc } = enPassantTarget; if (r + dir === epr && Math.abs(c - epc) === 1) ms.push({ row: epr, col: epc, capture: true, enPassant: true }); } break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inBounds(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === enemy) ms.push({ row: nr, col: nc, capture: true }); }); break; case 'R': slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1); break; case 'B': slide(-1, -1); slide(-1, 1); slide(1, -1); slide(1, 1); break; case 'Q': slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1); slide(-1, -1); slide(-1, 1); slide(1, -1); slide(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inBounds(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === enemy) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSquareAttacked(cr, 4, enemy, b) && !isSquareAttacked(cr, 5, enemy, b) && !isSquareAttacked(cr, 6, enemy, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSquareAttacked(cr, 4, enemy, b) && !isSquareAttacked(cr, 3, enemy, b) && !isSquareAttacked(cr, 2, enemy, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } } return ms; }
-        function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+        // ── Serialize state for Supabase ──────────────────────
+        function serializeState() { return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, moveHistory, pendingWhiteMove, lastSeenTurn }); }
+        function loadState(json) { try { const s = JSON.parse(json); board = s.board; turn = s.turn; capturedW = s.capturedW; capturedB = s.capturedB; enPassantTarget = s.enPassantTarget; castlingRights = s.castlingRights; moveHistory = s.moveHistory || []; pendingWhiteMove = s.pendingWhiteMove || null; lastSeenTurn = s.lastSeenTurn || 0; } catch (e) { } }
 
-        // ── Promotion ──────────────────────────────────────────
-        function askPromotion(color) {
-            return new Promise(resolve => { promoResolve = resolve; const overlay = document.getElementById('promoOverlay'), choices = document.getElementById('promoChoices'); choices.innerHTML = '';['Q', 'R', 'B', 'N'].forEach(type => { const btn = document.createElement('div'); btn.className = 'promo-choice'; btn.textContent = PIECE_UNICODE[color + type]; btn.style.cssText = PIECE_COLOR_STYLE[color]; btn.addEventListener('click', () => { overlay.classList.remove('active'); resolve(type); }); choices.appendChild(btn); }); overlay.classList.add('active'); });
+        // ── Apply remote move from Supabase row ───────────────
+        function applyRemoteMove(j) {
+            if (gameOver) return;
+            const fc = j.de.charCodeAt(0) - 97, fr = 8 - parseInt(j.de[1]);
+            const tc = j.para.charCodeAt(0) - 97, tr = 8 - parseInt(j.para[1]);
+            const piece = board[fr][fc];
+            if (!piece) return;
+            const captured = board[tr][tc];
+            const isEP = piece.type === 'P' && !captured && fc !== tc;
+            const ck = piece.type === 'K', dcol = tc - fc;
+            const castle = ck && dcol === 2 ? 'K' : ck && dcol === -2 ? 'Q' : null;
+            const mv = { row: tr, col: tc, capture: !!captured, enPassant: isEP, castle, promo: j.promocao };
+            execMove(mv, true, { fr, fc });
         }
 
-        // ── Modals ─────────────────────────────────────────────
-        function showEndModal(winner) { document.getElementById('modalTitle').textContent = 'Xeque-Mate!'; document.getElementById('modalSub').textContent = `As ${winner} venceram!`; document.getElementById('modalOverlay').classList.add('active'); }
-        function showStalemateModal() { document.getElementById('modalTitle').textContent = 'Empate!'; document.getElementById('modalSub').textContent = 'Afogamento — nenhum movimento legal.'; document.getElementById('modalOverlay').classList.add('active'); }
+        // ── Chess engine (identical to local) ─────────────────
+        function getLegal(r, c) { return getPseudo(r, c, board).filter(m => !isCheck(board[r][c].color, simMove(board, r, c, m.row, m.col, m))); }
+        function getAllLegal(color) { const ms = []; for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (board[r][c] && board[r][c].color === color) getLegal(r, c).forEach(m => ms.push({ fr: r, fc: c, ...m })); return ms; }
+        function simMove(b, fr, fc, tr, tc, mv) { const s = b.map(r => r.map(p => p ? { ...p } : null)); const p = s[fr][fc]; s[tr][tc] = p; s[fr][fc] = null; if (mv && mv.enPassant) { const er = (p.color === 'w') ? tr + 1 : tr - 1; s[er][tc] = null; } if (mv && mv.castle === 'K') { s[tr][5] = s[tr][7]; s[tr][7] = null; } if (mv && mv.castle === 'Q') { s[tr][3] = s[tr][0]; s[tr][0] = null; } return s; }
+        function isCheck(col, b) { const k = findKIn(col, b); if (!k) return false; return isSqAttacked(k.row, k.col, col === 'w' ? 'b' : 'w', b); }
+        function findKing(col) { return findKIn(col, board); }
+        function findKIn(col, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (b[r][c] && b[r][c].color === col && b[r][c].type === 'K') return { row: r, col: c }; return null; }
+        function isSqAttacked(row, col, by, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) { const p = b[r][c]; if (!p || p.color !== by) continue; if (getAtks(r, c, b).some(a => a.row === row && a.col === col)) return true; } return false; }
+        function getAtks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], add = (row, col) => { if (inB(row, col)) ms.push({ row, col }); }, sld = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) break; nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1; add(r + d, c - 1); add(r + d, c + 1); break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; case 'R': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); break; case 'B': sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'Q': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; }return ms; }
+        function getPseudo(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], en = p.color === 'w' ? 'b' : 'w', aE = (row, col) => { if (inB(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, aC = (row, col) => { if (inB(row, col) && b[row][col] && b[row][col].color === en) ms.push({ row, col, capture: true }); }, sl = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; aE(r + d, c); if (r === sr && !b[r + d][c] && !b[r + 2 * d][c]) ms.push({ row: r + 2 * d, col: c, capture: false }); aC(r + d, c - 1); aC(r + d, c + 1); if (enPassantTarget) { const { row: er, col: ec } = enPassantTarget; if (r + d === er && Math.abs(c - ec) === 1) ms.push({ row: er, col: ec, capture: true, enPassant: true }); } break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); break; case 'R': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); break; case 'B': sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'Q': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 5, en, b) && !isSqAttacked(cr, 6, en, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 3, en, b) && !isSqAttacked(cr, 2, en, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } }return ms; }
+        function inB(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+        function algebraic(mv, pc, cap, chk, mate) { if (mv.castle === 'K') return mate ? '0-0#' : chk ? '0-0+' : '0-0'; if (mv.castle === 'Q') return mate ? '0-0-0#' : chk ? '0-0-0+' : '0-0-0'; const col = COL[mv.col], row = 8 - mv.row, pl = PL[pc.type], cs = (cap || mv.enPassant) ? 'x' : '', sf = mate ? '#' : chk ? '+' : '', oc = (pc.type === 'P' && cs) ? COL[mv.fromCol ?? 0] : ''; return `${pl}${oc}${cs}${col}${row}${sf}`; }
 
-        // ── Wait overlay ───────────────────────────────────────
-        function setWait(msg) { document.getElementById('waitMsg').textContent = msg; document.getElementById('waitOverlay').classList.remove('hidden'); }
+        // ── Promotion ─────────────────────────────────────────
+        function askPromo(color) { return new Promise(res => { promoResolve = res; const ov = document.getElementById('promoOverlay'), ch = document.getElementById('promoChoices'); ch.innerHTML = '';['Q', 'R', 'B', 'N'].forEach(t => { const b = document.createElement('div'); b.className = 'promo-choice'; b.textContent = PU[color + t]; b.style.cssText = PS[color]; b.addEventListener('click', () => { ov.classList.remove('active'); res(t); }); ch.appendChild(b); }); ov.classList.add('active'); }); }
+
+        // ── Game over (image overlay) ─────────────────────────
+        async function finalizaPartida(winnerCor) {
+            gameOver = true;
+            myTurn = false;
+            if (movePollInterval) clearInterval(movePollInterval);
+            await supabase.from('partidas').update({ status: 'finalizada' }).eq('id', partida.id);
+        }
+
+        function showGameOver(iWon) {
+            // iWon: true = eu venci, false = eu perdi, null = empate
+            const img = document.getElementById('gameoverImg');
+            if (iWon === null) {
+                // Draw — show defeat sprite for both (no draw sprite available)
+                img.src = '../spritesxadrez/sprites/spr_derrota.png';
+            } else if (iWon) {
+                // Winner sees their color's victory image
+                img.src = MY_CC === 'w' ? '../spritesxadrez/sprites/spr_vitoria_brancas.png' : '../spritesxadrez/sprites/spr_vitoria_pretas.png';
+            } else {
+                img.src = '../spritesxadrez/sprites/spr_derrota.png';
+            }
+            document.getElementById('gameoverOverlay').classList.add('active');
+        }
+
+        // ── Surrender ─────────────────────────────────────────
+        document.getElementById('btnSurrender').addEventListener('click', async () => {
+            if (gameOver) return;
+            if (!confirm('Tem certeza que quer se render? Você perderá a partida.')) return;
+            // Insert a special surrender move
+            await supabase.from('jogadas').insert({
+                partida_id: partida.id, turno: lastSeenTurn + 1, cor: MY_COR,
+                de: 'surrender', para: 'surrender', peca: 'K',
+                estado_json: JSON.stringify({ surrender: true, loser: MY_COR })
+            });
+            await finalizaPartida(MY_COR === 'branco' ? 'preto' : 'branco');
+            showGameOver(false); // I surrendered = I lost
+        });
+
+        // ── POLLING for opponent moves (main sync mechanism) ──
+        let movePollInterval = null;
+
+        async function pollMoves() {
+            if (gameOver) return;
+            try {
+                const { data: moves } = await supabase
+                    .from('jogadas')
+                    .select('*')
+                    .eq('partida_id', partida.id)
+                    .order('turno', { ascending: true });
+
+                if (!moves || moves.length === 0) return;
+
+                // Check for surrender from opponent
+                const surrender = moves.find(j => j.de === 'surrender' && j.cor !== MY_COR);
+                if (surrender && !gameOver) {
+                    // Opponent surrendered — I win
+                    await finalizaPartida(MY_COR);
+                    showGameOver(true);
+                    return;
+                }
+
+                // Apply any moves we haven't seen yet (from opponent)
+                const opponentMoves = moves.filter(j => j.cor !== MY_COR && j.turno > lastSeenTurn && j.de !== 'surrender');
+                for (const j of opponentMoves) {
+                    applyRemoteMove(j);
+                    // applyRemoteMove increments lastSeenTurn and sets myTurn=true
+                }
+            } catch (e) { /* network error */ }
+        }
+
+        // ── Wait overlay helpers ──────────────────────────────
+        function setWait(m) { document.getElementById('waitMsg').textContent = m; document.getElementById('waitOverlay').classList.remove('hidden'); }
         function hideWait() { document.getElementById('waitOverlay').classList.add('hidden'); document.getElementById('gameRoot').style.display = 'grid'; }
 
-        // ── Load existing moves (reconnection) ─────────────────
-        setWait('Sincronizando jogadas...');
-        const { data: jogadasExist } = await supabase.from('jogadas').select('*').eq('partida_id', partida.id).order('turno');
+        // ── INIT ──────────────────────────────────────────────
+        setWait('Sincronizando...');
+        const { data: existingMoves } = await supabase
+            .from('jogadas').select('*').eq('partida_id', partida.id).order('turno');
 
         initBoard();
 
-        if (jogadasExist && jogadasExist.length > 0) {
-            const ultima = jogadasExist[jogadasExist.length - 1];
-            if (ultima.estado_json) {
-                try {
-                    const st = JSON.parse(ultima.estado_json);
-                    board = st.board; turn = st.turn; capturedW = st.capturedW; capturedB = st.capturedB;
-                    enPassantTarget = st.enPassantTarget; castlingRights = st.castlingRights;
-                    moveHistory = st.moveHistory || []; pendingWhiteMove = st.pendingWhiteMove || null;
-                    turnCount = st.turnCount || jogadasExist.length;
-                } catch (e) { }
+        // If there are existing moves, load from last state snapshot
+        if (existingMoves && existingMoves.length > 0) {
+            const last = existingMoves[existingMoves.length - 1];
+            if (last.estado_json && last.de !== 'surrender') {
+                loadState(last.estado_json);
+                myTurn = (turn === MY_CC);
             }
-            // after loading state, check whose turn it is
-            myTurn = (turn === MY_COLOR_CHESS);
-            render(); updateTurnBanner(); updatePlayerCards(); renderHistory();
+            render(); updateBanner(); updateCards(); renderHistory();
         }
 
-        // ── Realtime subscription ──────────────────────────────
+        // Subscribe via Realtime (bonus — works if Realtime is enabled)
         supabase.channel('jogadas_' + partida.id)
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'jogadas', filter: `partida_id=eq.${partida.id}` }, (payload) => {
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'jogadas', filter: `partida_id=eq.${partida.id}` }, async (payload) => {
                 const j = payload.new;
-                if (j.cor !== MY_COR) applyRemoteMove(j); // only handle opponent's moves
+                if (j.de === 'surrender' && j.cor !== MY_COR && !gameOver) {
+                    await finalizaPartida(MY_COR); showGameOver(true); return;
+                }
+                if (j.cor !== MY_COR && !gameOver) applyRemoteMove(j);
             })
             .subscribe();
+
+        // Start polling every 2.5 seconds as the reliable fallback
+        movePollInterval = setInterval(pollMoves, 2500);
 
         hideWait();
     </script>
