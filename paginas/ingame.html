@@ -72,7 +72,6 @@
             padding: 14px;
         }
 
-        /* Left panel */
         .left-panel {
             display: flex;
             flex-direction: column;
@@ -117,13 +116,13 @@
             box-shadow: 0 0 20px rgba(201, 168, 76, .12);
         }
 
+        .player-card.active-turn.black-card::before {
+            background: linear-gradient(90deg, #aab8d0, #d5dff0);
+        }
+
         .player-card.active-turn.black-card {
             border-color: rgba(170, 184, 208, .5);
             box-shadow: 0 0 20px rgba(170, 184, 208, .1);
-        }
-
-        .player-card.active-turn.black-card::before {
-            background: linear-gradient(90deg, #aab8d0, #d5dff0);
         }
 
         .player-card-header {
@@ -214,7 +213,6 @@
             color: #aab8d0;
         }
 
-        /* Center col */
         .center-col {
             display: flex;
             flex-direction: column;
@@ -333,7 +331,6 @@
             pointer-events: none;
         }
 
-        /* History */
         .history-panel {
             display: flex;
             flex-direction: column;
@@ -411,7 +408,6 @@
             color: #9ab0d0;
         }
 
-        /* Buttons */
         .btn-row {
             display: flex;
             gap: 12px;
@@ -449,7 +445,6 @@
             background: rgba(232, 64, 64, .08);
         }
 
-        /* Right panel / shop */
         .right-panel {
             display: flex;
             flex-direction: column;
@@ -498,7 +493,6 @@
             position: relative;
             overflow: hidden;
             transition: border-color .25s, box-shadow .25s, transform .2s;
-            cursor: default;
         }
 
         .power-card:hover {
@@ -584,7 +578,7 @@
             border-radius: 3px;
         }
 
-        /* ── GAME OVER OVERLAY (fullscreen image) ── */
+        /* Game over fullscreen */
         .gameover-overlay {
             position: fixed;
             inset: 0;
@@ -595,7 +589,7 @@
             background: rgba(8, 9, 13, .85);
             opacity: 0;
             pointer-events: none;
-            transition: opacity .5s;
+            transition: opacity .6s;
         }
 
         .gameover-overlay.active {
@@ -609,7 +603,7 @@
             object-fit: contain;
             cursor: pointer;
             filter: drop-shadow(0 0 60px rgba(201, 168, 76, .4));
-            animation: imgPop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
+            animation: imgPop .6s cubic-bezier(.34, 1.56, .64, 1) forwards;
         }
 
         @keyframes imgPop {
@@ -622,6 +616,15 @@
                 transform: scale(1);
                 opacity: 1
             }
+        }
+
+        .gameover-hint {
+            position: absolute;
+            bottom: 10%;
+            color: var(--muted);
+            font-size: .8rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
         }
 
         /* Promo */
@@ -727,12 +730,8 @@
             }
 
             30% {
-                transform: scale(1.9) translateY(-4px);
+                transform: scale(1.9);
                 color: var(--gold-light)
-            }
-
-            60% {
-                transform: scale(1.3) translateY(-2px)
             }
 
             100% {
@@ -744,7 +743,7 @@
             animation: scorePop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
         }
 
-        /* Wait overlay */
+        /* Wait */
         .wait-overlay {
             position: fixed;
             inset: 0;
@@ -793,47 +792,44 @@
 <body>
     <div class="page-bg"></div>
 
-    <!-- Waiting overlay -->
     <div class="wait-overlay" id="waitOverlay">
         <div class="spinner"></div>
         <div class="wait-title">CONECTANDO</div>
         <div class="wait-sub" id="waitMsg">Carregando partida...</div>
     </div>
 
-    <!-- Game over fullscreen overlay -->
+    <!-- Game over overlay (fullscreen image) -->
     <div class="gameover-overlay" id="gameoverOverlay">
         <img id="gameoverImg" class="gameover-img" src="" alt="Resultado" onclick="window.location.href='lobby.html'" />
+        <div class="gameover-hint">Clique para voltar ao lobby</div>
     </div>
 
     <div class="game-root" id="gameRoot" style="display:none">
-
-        <!-- LEFT PANEL -->
+        <!-- LEFT -->
         <div class="left-panel">
             <div class="player-card black-card" id="cardBlack">
                 <div class="player-card-header">
                     <div class="player-avatar black-avatar">♚</div>
                     <div>
                         <div class="player-name" id="nameBlack">Pretas</div>
-                        <span class="turn-badge">Vez deles</span>
+                        <span class="turn-badge">SUA VEZ</span>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
                 <div class="captured-pieces" id="captBlack"></div>
                 <div class="capture-count" id="captBlackCount">0</div>
             </div>
-
             <div style="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.3;">
                 <div style="width:1px;flex:1;background:var(--border);"></div>
                 <span style="font-size:1.2rem;">⚔️</span>
                 <div style="width:1px;flex:1;background:var(--border);"></div>
             </div>
-
             <div class="player-card white-card active-turn" id="cardWhite">
                 <div class="player-card-header">
                     <div class="player-avatar white-avatar">♔</div>
                     <div>
                         <div class="player-name" id="nameWhite">Brancas</div>
-                        <span class="turn-badge">Vez deles</span>
+                        <span class="turn-badge">SUA VEZ</span>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
@@ -842,7 +838,7 @@
             </div>
         </div>
 
-        <!-- HISTORY PANEL -->
+        <!-- HISTORY -->
         <div class="history-panel">
             <div class="history-header">
                 <div class="history-title">Histórico</div>
@@ -864,7 +860,7 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL (shop) -->
+        <!-- RIGHT (shop) -->
         <div class="right-panel">
             <div class="shop-header">
                 <div class="shop-title">Loja de Poderes</div>
@@ -890,68 +886,120 @@
         const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-        // ── URL params ────────────────────────────────────────
+        // ── URL params ─────────────────────────────────────────
         const params = new URLSearchParams(location.search);
         const SALA = params.get('sala');
         const MY_COR = params.get('cor'); // 'branco' | 'preto'
         if (!SALA || !MY_COR) { window.location.href = 'lobby.html'; }
-        const MY_CC = MY_COR === 'branco' ? 'w' : 'b'; // chess color
+        const MY_CC = MY_COR === 'branco' ? 'w' : 'b';
+        const OPP_CC = MY_CC === 'w' ? 'b' : 'w';
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; }
 
-        setWait('Carregando partida...');
-        const { data: partida } = await supabase.from('partidas').select('*').eq('codigo_sala', SALA).single();
-        if (!partida) { alert('Sala não encontrada'); window.location.href = 'lobby.html'; }
+        // ── Load partida ───────────────────────────────────────
+        setWaitMsg('Carregando partida...');
+        const { data: partida, error: pErr } = await supabase
+            .from('partidas').select('*').eq('codigo_sala', SALA).single();
+        if (pErr || !partida) { alert('Sala não encontrada'); window.location.href = 'lobby.html'; }
 
-        const [{ data: profW }, { data: profB }] = await Promise.all([
+        const [[{ data: profW }, { data: profB }]] = [await Promise.all([
             supabase.from('profiles').select('username').eq('id', partida.jogador_branco).single(),
             supabase.from('profiles').select('username').eq('id', partida.jogador_preto).single()
-        ]);
+        ])];
         document.getElementById('nameWhite').textContent = profW?.username || 'Brancas';
         document.getElementById('nameBlack').textContent = profB?.username || 'Pretas';
 
-        // ── Chess constants ───────────────────────────────────
+        // ── Chess constants ────────────────────────────────────
         const PU = { wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙', bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟' };
-        const PS = { w: 'color:#fff;text-shadow:0 1px 4px #000,0 0 12px rgba(255,255,255,.3);', b: 'color:#1a1a2e;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.8);-webkit-text-stroke:0.5px #555;' };
+        const PS = {
+            w: 'color:#fff;text-shadow:0 1px 4px #000,0 0 12px rgba(255,255,255,.3);',
+            b: 'color:#1a1a2e;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.8);-webkit-text-stroke:0.5px #555;'
+        };
         const COL = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         const PL = { K: 'R', Q: 'D', R: 'T', B: 'B', N: 'C', P: '' };
 
-        // ── State ─────────────────────────────────────────────
-        let board = [], turn = 'w', selected = null, legalSquares = [], capturedW = [], capturedB = [];
+        // ── Game state ─────────────────────────────────────────
+        let board = [], turn = 'w', selected = null, legalMoves = [];
+        let capturedW = [], capturedB = [];
         let enPassantTarget = null, castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
-        let lastMove = null, kingChecked = null, promoResolve = null;
-        let moveHistory = [], pendingWhiteMove = null, shopPowers = [], remainingPool = [];
-        let myTurn = false, lastSeenTurn = 0, gameOver = false;
+        let lastMove = null, kingChecked = null;
+        let moveHistory = [], pendingWhiteMove = null;
+        let shopPowers = [], remainingPool = [];
+        let myTurn = false, gameOver = false;
+        let lastUltimoTurno = partida.ultimo_turno || 0;
+        let pollInterval = null;
 
-        // ── Init board ────────────────────────────────────────
-        function initBoard() {
+        // ── Init ───────────────────────────────────────────────
+        function freshBoard() {
             board = Array.from({ length: 8 }, () => Array(8).fill(null));
             const bk = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
-            for (let c = 0; c < 8; c++) { board[0][c] = { color: 'b', type: bk[c] }; board[1][c] = { color: 'b', type: 'P' }; board[6][c] = { color: 'w', type: 'P' }; board[7][c] = { color: 'w', type: bk[c] }; }
-            turn = 'w'; selected = null; legalSquares = []; capturedW = []; capturedB = [];
+            for (let c = 0; c < 8; c++) {
+                board[0][c] = { color: 'b', type: bk[c] }; board[1][c] = { color: 'b', type: 'P' };
+                board[6][c] = { color: 'w', type: 'P' }; board[7][c] = { color: 'w', type: bk[c] };
+            }
+            turn = 'w'; selected = null; legalMoves = []; capturedW = []; capturedB = [];
             enPassantTarget = null; castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
-            lastMove = null; kingChecked = null; moveHistory = []; pendingWhiteMove = null; lastSeenTurn = 0; gameOver = false;
+            lastMove = null; kingChecked = null; moveHistory = []; pendingWhiteMove = null; gameOver = false;
             myTurn = (MY_CC === 'w');
-            initShop(); render(); updateBanner(); updateCards(); renderHistory();
         }
 
-        // ── Shop ──────────────────────────────────────────────
+        // ── Serialize / Deserialize ────────────────────────────
+        function saveState() {
+            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove });
+        }
+        function loadState(json) {
+            try {
+                const s = JSON.parse(json);
+                board = s.board; turn = s.turn; capturedW = s.capturedW || []; capturedB = s.capturedB || [];
+                enPassantTarget = s.enPassantTarget || null; castlingRights = s.castlingRights || { wK: true, wQ: true, bK: true, bQ: true };
+                lastMove = s.lastMove || null; moveHistory = s.moveHistory || []; pendingWhiteMove = s.pendingWhiteMove || null;
+                kingChecked = null;
+                // Recalculate check
+                const k = findKIn(turn, board);
+                if (k && isSqAttacked(k.row, k.col, turn === 'w' ? 'b' : 'w', board)) kingChecked = k;
+                myTurn = (turn === MY_CC);
+                return true;
+            } catch (e) { console.error('loadState error:', e); return false; }
+        }
+
+        // ── Push state to Supabase (after MY move) ────────────
+        async function pushState(extra = {}) {
+            const update = {
+                estado_json: saveState(),
+                ultimo_turno: lastUltimoTurno + 1,
+                ...extra
+            };
+            lastUltimoTurno++;
+            const { error } = await supabase.from('partidas').update(update).eq('id', partida.id);
+            if (error) console.error('pushState error:', error.message);
+        }
+
+        // ── Shop ───────────────────────────────────────────────
         function initShop() { const s = embaralharPoderes(TODOS_OS_PODERES, 6); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
         function renderShop() { const c = document.getElementById('shopSlots'); c.innerHTML = ''; shopPowers.forEach((p, i) => c.appendChild(mkCard(p, i))); }
-        function mkCard(p, i) { const c = document.createElement('div'); c.className = 'power-card' + (p.sold ? ' sold-out' : ''); c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${p.sold ? '<div class="sold-badge">Vendido</div>' : `<button class="buy-btn" onclick="buyPower(${i})">Comprar</button>`}</div>`; return c; }
-        window.buyPower = function (i) { const p = shopPowers[i]; if (!p || p.sold) return; p.sold = true; if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800); showToast(`${p.icone} ${p.nome} comprado! Turno perdido.`); renderShop(); if (myTurn) { turn = turn === 'w' ? 'b' : 'w'; myTurn = false; selected = null; legalSquares = []; render(); updateBanner(); } };
+        function mkCard(p, i) {
+            const c = document.createElement('div'); c.className = 'power-card' + (p.sold ? ' sold-out' : '');
+            c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${p.sold ? '<div class="sold-badge">Vendido</div>' : `<button class="buy-btn" onclick="buyPower(${i})">Comprar</button>`}</div>`;
+            return c;
+        }
+        window.buyPower = function (i) {
+            const p = shopPowers[i]; if (!p || p.sold) return;
+            p.sold = true; if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800);
+            showToast(`${p.icone} ${p.nome} comprado! Turno perdido.`); renderShop();
+            if (myTurn) { turn = turn === 'w' ? 'b' : 'w'; myTurn = false; selected = null; legalMoves = []; render(); updateBanner(); }
+        };
         function showToast(m) { const o = document.querySelector('.purchase-toast'); if (o) o.remove(); const t = document.createElement('div'); t.className = 'purchase-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2700); }
 
-        // ── Render ────────────────────────────────────────────
+        // ── Render ─────────────────────────────────────────────
         function render() {
             const g = document.getElementById('boardGrid'); g.innerHTML = '';
-            for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) {
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
                 const sq = document.createElement('div'); sq.className = 'sq'; sq.dataset.row = r; sq.dataset.col = c;
                 if (lastMove) { if (r === lastMove.fr && c === lastMove.fc) sq.classList.add('last-from'); if (r === lastMove.tr && c === lastMove.tc) sq.classList.add('last-to'); }
                 if (selected && selected.row === r && selected.col === c) sq.classList.add('selected');
-                const lg = legalSquares.find(m => m.row === r && m.col === c);
-                if (lg) sq.classList.add(lg.capture ? 'legal-capture' : 'legal-move');
+                const lm = legalMoves.find(m => m.row === r && m.col === c);
+                if (lm) sq.classList.add(lm.capture ? 'legal-capture' : 'legal-move');
                 if (kingChecked && r === kingChecked.row && c === kingChecked.col) sq.classList.add('in-check');
                 const pc = board[r][c];
                 if (pc) { const d = document.createElement('div'); d.className = 'piece'; const t = document.createElement('div'); t.className = 'piece-text'; t.style.cssText = PS[pc.color]; t.textContent = PU[pc.color + pc.type]; d.appendChild(t); sq.appendChild(d); }
@@ -959,147 +1007,151 @@
             }
             updateCards();
         }
-
-        // ── UI ────────────────────────────────────────────────
-        function updateBanner() { const b = document.getElementById('turnBanner'); b.textContent = turn === 'w' ? 'Vez das Brancas' : 'Vez das Pretas'; b.className = 'turn-banner' + (turn === 'b' ? ' black-turn' : ''); if (myTurn) b.textContent += ' (sua vez)'; }
-        function recordMove(n, c) { if (c === 'w') { pendingWhiteMove = { num: moveHistory.length + 1, white: n, black: null }; } else { if (pendingWhiteMove) { pendingWhiteMove.black = n; moveHistory.push(pendingWhiteMove); pendingWhiteMove = null; } else { moveHistory.push({ num: moveHistory.length + 1, white: '—', black: n }); } } renderHistory(); }
-        function renderHistory() { const l = document.getElementById('historyList'); l.innerHTML = ''; let rs = [...moveHistory]; if (pendingWhiteMove) rs.push(pendingWhiteMove); rs = rs.slice(-6); rs.forEach((e, i) => { const r = document.createElement('div'); r.className = 'history-row' + (i === rs.length - 1 ? ' latest' : ''); r.innerHTML = `<span class="history-num">${e.num}.</span><span class="history-move-w">${e.white || ''}</span><span class="history-move-b">${e.black || ''}</span>`; l.appendChild(r); }); l.scrollTop = l.scrollHeight; }
-        function updateCards() { const W = document.getElementById('cardWhite'), B = document.getElementById('cardBlack'); if (turn === 'w') { W.classList.add('active-turn'); B.classList.remove('active-turn'); } else { B.classList.add('active-turn'); W.classList.remove('active-turn'); } document.getElementById('captWhite').textContent = capturedW.slice(-6).map(p => PU[p]).join(' '); document.getElementById('captBlack').textContent = capturedB.slice(-6).map(p => PU[p]).join(' '); animC('captWhiteCount', capturedW.length); animC('captBlackCount', capturedB.length); }
+        function updateBanner() {
+            const b = document.getElementById('turnBanner');
+            const mine = turn === MY_CC;
+            b.textContent = (turn === 'w' ? 'Vez das Brancas' : 'Vez das Pretas') + (mine ? ' — SUA VEZ' : '');
+            b.className = 'turn-banner' + (turn === 'b' ? ' black-turn' : '');
+        }
+        function recordMove(notation, color) {
+            if (color === 'w') { pendingWhiteMove = { num: moveHistory.length + 1, white: notation, black: null }; }
+            else { if (pendingWhiteMove) { pendingWhiteMove.black = notation; moveHistory.push(pendingWhiteMove); pendingWhiteMove = null; } else { moveHistory.push({ num: moveHistory.length + 1, white: '—', black: notation }); } }
+            renderHistory();
+        }
+        function renderHistory() {
+            const l = document.getElementById('historyList'); l.innerHTML = '';
+            let rs = [...moveHistory]; if (pendingWhiteMove) rs.push(pendingWhiteMove); rs = rs.slice(-8);
+            rs.forEach((e, i) => { const r = document.createElement('div'); r.className = 'history-row' + (i === rs.length - 1 ? ' latest' : ''); r.innerHTML = `<span class="history-num">${e.num}.</span><span class="history-move-w">${e.white || ''}</span><span class="history-move-b">${e.black || ''}</span>`; l.appendChild(r); });
+            l.scrollTop = l.scrollHeight;
+        }
+        function updateCards() {
+            const W = document.getElementById('cardWhite'), B = document.getElementById('cardBlack');
+            if (turn === 'w') { W.classList.add('active-turn'); B.classList.remove('active-turn'); }
+            else { B.classList.add('active-turn'); W.classList.remove('active-turn'); }
+            document.getElementById('captWhite').textContent = capturedW.slice(-6).map(p => PU[p] || '').join(' ');
+            document.getElementById('captBlack').textContent = capturedB.slice(-6).map(p => PU[p] || '').join(' ');
+            animC('captWhiteCount', capturedW.length); animC('captBlackCount', capturedB.length);
+        }
         function animC(id, v) { const el = document.getElementById(id), old = el.textContent; el.textContent = v; if (String(old) !== String(v)) { el.classList.remove('score-pop'); void el.offsetWidth; el.classList.add('score-pop'); } }
 
-        // ── Board size ────────────────────────────────────────
+        // ── Board resize ───────────────────────────────────────
         function resizeBoard() { const a = Math.min((window.innerWidth - 480) * .95, window.innerHeight * .72), s = Math.max(280, Math.floor(a / 8) * 8), o = document.getElementById('boardOuter'); o.style.width = s + 'px'; o.style.height = s + 'px'; }
-        window.addEventListener('resize', () => { resizeBoard(); render(); }); resizeBoard();
+        window.addEventListener('resize', () => { resizeBoard(); render(); });
 
-        // ── Click handler ─────────────────────────────────────
+        // ── Click ──────────────────────────────────────────────
         async function onSqClick(e) {
             if (!myTurn || gameOver) return;
             const sq = e.currentTarget, row = +sq.dataset.row, col = +sq.dataset.col;
             if (selected) {
-                const mv = legalSquares.find(m => m.row === row && m.col === col);
-                if (mv) { await execMove(mv); return; }
-                if (board[row][col] && board[row][col].color === MY_CC) { selected = { row, col }; legalSquares = getLegal(row, col); render(); return; }
-                selected = null; legalSquares = []; render(); return;
+                const mv = legalMoves.find(m => m.row === row && m.col === col);
+                if (mv) { await execMove(selected.row, selected.col, mv); return; }
+                if (board[row][col] && board[row][col].color === MY_CC) { selected = { row, col }; legalMoves = getLegal(row, col); render(); return; }
+                selected = null; legalMoves = []; render(); return;
             }
             const p = board[row][col];
             if (!p || p.color !== MY_CC) return;
-            selected = { row, col }; legalSquares = getLegal(row, col); render();
+            selected = { row, col }; legalMoves = getLegal(row, col); render();
         }
 
-        // ── Execute move ──────────────────────────────────────
-        async function execMove(mv, fromRemote = false, remoteFrom = null) {
-            const fr = fromRemote ? remoteFrom.fr : selected.row;
-            const fc = fromRemote ? remoteFrom.fc : selected.col;
+        // ── Apply move (used for both my move and remote) ──────
+        async function execMove(fr, fc, mv, isRemote = false) {
             const tr = mv.row, tc = mv.col;
-            const piece = board[fr][fc];
+            const piece = board[fr][fc]; if (!piece) return;
             const captured = board[tr][tc];
-            if (!piece) return;
-            if (captured) { if (turn === 'w') capturedW.push(captured.color + captured.type); else capturedB.push(captured.color + captured.type); }
-            if (mv.enPassant) { const epr = (turn === 'w') ? tr + 1 : tr - 1; const ep = board[epr][tc]; if (ep) { if (turn === 'w') capturedW.push(ep.color + ep.type); else capturedB.push(ep.color + ep.type); } board[epr][tc] = null; }
+            const movedColor = piece.color;
+
+            if (captured) {
+                if (movedColor === 'w') capturedW.push(captured.color + captured.type);
+                else capturedB.push(captured.color + captured.type);
+            }
+            if (mv.enPassant) {
+                const epr = (movedColor === 'w') ? tr + 1 : tr - 1;
+                const ep = board[epr][tc];
+                if (ep) { movedColor === 'w' ? capturedW.push(ep.color + ep.type) : capturedB.push(ep.color + ep.type); }
+                board[epr][tc] = null;
+            }
             board[tr][tc] = piece; board[fr][fc] = null;
             lastMove = { fr, fc, tr, tc };
+
             if (mv.castle === 'K') { board[tr][5] = board[tr][7]; board[tr][7] = null; }
             if (mv.castle === 'Q') { board[tr][3] = board[tr][0]; board[tr][0] = null; }
-            if (piece.type === 'K') { castlingRights[turn + 'K'] = false; castlingRights[turn + 'Q'] = false; }
-            if (piece.type === 'R') { if (fc === 7) castlingRights[turn + 'K'] = false; if (fc === 0) castlingRights[turn + 'Q'] = false; }
+            if (piece.type === 'K') { castlingRights[movedColor + 'K'] = false; castlingRights[movedColor + 'Q'] = false; }
+            if (piece.type === 'R') { if (fc === 7) castlingRights[movedColor + 'K'] = false; if (fc === 0) castlingRights[movedColor + 'Q'] = false; }
             enPassantTarget = null;
             if (piece.type === 'P' && Math.abs(tr - fr) === 2) enPassantTarget = { row: (fr + tr) / 2, col: tc };
 
             let promo = null;
             if (piece.type === 'P' && (tr === 0 || tr === 7)) {
-                if (!fromRemote) { promo = await askPromo(turn); }
-                else { promo = mv.promo || 'Q'; }
-                board[tr][tc] = { color: turn, type: promo };
+                promo = isRemote ? (mv.promo || 'Q') : await askPromo(movedColor);
+                board[tr][tc] = { color: movedColor, type: promo };
             }
 
-            const mc = turn, mp = board[tr][tc];
-            turn = turn === 'w' ? 'b' : 'w';
-            selected = null; legalSquares = []; kingChecked = null;
-            const ok = findKing(turn); const nc = ok && isCheck(turn, board);
-            if (nc) kingChecked = ok;
-            const all = getAllLegal(turn); const mate = all.length === 0 && nc;
-            const alg = algebraic({ ...mv, fromCol: fc }, mp, captured, nc, mate);
-            recordMove(alg, mc);
+            const nextTurn = movedColor === 'w' ? 'b' : 'w';
+            turn = nextTurn;
+            selected = null; legalMoves = []; kingChecked = null;
+
+            const kpos = findKIn(nextTurn, board);
+            if (kpos && isSqAttacked(kpos.row, kpos.col, movedColor, board)) kingChecked = kpos;
+
+            const allMoves = getAllLegal(nextTurn);
+            const mated = allMoves.length === 0 && (kingChecked != null);
+            const stale = allMoves.length === 0 && !kingChecked;
+
+            const alg = algebraic({ col: tc, row: tr, castle: mv.castle, enPassant: mv.enPassant, fromCol: fc },
+                board[tr][tc], captured, !!kingChecked, mated);
+            recordMove(alg, movedColor);
             render(); updateBanner();
 
-            // Send to Supabase (my move only)
-            if (!fromRemote) {
-                lastSeenTurn++;
-                await supabase.from('jogadas').insert({
-                    partida_id: partida.id, turno: lastSeenTurn, cor: MY_COR,
-                    de: COL[fc] + (8 - fr), para: COL[tc] + (8 - tr),
-                    peca: piece.type, captura: captured ? captured.type : null, promocao: promo,
-                    estado_json: serializeState()
-                });
+            if (!isRemote) {
                 myTurn = false;
-            } else {
-                lastSeenTurn++;
-                myTurn = true;
-            }
-
-            if (all.length === 0) {
-                if (mate) {
-                    const winner = turn === 'w' ? 'preto' : 'branco'; // who just mated
-                    await finalizaPartida(winner);
-                    showGameOver(mc === 'w');
-                } else {
-                    await finalizaPartida(null);
+                if (mated) {
+                    await pushState({ status: 'finalizada', vencedor_id: session.user.id });
+                    showGameOver(true);
+                } else if (stale) {
+                    await pushState({ status: 'finalizada' });
                     showGameOver(null);
+                } else {
+                    await pushState();
                 }
+            } else {
+                myTurn = true;
+                if (mated) { showGameOver(false); }
+                else if (stale) { showGameOver(null); }
             }
+            if (mated || stale) { gameOver = true; if (pollInterval) clearInterval(pollInterval); }
         }
 
-        // ── Serialize state for Supabase ──────────────────────
-        function serializeState() { return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, moveHistory, pendingWhiteMove, lastSeenTurn }); }
-        function loadState(json) { try { const s = JSON.parse(json); board = s.board; turn = s.turn; capturedW = s.capturedW; capturedB = s.capturedB; enPassantTarget = s.enPassantTarget; castlingRights = s.castlingRights; moveHistory = s.moveHistory || []; pendingWhiteMove = s.pendingWhiteMove || null; lastSeenTurn = s.lastSeenTurn || 0; } catch (e) { } }
-
-        // ── Apply remote move from Supabase row ───────────────
-        function applyRemoteMove(j) {
-            if (gameOver) return;
-            const fc = j.de.charCodeAt(0) - 97, fr = 8 - parseInt(j.de[1]);
-            const tc = j.para.charCodeAt(0) - 97, tr = 8 - parseInt(j.para[1]);
-            const piece = board[fr][fc];
-            if (!piece) return;
-            const captured = board[tr][tc];
-            const isEP = piece.type === 'P' && !captured && fc !== tc;
-            const ck = piece.type === 'K', dcol = tc - fc;
-            const castle = ck && dcol === 2 ? 'K' : ck && dcol === -2 ? 'Q' : null;
-            const mv = { row: tr, col: tc, capture: !!captured, enPassant: isEP, castle, promo: j.promocao };
-            execMove(mv, true, { fr, fc });
+        // ── Algebraic notation ─────────────────────────────────
+        function algebraic(mv, pc, cap, chk, mate) {
+            if (mv.castle === 'K') return mate ? '0-0#' : chk ? '0-0+' : '0-0';
+            if (mv.castle === 'Q') return mate ? '0-0-0#' : chk ? '0-0-0+' : '0-0-0';
+            const col = COL[mv.col], row = 8 - mv.row, pl = PL[pc.type] || '', cs = (cap || mv.enPassant) ? 'x' : '';
+            const sf = mate ? '#' : chk ? '+' : '', oc = (pc.type === 'P' && cs) ? COL[mv.fromCol || 0] : '';
+            return `${pl}${oc}${cs}${col}${row}${sf}`;
         }
 
-        // ── Chess engine (identical to local) ─────────────────
-        function getLegal(r, c) { return getPseudo(r, c, board).filter(m => !isCheck(board[r][c].color, simMove(board, r, c, m.row, m.col, m))); }
-        function getAllLegal(color) { const ms = []; for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (board[r][c] && board[r][c].color === color) getLegal(r, c).forEach(m => ms.push({ fr: r, fc: c, ...m })); return ms; }
-        function simMove(b, fr, fc, tr, tc, mv) { const s = b.map(r => r.map(p => p ? { ...p } : null)); const p = s[fr][fc]; s[tr][tc] = p; s[fr][fc] = null; if (mv && mv.enPassant) { const er = (p.color === 'w') ? tr + 1 : tr - 1; s[er][tc] = null; } if (mv && mv.castle === 'K') { s[tr][5] = s[tr][7]; s[tr][7] = null; } if (mv && mv.castle === 'Q') { s[tr][3] = s[tr][0]; s[tr][0] = null; } return s; }
-        function isCheck(col, b) { const k = findKIn(col, b); if (!k) return false; return isSqAttacked(k.row, k.col, col === 'w' ? 'b' : 'w', b); }
-        function findKing(col) { return findKIn(col, board); }
-        function findKIn(col, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (b[r][c] && b[r][c].color === col && b[r][c].type === 'K') return { row: r, col: c }; return null; }
-        function isSqAttacked(row, col, by, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) { const p = b[r][c]; if (!p || p.color !== by) continue; if (getAtks(r, c, b).some(a => a.row === row && a.col === col)) return true; } return false; }
-        function getAtks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], add = (row, col) => { if (inB(row, col)) ms.push({ row, col }); }, sld = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) break; nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1; add(r + d, c - 1); add(r + d, c + 1); break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; case 'R': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); break; case 'B': sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'Q': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => add(r + dr, c + dc)); break; }return ms; }
-        function getPseudo(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], en = p.color === 'w' ? 'b' : 'w', aE = (row, col) => { if (inB(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, aC = (row, col) => { if (inB(row, col) && b[row][col] && b[row][col].color === en) ms.push({ row, col, capture: true }); }, sl = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; aE(r + d, c); if (r === sr && !b[r + d][c] && !b[r + 2 * d][c]) ms.push({ row: r + 2 * d, col: c, capture: false }); aC(r + d, c - 1); aC(r + d, c + 1); if (enPassantTarget) { const { row: er, col: ec } = enPassantTarget; if (r + d === er && Math.abs(c - ec) === 1) ms.push({ row: er, col: ec, capture: true, enPassant: true }); } break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); break; case 'R': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); break; case 'B': sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'Q': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 5, en, b) && !isSqAttacked(cr, 6, en, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 3, en, b) && !isSqAttacked(cr, 2, en, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } }return ms; }
-        function inB(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
-        function algebraic(mv, pc, cap, chk, mate) { if (mv.castle === 'K') return mate ? '0-0#' : chk ? '0-0+' : '0-0'; if (mv.castle === 'Q') return mate ? '0-0-0#' : chk ? '0-0-0+' : '0-0-0'; const col = COL[mv.col], row = 8 - mv.row, pl = PL[pc.type], cs = (cap || mv.enPassant) ? 'x' : '', sf = mate ? '#' : chk ? '+' : '', oc = (pc.type === 'P' && cs) ? COL[mv.fromCol ?? 0] : ''; return `${pl}${oc}${cs}${col}${row}${sf}`; }
+        // ── Promotion chooser ──────────────────────────────────
+        function askPromo(color) {
+            return new Promise(res => {
+                const ov = document.getElementById('promoOverlay'), ch = document.getElementById('promoChoices');
+                ch.innerHTML = '';
+                ['Q', 'R', 'B', 'N'].forEach(t => {
+                    const b = document.createElement('div'); b.className = 'promo-choice';
+                    b.textContent = PU[color + t]; b.style.cssText = PS[color];
+                    b.addEventListener('click', () => { ov.classList.remove('active'); res(t); });
+                    ch.appendChild(b);
+                });
+                ov.classList.add('active');
+            });
+        }
 
-        // ── Promotion ─────────────────────────────────────────
-        function askPromo(color) { return new Promise(res => { promoResolve = res; const ov = document.getElementById('promoOverlay'), ch = document.getElementById('promoChoices'); ch.innerHTML = '';['Q', 'R', 'B', 'N'].forEach(t => { const b = document.createElement('div'); b.className = 'promo-choice'; b.textContent = PU[color + t]; b.style.cssText = PS[color]; b.addEventListener('click', () => { ov.classList.remove('active'); res(t); }); ch.appendChild(b); }); ov.classList.add('active'); }); }
-
-        // ── Game over (image overlay) ─────────────────────────
-        async function finalizaPartida(winnerCor) {
+        // ── Game over screens ──────────────────────────────────
+        function showGameOver(won) {
             gameOver = true;
-            myTurn = false;
-            if (movePollInterval) clearInterval(movePollInterval);
-            await supabase.from('partidas').update({ status: 'finalizada' }).eq('id', partida.id);
-        }
-
-        function showGameOver(iWon) {
-            // iWon: true = eu venci, false = eu perdi, null = empate
             const img = document.getElementById('gameoverImg');
-            if (iWon === null) {
-                // Draw — show defeat sprite for both (no draw sprite available)
+            if (won === null) {
                 img.src = '../spritesxadrez/sprites/spr_derrota.png';
-            } else if (iWon) {
-                // Winner sees their color's victory image
+            } else if (won) {
                 img.src = MY_CC === 'w' ? '../spritesxadrez/sprites/spr_vitoria_brancas.png' : '../spritesxadrez/sprites/spr_vitoria_pretas.png';
             } else {
                 img.src = '../spritesxadrez/sprites/spr_derrota.png';
@@ -1107,88 +1159,122 @@
             document.getElementById('gameoverOverlay').classList.add('active');
         }
 
-        // ── Surrender ─────────────────────────────────────────
+        // ── Surrender ──────────────────────────────────────────
         document.getElementById('btnSurrender').addEventListener('click', async () => {
             if (gameOver) return;
-            if (!confirm('Tem certeza que quer se render? Você perderá a partida.')) return;
-            // Insert a special surrender move
-            await supabase.from('jogadas').insert({
-                partida_id: partida.id, turno: lastSeenTurn + 1, cor: MY_COR,
-                de: 'surrender', para: 'surrender', peca: 'K',
+            if (!confirm('Tem certeza que quer se render?')) return;
+            gameOver = true; if (pollInterval) clearInterval(pollInterval);
+            const oppId = MY_COR === 'branco' ? partida.jogador_preto : partida.jogador_branco;
+            await supabase.from('partidas').update({
+                status: 'finalizada',
+                vencedor_id: oppId,
                 estado_json: JSON.stringify({ surrender: true, loser: MY_COR })
-            });
-            await finalizaPartida(MY_COR === 'branco' ? 'preto' : 'branco');
-            showGameOver(false); // I surrendered = I lost
+            }).eq('id', partida.id);
+            showGameOver(false);
         });
 
-        // ── POLLING for opponent moves (main sync mechanism) ──
-        let movePollInterval = null;
-
-        async function pollMoves() {
+        // ── POLLING — main sync mechanism ──────────────────────
+        // We poll the partidas table for estado_json changes.
+        // When ultimo_turno increases and it's our opponent's move,
+        // we deserialize and apply the new board state directly.
+        async function pollForOpponentMove() {
             if (gameOver) return;
             try {
-                const { data: moves } = await supabase
-                    .from('jogadas')
-                    .select('*')
-                    .eq('partida_id', partida.id)
-                    .order('turno', { ascending: true });
+                const { data: row, error } = await supabase
+                    .from('partidas')
+                    .select('estado_json,ultimo_turno,status,vencedor_id')
+                    .eq('id', partida.id)
+                    .single();
+                if (error || !row) return;
 
-                if (!moves || moves.length === 0) return;
-
-                // Check for surrender from opponent
-                const surrender = moves.find(j => j.de === 'surrender' && j.cor !== MY_COR);
-                if (surrender && !gameOver) {
-                    // Opponent surrendered — I win
-                    await finalizaPartida(MY_COR);
-                    showGameOver(true);
+                // Detect surrender from opponent
+                if (row.status === 'finalizada' && !gameOver) {
+                    // Check if opponent surrendered or we were defeated
+                    const isWinner = row.vencedor_id === session.user.id;
+                    gameOver = true; if (pollInterval) clearInterval(pollInterval);
+                    showGameOver(isWinner);
                     return;
                 }
 
-                // Apply any moves we haven't seen yet (from opponent)
-                const opponentMoves = moves.filter(j => j.cor !== MY_COR && j.turno > lastSeenTurn && j.de !== 'surrender');
-                for (const j of opponentMoves) {
-                    applyRemoteMove(j);
-                    // applyRemoteMove increments lastSeenTurn and sets myTurn=true
+                // New turn detected?
+                if (row.ultimo_turno > lastUltimoTurno && row.estado_json) {
+                    const old = lastUltimoTurno;
+                    lastUltimoTurno = row.ultimo_turno;
+
+                    // Check if it was the opponent's move (now our turn in the new state)
+                    // We determine this by parsing the state
+                    let parsed;
+                    try { parsed = JSON.parse(row.estado_json); } catch (e) { return; }
+                    if (parsed.surrender) return; // handled above by status check
+
+                    // Only apply if it's now our turn (meaning opponent just moved)
+                    if (parsed.turn === MY_CC && !myTurn) {
+                        loadState(row.estado_json);
+                        render(); updateBanner(); renderHistory();
+                        // Check if game ended for us (we are in checkmate)
+                        const allM = getAllLegal(MY_CC);
+                        if (allM.length === 0) {
+                            const kp = findKIn(MY_CC, board);
+                            const inCk = kp && isSqAttacked(kp.row, kp.col, OPP_CC, board);
+                            showGameOver(inCk ? false : null);
+                            gameOver = true; if (pollInterval) clearInterval(pollInterval);
+                        }
+                    }
                 }
-            } catch (e) { /* network error */ }
+            } catch (e) {/* network */ }
         }
 
-        // ── Wait overlay helpers ──────────────────────────────
-        function setWait(m) { document.getElementById('waitMsg').textContent = m; document.getElementById('waitOverlay').classList.remove('hidden'); }
+        // ── Chess engine ───────────────────────────────────────
+        function getLegal(r, c) { return getPseudo(r, c, board).filter(m => !isCheck(board[r][c].color, simMove(board, r, c, m.row, m.col, m))); }
+        function getAllLegal(color) { const ms = []; for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (board[r][c] && board[r][c].color === color) getLegal(r, c).forEach(m => ms.push(m)); return ms; }
+        function simMove(b, fr, fc, tr, tc, mv) { const s = b.map(r => r.map(p => p ? { ...p } : null)); const p = s[fr][fc]; s[tr][tc] = p; s[fr][fc] = null; if (mv && mv.enPassant) { const er = (p.color === 'w') ? tr + 1 : tr - 1; s[er][tc] = null; } if (mv && mv.castle === 'K') { s[tr][5] = s[tr][7]; s[tr][7] = null; } if (mv && mv.castle === 'Q') { s[tr][3] = s[tr][0]; s[tr][0] = null; } return s; }
+        function isCheck(col, b) { const k = findKIn(col, b); if (!k) return false; return isSqAttacked(k.row, k.col, col === 'w' ? 'b' : 'w', b); }
+        function findKIn(col, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (b[r][c] && b[r][c].color === col && b[r][c].type === 'K') return { row: r, col: c }; return null; }
+        function isSqAttacked(row, col, by, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) { const p = b[r][c]; if (!p || p.color !== by) continue; if (getAtks(r, c, b).some(a => a.row === row && a.col === col)) return true; } return false; }
+        function getAtks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], sld = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) break; nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1;[c - 1, c + 1].forEach(nc => { if (inB(r + d, nc)) ms.push({ row: r + d, col: nc }); }); break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); break; case 'R': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); break; case 'B': sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'Q': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); break; }return ms; }
+        function getPseudo(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], en = p.color === 'w' ? 'b' : 'w', aE = (row, col) => { if (inB(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, aC = (row, col) => { if (inB(row, col) && b[row][col] && b[row][col].color === en) ms.push({ row, col, capture: true }); }, sl = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; aE(r + d, c); if (r === sr && !b[r + d][c] && !b[r + 2 * d][c]) ms.push({ row: r + 2 * d, col: c, capture: false }); aC(r + d, c - 1); aC(r + d, c + 1); if (enPassantTarget) { const { row: er, col: ec } = enPassantTarget; if (r + d === er && Math.abs(c - ec) === 1) ms.push({ row: er, col: ec, capture: true, enPassant: true }); } break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); break; case 'R': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); break; case 'B': sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'Q': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 5, en, b) && !isSqAttacked(cr, 6, en, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 3, en, b) && !isSqAttacked(cr, 2, en, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } }return ms; }
+        function inB(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+
+        // ── Wait UI ────────────────────────────────────────────
+        function setWaitMsg(m) { document.getElementById('waitMsg').textContent = m; }
         function hideWait() { document.getElementById('waitOverlay').classList.add('hidden'); document.getElementById('gameRoot').style.display = 'grid'; }
 
-        // ── INIT ──────────────────────────────────────────────
-        setWait('Sincronizando...');
-        const { data: existingMoves } = await supabase
-            .from('jogadas').select('*').eq('partida_id', partida.id).order('turno');
+        // ── START ──────────────────────────────────────────────
+        freshBoard();
 
-        initBoard();
-
-        // If there are existing moves, load from last state snapshot
-        if (existingMoves && existingMoves.length > 0) {
-            const last = existingMoves[existingMoves.length - 1];
-            if (last.estado_json && last.de !== 'surrender') {
-                loadState(last.estado_json);
-                myTurn = (turn === MY_CC);
-            }
-            render(); updateBanner(); updateCards(); renderHistory();
+        // If there's existing state, restore it
+        if (partida.estado_json) {
+            const ok = loadState(partida.estado_json);
+            if (!ok) freshBoard();
         }
 
-        // Subscribe via Realtime (bonus — works if Realtime is enabled)
-        supabase.channel('jogadas_' + partida.id)
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'jogadas', filter: `partida_id=eq.${partida.id}` }, async (payload) => {
-                const j = payload.new;
-                if (j.de === 'surrender' && j.cor !== MY_COR && !gameOver) {
-                    await finalizaPartida(MY_COR); showGameOver(true); return;
+        initShop(); resizeBoard(); render(); updateBanner(); updateCards(); renderHistory();
+        hideWait();
+
+        // Start polling
+        pollInterval = setInterval(pollForOpponentMove, 2000);
+
+        // Realtime as bonus layer
+        supabase.channel('partida_state_' + partida.id)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'partidas', filter: `id=eq.${partida.id}` }, (payload) => {
+                const row = payload.new;
+                if (gameOver) return;
+                if (row.status === 'finalizada' && !gameOver) {
+                    const isWinner = row.vencedor_id === session.user.id;
+                    gameOver = true; if (pollInterval) clearInterval(pollInterval); showGameOver(isWinner); return;
                 }
-                if (j.cor !== MY_COR && !gameOver) applyRemoteMove(j);
+                if (row.ultimo_turno > lastUltimoTurno && row.estado_json) {
+                    let parsed; try { parsed = JSON.parse(row.estado_json); } catch (e) { return; }
+                    if (parsed.surrender) return;
+                    if (parsed.turn === MY_CC && !myTurn) {
+                        lastUltimoTurno = row.ultimo_turno;
+                        loadState(row.estado_json); render(); updateBanner(); renderHistory();
+                        const allM = getAllLegal(MY_CC);
+                        if (allM.length === 0) { const kp = findKIn(MY_CC, board); showGameOver(kp && isSqAttacked(kp.row, kp.col, OPP_CC, board) ? false : null); gameOver = true; if (pollInterval) clearInterval(pollInterval); }
+                    }
+                }
             })
             .subscribe();
-
-        // Start polling every 2.5 seconds as the reliable fallback
-        movePollInterval = setInterval(pollMoves, 2500);
-
-        hideWait();
     </script>
 </body>
 

@@ -94,10 +94,18 @@ CREATE TABLE IF NOT EXISTS public.partidas (
                 'cancelada'
             )
         ),
+        -- Estado completo do jogo (JSON) — atualizado a cada jogada
+        estado_json TEXT,
+        ultimo_turno INTEGER NOT NULL DEFAULT 0,
         iniciada_em TIMESTAMPTZ,
         finalizada_em TIMESTAMPTZ,
         criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- Garante coluna estado_json caso tabela já exista
+ALTER TABLE public.partidas
+ADD COLUMN IF NOT EXISTS estado_json TEXT;
+ALTER TABLE public.partidas
+ADD COLUMN IF NOT EXISTS ultimo_turno INTEGER NOT NULL DEFAULT 0;
 COMMENT ON TABLE public.partidas IS 'Histórico e estado das partidas';
 COMMENT ON COLUMN public.partidas.codigo_sala IS 'Código de 6 letras para salas privadas';
 ALTER TABLE public.partidas ENABLE ROW LEVEL SECURITY;
