@@ -1117,3 +1117,126 @@ body.pick-mode-col .sq {
     z-index: 6;
     text-shadow: 0 0 4px #000;
 }
+
+/* ════════════════════════════════════════════════════
+   MALDIÇÃO — Efeito visual das peças amaldiçoadas
+   ════════════════════════════════════════════════════ */
+
+/* Glow roxo pulsante na peça amaldiçoada */
+@keyframes cursedGlow {
+    from {
+        filter: drop-shadow(0 0 5px #a020f0) drop-shadow(0 0 10px #6a0dad) drop-shadow(0 2px 6px rgba(0, 0, 0, .8));
+    }
+
+    to {
+        filter: drop-shadow(0 0 12px #df00ff) drop-shadow(0 0 22px #9b30ff) drop-shadow(0 2px 6px rgba(0, 0, 0, .8));
+    }
+}
+
+.cursed-piece {
+    animation: cursedGlow 1.2s ease-in-out infinite alternate;
+}
+
+/* Badge 💀 no canto superior direito da peça amaldiçoada */
+.curse-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 0.62rem;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 7;
+    filter: drop-shadow(0 0 3px #a020f0);
+    animation: cursedBadgePop .8s ease-in-out infinite alternate;
+}
+
+@keyframes cursedBadgePop {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.3);
+    }
+}
+
+/* ── Menu flutuante de ativação da maldição ──────── */
+#curseMenu {
+    position: fixed;
+    z-index: 300;
+    background: #0d0d1a;
+    border: 1px solid #a020f0;
+    border-radius: 8px;
+    padding: 10px 14px 12px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 0 24px rgba(160, 32, 240, .5), 0 4px 16px rgba(0, 0, 0, .8);
+    min-width: 170px;
+    animation: curseMenuIn .15s ease;
+}
+
+@keyframes curseMenuIn {
+    from {
+        opacity: 0;
+        transform: scale(.92) translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+#curseMenu.visible {
+    display: flex;
+}
+
+#curseMenuTitle {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .14em;
+    color: #df9dff;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 0 0 8px #a020f0;
+}
+
+.curse-menu-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.curse-menu-btns button {
+    font-family: 'Cinzel', serif;
+    font-size: .62rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .18s, color .18s;
+}
+
+#curseMenuConfirm {
+    background: rgba(160, 32, 240, .2);
+    border: 1px solid #a020f0;
+    color: #df9dff;
+}
+
+#curseMenuConfirm:hover {
+    background: rgba(160, 32, 240, .45);
+    color: #fff;
+}
+
+#curseMenuCancel {
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+}
+
+#curseMenuCancel:hover {
+    background: rgba(255, 255, 255, .06);
+    color: #bbb;
+}
