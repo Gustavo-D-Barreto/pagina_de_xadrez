@@ -303,9 +303,12 @@
             if (turn === 'w') pointsW -= poder.custo;
             else pointsB -= poder.custo;
 
-            // Devolve o poder ao final do pool (ciclo infinito) e traz o próximo
-            remainingPool.push({ id: poder.id, nome: poder.nome, descricao: poder.descricao, icone: poder.icone, custo: poder.custo, ativo: poder.ativo });
-            const next = remainingPool.shift();
+            // Sorteia um novo poder diferente do recém-comprado
+            const ativos = TODOS_OS_PODERES.filter(pw => pw.ativo && pw.id !== poder.id);
+            let next = poder;
+            if (ativos.length > 0) {
+                next = ativos[Math.floor(Math.random() * ativos.length)];
+            }
             shopPowers[idx] = { ...next, entrando: true };
             renderShop();
             setTimeout(() => { if (shopPowers[idx] && shopPowers[idx].entrando) { delete shopPowers[idx].entrando; renderShop(); } }, 50);
@@ -322,6 +325,7 @@
                     },
                     () => {
                         if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                        shopPowers[idx] = poder; renderShop(); // Restore
                         updatePlayerCards();
                     }
                 );
@@ -331,9 +335,8 @@
                         const adjEmpty = getAdjacentEmpty(row, col);
                         if (adjEmpty.length === 0) {
                             if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
-                            poder.sold = false;
+                            shopPowers[idx] = poder; renderShop(); // Restore
                             updatePlayerCards(); showToast('😔 Sem espaço adjacente — poder cancelado.');
-                            renderShop();
                             return;
                         }
                         const [nr, nc] = adjEmpty[0];
@@ -344,6 +347,7 @@
                     },
                     () => {
                         if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                        shopPowers[idx] = poder; renderShop(); // Restore
                         updatePlayerCards();
                     }
                 );
@@ -360,6 +364,7 @@
                     },
                     () => {
                         if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                        shopPowers[idx] = poder; renderShop(); // Restore
                         updatePlayerCards();
                     }
                 );

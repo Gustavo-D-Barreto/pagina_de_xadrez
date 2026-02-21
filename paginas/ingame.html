@@ -275,9 +275,13 @@
             const myPts = MY_CC === 'w' ? pointsW : pointsB;
             if (myPts < p.custo) { showToast('🪙 Pontos insuficientes!'); return; }
             if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
-            // Devolve o poder ao final do pool (ciclo infinito) e traz o próximo
-            remainingPool.push({ id: p.id, nome: p.nome, descricao: p.descricao, icone: p.icone, custo: p.custo, ativo: p.ativo });
-            const next = remainingPool.shift();
+
+            // Sorteia um novo poder diferente do recém-comprado
+            const ativos = TODOS_OS_PODERES.filter(pw => pw.ativo && pw.id !== p.id);
+            let next = p;
+            if (ativos.length > 0) {
+                next = ativos[Math.floor(Math.random() * ativos.length)];
+            }
             shopPowers[i] = { ...next, entrando: true };
             renderShop();
             setTimeout(() => { if (shopPowers[i] && shopPowers[i].entrando) { delete shopPowers[i].entrando; renderShop(); } }, 50);
@@ -289,14 +293,15 @@
                     showToast('🛡️ Escudo aplicado!'); render();
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
             } else if (p.id === 'espelho') {
                 enterPickMode('piece', ['K', 'Q'], async (row, col) => {
                     const adj = getAdjacentEmpty(row, col);
                     if (adj.length === 0) {
                         if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                        p.sold = false; renderShop(); updateCards();
+                        shopPowers[i] = p; renderShop(); updateCards();
                         showToast('😔 Sem espaço adjacente — poder cancelado.');
+                        return;
                     } else {
                         const [nr, nc] = adj[0];
                         board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
@@ -304,7 +309,7 @@
                     }
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
             } else if (p.id === 'caminho_congelante') {
                 enterPickMode('col', [], async (row, col) => {
                     frozenCols = frozenCols.filter(f => f.col !== col);
@@ -312,7 +317,7 @@
                     showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
                     myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                     await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; updateCards(); });
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
             } else if (p.id === 'sonegar_impostos') {
                 taxEvasion = { turnsLeft: 6, owner: MY_CC };
                 showToast('💰 Pontos dobrados por 6 turnos!'); render();
@@ -767,10 +772,13 @@
         // If there's existing state, restore it
         if (partida.estado_json) {
             const ok = loadState(partida.estado_json);
-            if (!ok) freshBoard();
+            if (!ok) { freshBoard(); initShop(); }
+            else if (shopPowers.length === 0) { initShop(); }
+        } else {
+            initShop();
         }
 
-        initShop(); resizeBoard(); render(); updateBanner(); updateCards(); renderHistory();
+        resizeBoard(); render(); updateBanner(); updateCards(); renderHistory();
         hideWait();
 
         // Start polling
