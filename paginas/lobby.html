@@ -422,14 +422,16 @@
             toast('Sala criada! Compartilhe o código com seu amigo.', 'success');
 
             let redirected = false;
+            let pollInterval = null; // declarado ANTES do closure
             const goToGame = () => {
                 if (redirected) return;
                 redirected = true;
-                if (pollInterval) clearInterval(pollInterval);
+                clearInterval(pollInterval);
+                if (roomSub) { supabase.removeChannel(roomSub); roomSub = null; }
                 window.location.href = `ingame.html?sala=${code}&cor=branco`;
             };
 
-            // Tentativa 1 — Realtime (se a tabela estiver na publicação supabase_realtime)
+            // Tentativa 1 — Realtime
             roomSub = supabase
                 .channel('sala_' + code)
                 .on('postgres_changes', {
@@ -441,21 +443,29 @@
                 })
                 .subscribe();
 
-            // Tentativa 2 — Polling a cada 2 seg (fallback confiável)
-            let pollInterval = setInterval(async () => {
-                const { data: p } = await supabase
-                    .from('partidas').select('status, jogador_preto')
-                    .eq('id', partida.id).single();
-                if (p && p.status === 'em_andamento' && p.jogador_preto !== session.user.id) goToGame();
+            // Tentativa 2 — Polling a cada 2 segundos (fallback principal)
+            pollInterval = setInterval(async () => {
+                try {
+                    const { data: p } = await supabase
+                        .from('partidas').select('status, jogador_preto')
+                        .eq('id', partida.id).single();
+                    if (p && p.status === 'em_andamento' && p.jogador_preto !== session.user.id) {
+                        goToGame();
+                    }
+                } catch (e) { /* ignora erros de rede */ }
             }, 2000);
 
+            // Guarda referência para que cancelRoom possa limpar o intervalo
+            window._lobbyPollInterval = pollInterval;
         };
+
 
         // ── CANCELAR SALA ──────────────────────────────────────
         window.cancelRoom = async function () {
             document.getElementById('roomCodeDisplay').classList.remove('active');
             document.getElementById('cardCreate').classList.remove('mode-card--waiting');
 
+            if (window._lobbyPollInterval) { clearInterval(window._lobbyPollInterval); window._lobbyPollInterval = null; }
             if (roomSub) { supabase.removeChannel(roomSub); roomSub = null; }
             if (myPartidaId) {
                 await supabase.from('partidas').delete().eq('id', myPartidaId);

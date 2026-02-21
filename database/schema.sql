@@ -107,10 +107,19 @@ DROP POLICY IF EXISTS "Jogadores atualizam a própria partida" ON public.partida
 DROP POLICY IF EXISTS "Autenticado cria partida" ON public.partidas;
 CREATE POLICY "Partidas visíveis para todos" ON public.partidas FOR
 SELECT USING (true);
+DROP POLICY IF EXISTS "Jogadores atualizam a própria partida" ON public.partidas;
+DROP POLICY IF EXISTS "Jogador entra em sala aguardando" ON public.partidas;
+-- Participantes podem atualizar partidas em que já estão
 CREATE POLICY "Jogadores atualizam a própria partida" ON public.partidas FOR
 UPDATE USING (
         auth.uid() = jogador_branco
         OR auth.uid() = jogador_preto
+    );
+-- Qualquer autenticado pode entrar em sala aguardando (segundo jogador)
+CREATE POLICY "Jogador entra em sala aguardando" ON public.partidas FOR
+UPDATE USING (
+        status = 'aguardando'
+        AND auth.role() = 'authenticated'
     );
 CREATE POLICY "Autenticado cria partida" ON public.partidas FOR
 INSERT WITH CHECK (auth.role() = 'authenticated');
