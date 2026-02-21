@@ -1,62 +1,65 @@
 // ═══════════════════════════════════════════════════
-//  PODERES — Lista de 6 poderes disponíveis na loja
+//  PODERES — Lista de poderes disponíveis na loja
 //  Cada partida a loja exibe 4 deles aleatoriamente.
-//  As funcionalidades serão implementadas futuramente.
 // ═══════════════════════════════════════════════════
+
+// Pontos ganhos ao capturar cada tipo de peça
+const PIECE_POINT_VALUES = {
+    P: 3,   // Peão
+    R: 5,   // Torre
+    B: 6,   // Bispo
+    N: 7,   // Cavalo
+    Q: 12,  // Rainha
+    K: 0    // Rei (não pode ser capturado)
+};
 
 const TODOS_OS_PODERES = [
     {
-        id: 'escudo_divino',
-        nome: 'Escudo Divino',
-        descricao: 'Protege uma de suas peças de ser capturada por um turno inteiro.',
+        id: 'escudo_covarde',
+        nome: 'Escudo Covarde',
+        descricao: 'Escolha uma peça sua (exceto o rei) para protegê-la de ser capturada uma vez.',
         icone: '🛡️',
-        custo: 3,
-        // Funcionalidade: será implementada futuramente
-        ativo: false
+        custo: 5,
+        ativo: true
     },
     {
-        id: 'teletransporte',
-        nome: 'Teletransporte',
-        descricao: 'Move qualquer uma de suas peças para qualquer casa vazia do tabuleiro.',
-        icone: '✨',
-        custo: 4,
-        // Funcionalidade: será implementada futuramente
-        ativo: false
+        id: 'espelho',
+        nome: 'Espelho',
+        descricao: 'Duplica uma peça sua (exceto rei e rainha) em uma casa adjacente vazia.',
+        icone: '🪞',
+        custo: 6,
+        ativo: true
     },
     {
-        id: 'ressurreicao',
-        nome: 'Ressurreição',
-        descricao: 'Retorna a ultima peça capturada do seu lado de volta ao tabuleiro.',
+        id: 'sonegar_impostos',
+        nome: 'Sonegar Impostos',
+        descricao: 'Ganhe o dobro de pontos por 6 turnos.',
+        icone: '💰',
+        custo: 10,
+        ativo: true
+    },
+    {
+        id: 'buraco_negro',
+        nome: 'Buraco Negro',
+        descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar um buraco negro,que destroi qualquer peça que cair la.',
         icone: '💫',
         custo: 5,
-        // Funcionalidade: será implementada futuramente
         ativo: false
     },
     {
-        id: 'congela_peca',
-        nome: 'Congelar Peça',
-        descricao: 'Congela uma peça inimiga por 2 turnos, impedindo seu movimento.',
+        id: 'caminho_congelante',
+        nome: 'Caminho Congelante',
+        descricao: 'Congela uma coluna inteira por 3 turnos, impedindo o adversário de mover peças nela.',
         icone: '❄️',
-        custo: 4,
-        // Funcionalidade: será implementada futuramente
-        ativo: false
+        custo: 10,
+        ativo: true
     },
     {
-        id: 'explosao',
-        nome: 'Explosão',
-        descricao: 'Remove todas as peças inimigas em volta de uma peça sua (raio 1).',
+        id: 'corrente',
+        nome: 'Corrente',
+        descricao: 'voce escolhe uma peça sua , e puxa a peça inimiga mais proxima verticalmente',
         icone: '💥',
         custo: 6,
-        // Funcionalidade: será implementada futuramente
-        ativo: false
-    },
-    {
-        id: 'duplicar_movimento',
-        nome: 'Duplo Turno',
-        descricao: 'Permite que você faça dois movimentos consecutivos neste turno.',
-        icone: '⚡',
-        custo: 5,
-        // Funcionalidade: será implementada futuramente
         ativo: false
     }
 ];

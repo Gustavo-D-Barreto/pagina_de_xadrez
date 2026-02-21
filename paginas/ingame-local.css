@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════════════
+   ingame-local.css
+   Estilos exclusivos do jogo LOCAL (ingamelocal.html)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Board rotation (local game: board flips each turn) ── */
+.board-outer {
+    transition: transform .55s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* When player 2's turn: rotate entire board including grid */
+.board-outer.rotated {
+    transform: rotate(180deg);
+}
+
+/* Counter-rotate pieces so they remain upright when board flips */
+.board-outer.rotated .piece {
+    transform: rotate(180deg);
+}
+
+.board-outer.rotated .piece:active {
+    transform: rotate(180deg) scale(1.12);
+}
+
+/* ── Modal overlay (game end screen for local) ─────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(8, 9, 13, .88);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-box {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 48px 56px;
+    text-align: center;
+    clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+    transform: translateY(20px);
+    transition: transform .4s;
+}
+
+.modal-overlay.active .modal-box {
+    transform: translateY(0);
+}
+
+.modal-title {
+    font-family: var(--font-title);
+    font-size: 1.8rem;
+    letter-spacing: .2em;
+    color: var(--gold-light);
+    text-shadow: 0 0 30px rgba(201, 168, 76, .6);
+    margin-bottom: 12px;
+}
+
+.modal-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 32px;
+    letter-spacing: .06em;
+}
+
+.modal-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}

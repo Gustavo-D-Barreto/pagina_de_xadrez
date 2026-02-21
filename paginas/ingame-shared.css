@@ -1,0 +1,1062 @@
+/* ═══════════════════════════════════════════════════════════════
+   ingame-shared.css
+   Estilos compartilhados entre ingame.html (online) e ingamelocal.html (local)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Reset & Root ─────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --bg: #08090d;
+    --surface: #111523;
+    --surface2: #161b2e;
+    --border: #2a2d45;
+    --text: #d5d8e8;
+    --muted: #7a7e99;
+    --green: #3fcf72;
+    --red: #e84040;
+    --blue: #4d9de0;
+    --font-title: 'Cinzel', serif;
+    --font-body: 'Rajdhani', sans-serif;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow: hidden;
+    user-select: none;
+}
+
+/* ── Background ──────────────────────────────────────*/
+.page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url('../spritesxadrez/sprites/background03.png') center/cover no-repeat;
+}
+
+.page-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 9, 13, 0.55);
+}
+
+/* ── Main Layout ─────────────────────────────────── */
+.game-root {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 220px 180px 1fr 220px;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    height: 100vh;
+    gap: 12px;
+    padding: 14px;
+}
+
+/* ── Left Panel (player info) ─────────────────────── */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 100%;
+    max-height: 620px;
+    gap: 12px;
+    width: 100%;
+}
+
+/* ── Player Card ──────────────────────────────────── */
+.player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, box-shadow .3s;
+}
+
+.player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border);
+    transition: background .3s;
+}
+
+.player-card.active-turn::before {
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+}
+
+.player-card.active-turn {
+    border-color: rgba(201, 168, 76, .5);
+    box-shadow: 0 0 20px rgba(201, 168, 76, .12);
+}
+
+.player-card.active-turn.black-card {
+    border-color: rgba(170, 184, 208, .5);
+    box-shadow: 0 0 20px rgba(170, 184, 208, .1);
+}
+
+.player-card.active-turn.black-card::before {
+    background: linear-gradient(90deg, #aab8d0 0%, #d5dff0 100%);
+}
+
+.player-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+}
+
+.player-avatar.white-avatar {
+    background: rgba(255, 255, 255, .07);
+}
+
+.player-avatar.black-avatar {
+    background: rgba(0, 0, 0, .4);
+}
+
+.player-name {
+    font-family: var(--font-title);
+    font-size: .75rem;
+    letter-spacing: .15em;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+.turn-badge {
+    display: inline-block;
+    font-size: .6rem;
+    letter-spacing: .12em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+.active-turn .turn-badge {
+    opacity: 1;
+}
+
+.white-card .turn-badge {
+    background: rgba(201, 168, 76, .2);
+    color: var(--gold-light);
+}
+
+.black-card .turn-badge {
+    background: rgba(170, 184, 208, .2);
+    color: #ccd6f0;
+}
+
+.capture-label {
+    font-size: .65rem;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+.captured-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    min-height: 28px;
+    font-size: 1.15rem;
+    line-height: 1.4;
+}
+
+.capture-count {
+    font-family: var(--font-title);
+    font-size: 1.4rem;
+    color: var(--gold);
+    line-height: 1;
+}
+
+.black-card .capture-count {
+    color: #aab8d0;
+}
+
+/* ── Center column (board) ───────────────────────── */
+.center-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.turn-banner {
+    font-family: var(--font-title);
+    font-size: .9rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(201, 168, 76, .6);
+    transition: color .3s, text-shadow .3s;
+    min-height: 24px;
+}
+
+.turn-banner.black-turn {
+    color: #aab8d0;
+    text-shadow: 0 0 18px rgba(170, 184, 208, .5);
+}
+
+/* ── Board Wrapper ────────────────────────────────── */
+.board-outer {
+    position: relative;
+}
+
+/* ── Board Image ──────────────────────────────────── */
+.board-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+/* ── Grid overlay ─────────────────────────────────── */
+.board-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+}
+
+/* ── Square ───────────────────────────────────────── */
+.sq {
+    position: relative;
+    cursor: pointer;
+    transition: box-shadow .15s;
+}
+
+.sq:hover {
+    box-shadow: inset 0 0 0 3px rgba(201, 168, 76, .45);
+}
+
+.sq.selected {
+    box-shadow: inset 0 0 0 4px rgba(63, 207, 114, .85);
+}
+
+.sq.legal-move::after {
+    content: '';
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    background: rgba(63, 207, 114, .55);
+    pointer-events: none;
+}
+
+.sq.legal-capture {
+    box-shadow: inset 0 0 0 4px rgba(232, 64, 64, .8);
+}
+
+.sq.in-check {
+    box-shadow: inset 0 0 0 5px rgba(232, 64, 64, 1);
+}
+
+.sq.last-from {
+    background: rgba(201, 168, 76, .18);
+}
+
+.sq.last-to {
+    background: rgba(201, 168, 76, .30);
+}
+
+/* ── Piece ────────────────────────────────────────── */
+.piece {
+    position: absolute;
+    inset: 4%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: grab;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .8));
+    transition: transform .15s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.piece:active {
+    transform: scale(1.18);
+    cursor: grabbing;
+}
+
+/* Scale-up selected piece */
+.sq.selected .piece {
+    transform: scale(1.22);
+    filter: drop-shadow(0 4px 12px rgba(63, 207, 114, .7));
+}
+
+.piece-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(22px, 5vw, 48px);
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* ── Move History Panel ───────────────────────────── */
+.history-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 620px;
+    gap: 8px;
+    width: 100%;
+}
+
+.history-header {
+    text-align: center;
+    padding: 10px 0 6px;
+}
+
+.history-title {
+    font-family: var(--font-title);
+    font-size: .8rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 0 0 12px rgba(201, 168, 76, .4);
+}
+
+.history-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
+    opacity: .3;
+    margin-bottom: 2px;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 2px;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.history-row {
+    display: grid;
+    grid-template-columns: 22px 1fr 1fr;
+    gap: 4px;
+    align-items: center;
+    padding: 3px 4px;
+    border-radius: 3px;
+    font-size: .72rem;
+    letter-spacing: .04em;
+    transition: background .15s;
+}
+
+.history-row:hover {
+    background: rgba(255, 255, 255, .04);
+}
+
+.history-row.latest {
+    background: rgba(201, 168, 76, .1);
+}
+
+.history-num {
+    color: var(--muted);
+    font-size: .65rem;
+    text-align: right;
+}
+
+.history-move-w {
+    color: #e8e8f8;
+    font-family: var(--font-body);
+}
+
+.history-move-b {
+    color: #9ab0d0;
+    font-family: var(--font-body);
+}
+
+/* ── Buttons row ──────────────────────────────────── */
+.btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.btn {
+    font-family: var(--font-title);
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: border-color .25s, color .25s, background .25s;
+}
+
+.btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201, 168, 76, .08);
+}
+
+/* ── Surrender button (usado no online) ───────────── */
+.btn-surrender {
+    border-color: rgba(232, 64, 64, .5);
+    color: rgba(232, 64, 64, .7);
+}
+
+.btn-surrender:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(232, 64, 64, .08);
+}
+
+/* ── RIGHT PANEL — Power Shop ─────────────────────── */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 620px;
+    gap: 10px;
+    width: 100%;
+}
+
+.shop-header {
+    text-align: center;
+    padding: 10px 0 6px;
+}
+
+.shop-title {
+    font-family: var(--font-title);
+    font-size: .85rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(201, 168, 76, .5);
+}
+
+.shop-subtitle {
+    font-size: .65rem;
+    color: var(--muted);
+    letter-spacing: .1em;
+    margin-top: 3px;
+}
+
+.shop-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
+    opacity: .35;
+    margin-bottom: 4px;
+}
+
+/* ── Power Card ───────────────────────────────────── */
+.power-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s, transform .2s;
+    cursor: default;
+}
+
+.power-card:hover {
+    border-color: rgba(201, 168, 76, .5);
+    box-shadow: 0 0 18px rgba(201, 168, 76, .1);
+    transform: translateY(-1px);
+}
+
+.power-card.sold-out {
+    opacity: .45;
+    pointer-events: none;
+}
+
+.power-card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.power-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.power-name {
+    font-family: var(--font-title);
+    font-size: .75rem;
+    letter-spacing: .12em;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+.power-desc {
+    font-size: .7rem;
+    color: var(--muted);
+    line-height: 1.45;
+    letter-spacing: .04em;
+}
+
+.power-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
+.power-cost {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-title);
+    font-size: .72rem;
+    color: var(--gold);
+}
+
+.power-cost-icon {
+    font-size: .85rem;
+}
+
+.buy-btn {
+    font-family: var(--font-title);
+    font-size: .6rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border: 1px solid var(--gold);
+    background: rgba(201, 168, 76, .08);
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background .2s, color .2s;
+}
+
+.buy-btn:hover {
+    background: rgba(201, 168, 76, .25);
+    color: var(--gold-light);
+}
+
+/* "Vendido" badge */
+.sold-badge {
+    font-size: .65rem;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+}
+
+/* ── Promotion picker ─────────────────────────────── */
+.promo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(8, 9, 13, .82);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+}
+
+.promo-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.promo-box {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 32px 40px;
+    text-align: center;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+}
+
+.promo-title {
+    font-family: var(--font-title);
+    color: var(--gold);
+    letter-spacing: .2em;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.promo-choices {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.promo-choice {
+    font-size: 2.8rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color .2s, background .2s;
+}
+
+.promo-choice:hover {
+    border-color: var(--gold);
+    background: rgba(201, 168, 76, .12);
+}
+
+/* ── Purchase notification ────────────────────────── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.purchase-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 10px 24px;
+    font-family: var(--font-title);
+    font-size: .75rem;
+    letter-spacing: .15em;
+    color: var(--gold-light);
+    border-radius: 4px;
+    animation: fadeUp .3s ease, fadeOut .4s ease 2s forwards;
+    z-index: 201;
+    pointer-events: none;
+}
+
+/* ── Score pop animation ──────────────────────────── */
+@keyframes scorePop {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.9) translateY(-4px);
+        color: var(--gold-light);
+    }
+
+    60% {
+        transform: scale(1.3) translateY(-2px);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.score-pop {
+    animation: scorePop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+
+/* ── Game over fullscreen ─────────────────────────── */
+.gameover-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 9, 13, .85);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .6s;
+}
+
+.gameover-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.gameover-img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    cursor: pointer;
+    filter: drop-shadow(0 0 60px rgba(201, 168, 76, .4));
+    animation: imgPop .6s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+
+@keyframes imgPop {
+    from {
+        transform: scale(.7);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.gameover-hint {
+    position: absolute;
+    bottom: 10%;
+    color: var(--muted);
+    font-size: .8rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+/* ── Spin animation ────────────────────────────────── */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+/* ── Points display in player card ───────────────── */
+.points-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-title);
+    font-size: .7rem;
+    color: var(--gold);
+    letter-spacing: .1em;
+    margin-top: 2px;
+}
+
+.points-icon {
+    font-size: .85rem;
+}
+
+.points-value {
+    font-size: 1rem;
+    color: var(--gold-light);
+}
+
+/* ── Shield badge on piece ────────────────────────── */
+.shield-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: .65rem;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(0 0 4px rgba(77, 157, 224, .8));
+    animation: shieldPulse 2s ease-in-out infinite;
+}
+
+@keyframes shieldPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .7;
+        transform: scale(1.15);
+    }
+}
+
+/* ── Power Picker Overlay ─────────────────────────── */
+.power-picker-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(8, 9, 13, .85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+}
+
+.power-picker-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.power-picker-box {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 28px 36px;
+    text-align: center;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    max-width: 480px;
+    width: 90vw;
+}
+
+.power-picker-title {
+    font-family: var(--font-title);
+    color: var(--gold);
+    letter-spacing: .2em;
+    font-size: .95rem;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.power-picker-sub {
+    font-size: .7rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    margin-bottom: 20px;
+}
+
+.power-picker-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.power-picker-piece {
+    font-size: 2.4rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color .2s, background .2s, transform .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 60px;
+}
+
+.power-picker-piece:hover {
+    border-color: var(--gold);
+    background: rgba(201, 168, 76, .12);
+    transform: scale(1.08);
+}
+
+.power-picker-piece-label {
+    font-size: .55rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+}
+
+.power-picker-cancel {
+    margin-top: 18px;
+    font-family: var(--font-title);
+    font-size: .6rem;
+    letter-spacing: .15em;
+    color: var(--muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    transition: color .2s;
+}
+
+.power-picker-cancel:hover {
+    color: var(--red);
+}
+
+/* ── Inactive power card (not yet implemented) ────── */
+.power-card.inactive {
+    opacity: .45;
+}
+
+.power-card.inactive .buy-btn {
+    cursor: not-allowed;
+    opacity: .5;
+    pointer-events: none;
+}
+
+/* ── Frozen column overlay ────────────────────────── */
+.sq.frozen-col {
+    background: linear-gradient(180deg, rgba(100, 200, 255, .18) 0%, rgba(100, 200, 255, .08) 100%) !important;
+    outline: 1px solid rgba(100, 220, 255, .35);
+    outline-offset: -1px;
+}
+
+.sq.frozen-col::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ctext y='14' font-size='12' opacity='0.18'%3E❄%3C/text%3E%3C/svg%3E") center/60% no-repeat;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ── Freeze countdown badge on piece ─────────────── */
+.freeze-badge {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: .55rem;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 5;
+    background: rgba(0, 180, 255, .75);
+    color: #fff;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: var(--font-title);
+    box-shadow: 0 0 6px rgba(0, 200, 255, .7);
+    animation: freezePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes freezePulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 6px rgba(0, 200, 255, .7);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(0, 200, 255, 1);
+    }
+}
+
+/* ── Tax evasion active — golden shimmer on points ── */
+.points-display.tax-active .points-value {
+    color: #ffe066;
+    text-shadow: 0 0 8px rgba(255, 220, 0, .9), 0 0 16px rgba(255, 220, 0, .5);
+    animation: taxShimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes taxShimmer {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .75;
+    }
+}
+
+/* ── Board pick-mode banner ───────────────────────── */
+.pick-mode-banner {
+    position: absolute;
+    top: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, rgba(30, 30, 60, .95), rgba(60, 30, 90, .95));
+    border: 1px solid var(--gold);
+    padding: 5px 18px;
+    font-family: var(--font-title);
+    font-size: .65rem;
+    color: var(--gold);
+    letter-spacing: .15em;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+    border-radius: 4px;
+    animation: pickBannerPop .25s ease;
+}
+
+@keyframes pickBannerPop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Cursor hint when pick-mode is active */
+body.pick-mode-pieces .sq {
+    cursor: crosshair !important;
+}
+
+body.pick-mode-col .sq {
+    cursor: cell !important;
+}

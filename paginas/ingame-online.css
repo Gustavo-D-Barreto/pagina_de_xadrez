@@ -1,0 +1,33 @@
+/* ═══════════════════════════════════════════════════════════════
+   ingame-online.css
+   Estilos exclusivos do jogo ONLINE (ingame.html)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Wait / Connecting overlay ────────────────────── */
+.wait-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(8, 9, 13, .92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.wait-overlay.hidden {
+    display: none;
+}
+
+.wait-title {
+    font-family: var(--font-title);
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+}
+
+.wait-sub {
+    color: var(--muted);
+    font-size: .85rem;
+}

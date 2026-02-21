@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -9,784 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="ingame-shared.css" />
+    <link rel="stylesheet" href="ingame-online.css" />
     <script src="../funcionalidades/poderes.js"></script>
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --gold: #c9a84c;
-            --gold-light: #f0d080;
-            --bg: #08090d;
-            --surface: #111523;
-            --border: #2a2d45;
-            --text: #d5d8e8;
-            --muted: #7a7e99;
-            --green: #3fcf72;
-            --red: #e84040;
-            --font-title: 'Cinzel', serif;
-            --font-body: 'Rajdhani', sans-serif;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-body);
-            overflow: hidden;
-            user-select: none;
-        }
-
-        .page-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background: url('../spritesxadrez/sprites/background03.png') center/cover no-repeat;
-        }
-
-        .page-bg::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(8, 9, 13, .55);
-        }
-
-        .game-root {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 220px 180px 1fr 220px;
-            grid-template-rows: 1fr;
-            align-items: center;
-            justify-items: center;
-            width: 100%;
-            height: 100vh;
-            gap: 12px;
-            padding: 14px;
-        }
-
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: stretch;
-            height: 100%;
-            max-height: 620px;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .player-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px 14px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color .3s, box-shadow .3s;
-        }
-
-        .player-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--border);
-            transition: background .3s;
-        }
-
-        .player-card.active-turn::before {
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-        }
-
-        .player-card.active-turn {
-            border-color: rgba(201, 168, 76, .5);
-            box-shadow: 0 0 20px rgba(201, 168, 76, .12);
-        }
-
-        .player-card.active-turn.black-card::before {
-            background: linear-gradient(90deg, #aab8d0, #d5dff0);
-        }
-
-        .player-card.active-turn.black-card {
-            border-color: rgba(170, 184, 208, .5);
-            box-shadow: 0 0 20px rgba(170, 184, 208, .1);
-        }
-
-        .player-card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-            border: 1px solid var(--border);
-        }
-
-        .player-avatar.white-avatar {
-            background: rgba(255, 255, 255, .07);
-        }
-
-        .player-avatar.black-avatar {
-            background: rgba(0, 0, 0, .4);
-        }
-
-        .player-name {
-            font-family: var(--font-title);
-            font-size: .75rem;
-            letter-spacing: .15em;
-            color: var(--text);
-            text-transform: uppercase;
-        }
-
-        .turn-badge {
-            display: inline-block;
-            font-size: .6rem;
-            letter-spacing: .12em;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-weight: 700;
-            opacity: 0;
-            transition: opacity .3s;
-        }
-
-        .active-turn .turn-badge {
-            opacity: 1;
-        }
-
-        .white-card .turn-badge {
-            background: rgba(201, 168, 76, .2);
-            color: var(--gold-light);
-        }
-
-        .black-card .turn-badge {
-            background: rgba(170, 184, 208, .2);
-            color: #ccd6f0;
-        }
-
-        .capture-label {
-            font-size: .65rem;
-            color: var(--muted);
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        .captured-pieces {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2px;
-            min-height: 28px;
-            font-size: 1.15rem;
-            line-height: 1.4;
-        }
-
-        .capture-count {
-            font-family: var(--font-title);
-            font-size: 1.4rem;
-            color: var(--gold);
-            line-height: 1;
-        }
-
-        .black-card .capture-count {
-            color: #aab8d0;
-        }
-
-        .center-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .turn-banner {
-            font-family: var(--font-title);
-            font-size: .9rem;
-            letter-spacing: .3em;
-            text-transform: uppercase;
-            color: var(--gold);
-            text-shadow: 0 0 18px rgba(201, 168, 76, .6);
-            transition: color .3s, text-shadow .3s;
-            min-height: 24px;
-        }
-
-        .turn-banner.black-turn {
-            color: #aab8d0;
-            text-shadow: 0 0 18px rgba(170, 184, 208, .5);
-        }
-
-        .board-outer {
-            position: relative;
-        }
-
-        .board-bg-img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: fill;
-            pointer-events: none;
-            border-radius: 4px;
-        }
-
-        .board-grid {
-            position: absolute;
-            inset: 0;
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-        }
-
-        .sq {
-            position: relative;
-            cursor: pointer;
-            transition: box-shadow .15s;
-        }
-
-        .sq:hover {
-            box-shadow: inset 0 0 0 3px rgba(201, 168, 76, .45);
-        }
-
-        .sq.selected {
-            box-shadow: inset 0 0 0 4px rgba(63, 207, 114, .85);
-        }
-
-        .sq.legal-move::after {
-            content: '';
-            position: absolute;
-            inset: 30%;
-            border-radius: 50%;
-            background: rgba(63, 207, 114, .55);
-            pointer-events: none;
-        }
-
-        .sq.legal-capture {
-            box-shadow: inset 0 0 0 4px rgba(232, 64, 64, .8);
-        }
-
-        .sq.in-check {
-            box-shadow: inset 0 0 0 5px rgba(232, 64, 64, 1);
-        }
-
-        .sq.last-from {
-            background: rgba(201, 168, 76, .18);
-        }
-
-        .sq.last-to {
-            background: rgba(201, 168, 76, .30);
-        }
-
-        .piece {
-            position: absolute;
-            inset: 4%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            cursor: grab;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .8));
-            transition: transform .15s cubic-bezier(.34, 1.56, .64, 1);
-        }
-
-        .piece:active {
-            transform: scale(1.18);
-            cursor: grabbing;
-        }
-
-        .sq.selected .piece {
-            transform: scale(1.22);
-            filter: drop-shadow(0 4px 12px rgba(63, 207, 114, .7));
-        }
-
-        .piece-text {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(22px, 5vw, 48px);
-            line-height: 1;
-            pointer-events: none;
-        }
-
-        .history-panel {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            max-height: 620px;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .history-header {
-            text-align: center;
-            padding: 10px 0 6px;
-        }
-
-        .history-title {
-            font-family: var(--font-title);
-            font-size: .8rem;
-            letter-spacing: .22em;
-            text-transform: uppercase;
-            color: var(--gold);
-            text-shadow: 0 0 12px rgba(201, 168, 76, .4);
-        }
-
-        .history-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
-            opacity: .3;
-            margin-bottom: 2px;
-        }
-
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding-right: 2px;
-        }
-
-        .history-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .history-list::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .history-row {
-            display: grid;
-            grid-template-columns: 22px 1fr 1fr;
-            gap: 4px;
-            align-items: center;
-            padding: 3px 4px;
-            border-radius: 3px;
-            font-size: .72rem;
-            letter-spacing: .04em;
-        }
-
-        .history-row.latest {
-            background: rgba(201, 168, 76, .1);
-        }
-
-        .history-num {
-            color: var(--muted);
-            font-size: .65rem;
-            text-align: right;
-        }
-
-        .history-move-w {
-            color: #e8e8f8;
-        }
-
-        .history-move-b {
-            color: #9ab0d0;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 4px;
-        }
-
-        .btn {
-            font-family: var(--font-title);
-            font-size: .7rem;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            padding: 7px 18px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--muted);
-            cursor: pointer;
-            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-            transition: border-color .25s, color .25s, background .25s;
-        }
-
-        .btn:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(201, 168, 76, .08);
-        }
-
-        .btn-surrender {
-            border-color: rgba(232, 64, 64, .5);
-            color: rgba(232, 64, 64, .7);
-        }
-
-        .btn-surrender:hover {
-            border-color: var(--red);
-            color: var(--red);
-            background: rgba(232, 64, 64, .08);
-        }
-
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            max-height: 620px;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .shop-header {
-            text-align: center;
-            padding: 10px 0 6px;
-        }
-
-        .shop-title {
-            font-family: var(--font-title);
-            font-size: .85rem;
-            letter-spacing: .25em;
-            text-transform: uppercase;
-            color: var(--gold);
-            text-shadow: 0 0 14px rgba(201, 168, 76, .5);
-        }
-
-        .shop-subtitle {
-            font-size: .65rem;
-            color: var(--muted);
-            letter-spacing: .1em;
-            margin-top: 3px;
-        }
-
-        .shop-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
-            opacity: .35;
-            margin-bottom: 4px;
-        }
-
-        .power-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 12px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color .25s, box-shadow .25s, transform .2s;
-        }
-
-        .power-card:hover {
-            border-color: rgba(201, 168, 76, .5);
-            box-shadow: 0 0 18px rgba(201, 168, 76, .1);
-            transform: translateY(-1px);
-        }
-
-        .power-card.sold-out {
-            opacity: .45;
-            pointer-events: none;
-        }
-
-        .power-card-top {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .power-icon {
-            font-size: 1.6rem;
-            line-height: 1;
-            flex-shrink: 0;
-        }
-
-        .power-name {
-            font-family: var(--font-title);
-            font-size: .75rem;
-            letter-spacing: .12em;
-            color: var(--text);
-            text-transform: uppercase;
-        }
-
-        .power-desc {
-            font-size: .7rem;
-            color: var(--muted);
-            line-height: 1.45;
-            letter-spacing: .04em;
-        }
-
-        .power-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 4px;
-        }
-
-        .power-cost {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-family: var(--font-title);
-            font-size: .72rem;
-            color: var(--gold);
-        }
-
-        .buy-btn {
-            font-family: var(--font-title);
-            font-size: .6rem;
-            letter-spacing: .15em;
-            text-transform: uppercase;
-            padding: 4px 12px;
-            border: 1px solid var(--gold);
-            background: rgba(201, 168, 76, .08);
-            color: var(--gold);
-            cursor: pointer;
-            border-radius: 3px;
-            transition: background .2s, color .2s;
-        }
-
-        .buy-btn:hover {
-            background: rgba(201, 168, 76, .25);
-            color: var(--gold-light);
-        }
-
-        .sold-badge {
-            font-size: .65rem;
-            letter-spacing: .1em;
-            color: var(--muted);
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border: 1px solid var(--border);
-            border-radius: 3px;
-        }
-
-        /* Game over fullscreen */
-        .gameover-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(8, 9, 13, .85);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .6s;
-        }
-
-        .gameover-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .gameover-img {
-            max-width: 90vw;
-            max-height: 80vh;
-            object-fit: contain;
-            cursor: pointer;
-            filter: drop-shadow(0 0 60px rgba(201, 168, 76, .4));
-            animation: imgPop .6s cubic-bezier(.34, 1.56, .64, 1) forwards;
-        }
-
-        @keyframes imgPop {
-            from {
-                transform: scale(.7);
-                opacity: 0
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1
-            }
-        }
-
-        .gameover-hint {
-            position: absolute;
-            bottom: 10%;
-            color: var(--muted);
-            font-size: .8rem;
-            letter-spacing: .2em;
-            text-transform: uppercase;
-        }
-
-        /* Promo */
-        .promo-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99;
-            background: rgba(8, 9, 13, .82);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .3s;
-        }
-
-        .promo-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .promo-box {
-            background: var(--surface);
-            border: 1px solid var(--gold);
-            padding: 32px 40px;
-            text-align: center;
-            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-        }
-
-        .promo-title {
-            font-family: var(--font-title);
-            color: var(--gold);
-            letter-spacing: .2em;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-
-        .promo-choices {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .promo-choice {
-            font-size: 2.8rem;
-            cursor: pointer;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            transition: border-color .2s, background .2s;
-        }
-
-        .promo-choice:hover {
-            border-color: var(--gold);
-            background: rgba(201, 168, 76, .12);
-        }
-
-        /* Toast */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1
-            }
-
-            to {
-                opacity: 0
-            }
-        }
-
-        .purchase-toast {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--surface);
-            border: 1px solid var(--gold);
-            padding: 10px 24px;
-            font-family: var(--font-title);
-            font-size: .75rem;
-            letter-spacing: .15em;
-            color: var(--gold-light);
-            border-radius: 4px;
-            animation: fadeUp .3s ease, fadeOut .4s ease 2s forwards;
-            z-index: 201;
-            pointer-events: none;
-        }
-
-        @keyframes scorePop {
-            0% {
-                transform: scale(1)
-            }
-
-            30% {
-                transform: scale(1.9);
-                color: var(--gold-light)
-            }
-
-            100% {
-                transform: scale(1)
-            }
-        }
-
-        .score-pop {
-            animation: scorePop .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
-        }
-
-        /* Wait */
-        .wait-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 150;
-            background: rgba(8, 9, 13, .92);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-        }
-
-        .wait-overlay.hidden {
-            display: none;
-        }
-
-        .wait-title {
-            font-family: var(--font-title);
-            color: var(--gold);
-            font-size: 1.1rem;
-            letter-spacing: 3px;
-        }
-
-        .wait-sub {
-            color: var(--muted);
-            font-size: .85rem;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--border);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg)
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -879,6 +104,16 @@
         </div>
     </div>
 
+    <!-- Power Piece Picker -->
+    <div class="power-picker-overlay" id="powerPickerOverlay">
+        <div class="power-picker-box">
+            <div class="power-picker-title" id="powerPickerTitle">Escolha uma Peça</div>
+            <div class="power-picker-sub" id="powerPickerSub"></div>
+            <div class="power-picker-pieces" id="powerPickerPieces"></div>
+            <button class="power-picker-cancel" id="powerPickerCancel">Cancelar</button>
+        </div>
+    </div>
+
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -929,6 +164,16 @@
         let myTurn = false, gameOver = false;
         let lastUltimoTurno = partida.ultimo_turno || 0;
         let pollInterval = null;
+        // Points & shields
+        let pointsW = 0, pointsB = 0;
+        let shieldedPieces = {};       // "row,col" -> true
+        let noReshieldKeys = new Set(); // positions where shield was used (no reapply)
+        // Caminho Congelante
+        let frozenCols = [];
+        // Sonegar Impostos
+        let taxEvasion = null;
+        // Board pick-mode
+        let powerPickMode = null;
 
         // ── Init ───────────────────────────────────────────────
         function freshBoard() {
@@ -942,11 +187,14 @@
             enPassantTarget = null; castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
             lastMove = null; kingChecked = null; moveHistory = []; pendingWhiteMove = null; gameOver = false;
             myTurn = (MY_CC === 'w');
+            pointsW = 0; pointsB = 0; shieldedPieces = {}; noReshieldKeys = new Set();
+            frozenCols = []; taxEvasion = null; powerPickMode = null;
+            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
         }
 
         // ── Serialize / Deserialize ────────────────────────────
         function saveState() {
-            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove });
+            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove, pointsW, pointsB, shieldedPieces, noReshieldKeys: [...noReshieldKeys], frozenCols, taxEvasion });
         }
         function loadState(json) {
             try {
@@ -954,8 +202,12 @@
                 board = s.board; turn = s.turn; capturedW = s.capturedW || []; capturedB = s.capturedB || [];
                 enPassantTarget = s.enPassantTarget || null; castlingRights = s.castlingRights || { wK: true, wQ: true, bK: true, bQ: true };
                 lastMove = s.lastMove || null; moveHistory = s.moveHistory || []; pendingWhiteMove = s.pendingWhiteMove || null;
+                pointsW = s.pointsW || 0; pointsB = s.pointsB || 0;
+                shieldedPieces = s.shieldedPieces || {};
+                noReshieldKeys = new Set(s.noReshieldKeys || []);
+                frozenCols = s.frozenCols || [];
+                taxEvasion = s.taxEvasion || null;
                 kingChecked = null;
-                // Recalculate check
                 const k = findKIn(turn, board);
                 if (k && isSqAttacked(k.row, k.col, turn === 'w' ? 'b' : 'w', board)) kingChecked = k;
                 myTurn = (turn === MY_CC);
@@ -977,23 +229,108 @@
 
         // ── Shop ───────────────────────────────────────────────
         function initShop() { const s = embaralharPoderes(TODOS_OS_PODERES, 6); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
-        function renderShop() { const c = document.getElementById('shopSlots'); c.innerHTML = ''; shopPowers.forEach((p, i) => c.appendChild(mkCard(p, i))); }
+        function renderShop() {
+            const cont = document.getElementById('shopSlots'); cont.innerHTML = '';
+            shopPowers.forEach((p, i) => cont.appendChild(mkCard(p, i)));
+        }
         function mkCard(p, i) {
-            const c = document.createElement('div'); c.className = 'power-card' + (p.sold ? ' sold-out' : '');
-            c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${p.sold ? '<div class="sold-badge">Vendido</div>' : `<button class="buy-btn" onclick="buyPower(${i})">Comprar</button>`}</div>`;
+            const myPts = MY_CC === 'w' ? pointsW : pointsB;
+            const canAfford = myPts >= p.custo;
+            const inactive = !p.ativo;
+            let extraClass = p.sold ? ' sold-out' : (inactive ? ' inactive' : '');
+            const c = document.createElement('div'); c.className = 'power-card' + extraClass;
+            const actionHtml = p.sold
+                ? '<div class="sold-badge">Usado</div>'
+                : inactive
+                    ? '<div class="sold-badge">Em breve</div>'
+                    : `<button class="buy-btn" onclick="buyPower(${i})" ${canAfford && myTurn ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'}>Comprar</button>`;
+            c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${actionHtml}</div>`;
             return c;
         }
-        window.buyPower = function (i) {
-            const p = shopPowers[i]; if (!p || p.sold) return;
-            p.sold = true; if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800);
-            showToast(`${p.icone} ${p.nome} comprado! Turno perdido.`); renderShop();
-            if (myTurn) { turn = turn === 'w' ? 'b' : 'w'; myTurn = false; selected = null; legalMoves = []; render(); updateBanner(); }
+        window.buyPower = async function (i) {
+            const p = shopPowers[i];
+            if (!p || p.sold || !p.ativo || !myTurn) return;
+            const myPts = MY_CC === 'w' ? pointsW : pointsB;
+            if (myPts < p.custo) { showToast('🪙 Pontos insuficientes!'); return; }
+            if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
+            p.sold = true;
+            if (remainingPool.length > 0) setTimeout(() => { shopPowers[i] = remainingPool.shift(); renderShop(); }, 800);
+            renderShop(); updateCards();
+
+            if (p.id === 'escudo_covarde') {
+                enterPickMode('piece', ['K'], async (row, col) => {
+                    shieldedPieces[`${row},${col}`] = true;
+                    showToast('🛡️ Escudo aplicado!'); render();
+                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                    await pushState();
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+            } else if (p.id === 'espelho') {
+                enterPickMode('piece', ['K', 'Q'], async (row, col) => {
+                    const adj = getAdjacentEmpty(row, col);
+                    if (adj.length === 0) {
+                        if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
+                        p.sold = false; renderShop(); updateCards();
+                        showToast('😔 Sem espaço adjacente — poder cancelado.');
+                    } else {
+                        const [nr, nc] = adj[0];
+                        board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
+                        showToast('🪞 Peça duplicada!'); render();
+                    }
+                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                    await pushState();
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+            } else if (p.id === 'caminho_congelante') {
+                enterPickMode('col', [], async (row, col) => {
+                    frozenCols = frozenCols.filter(f => f.col !== col);
+                    frozenCols.push({ col, turnsLeft: 3, owner: MY_CC });
+                    showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
+                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                    await pushState();
+                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; p.sold = false; renderShop(); updateCards(); });
+            } else if (p.id === 'sonegar_impostos') {
+                taxEvasion = { turnsLeft: 6, owner: MY_CC };
+                showToast('💰 Pontos dobrados por 6 turnos!'); render();
+                myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                await pushState();
+            }
         };
-        function showToast(m) { const o = document.querySelector('.purchase-toast'); if (o) o.remove(); const t = document.createElement('div'); t.className = 'purchase-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2700); }
+
+        function getAdjacentEmpty(row, col) {
+            const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            return dirs.map(([dr, dc]) => [row + dr, col + dc]).filter(([r, c]) => inB(r, c) && !board[r][c]);
+        }
+
+        function enterPickMode(type, excludedTypes, onPick, onCancel) {
+            powerPickMode = { type, excludedTypes, onPick, onCancel };
+            document.body.classList.add(type === 'col' ? 'pick-mode-col' : 'pick-mode-pieces');
+            render();
+        }
+
+        function cancelPickMode() {
+            if (!powerPickMode) return;
+            const cb = powerPickMode.onCancel;
+            powerPickMode = null;
+            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
+            render();
+            if (cb) cb();
+        }
+
+        function tickPowerTimers() {
+            frozenCols = frozenCols.map(f => ({ ...f, turnsLeft: f.turnsLeft - 1 })).filter(f => f.turnsLeft > 0);
+            if (taxEvasion) {
+                taxEvasion.turnsLeft--;
+                if (taxEvasion.turnsLeft <= 0) { taxEvasion = null; showToast('💰 Sonegar Impostos expirou!'); }
+            }
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && powerPickMode) cancelPickMode(); });
+
+        function showToast(m) { const o = document.querySelector('.purchase-toast'); if (o) o.remove(); const t = document.createElement('div'); t.className = 'purchase-toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
         // ── Render ─────────────────────────────────────────────
         function render() {
             const g = document.getElementById('boardGrid'); g.innerHTML = '';
+            const frozenColSet = new Set(frozenCols.map(f => f.col));
             for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
                 const sq = document.createElement('div'); sq.className = 'sq'; sq.dataset.row = r; sq.dataset.col = c;
                 if (lastMove) { if (r === lastMove.fr && c === lastMove.fc) sq.classList.add('last-from'); if (r === lastMove.tr && c === lastMove.tc) sq.classList.add('last-to'); }
@@ -1001,9 +338,26 @@
                 const lm = legalMoves.find(m => m.row === r && m.col === c);
                 if (lm) sq.classList.add(lm.capture ? 'legal-capture' : 'legal-move');
                 if (kingChecked && r === kingChecked.row && c === kingChecked.col) sq.classList.add('in-check');
+                if (frozenColSet.has(c)) sq.classList.add('frozen-col');
                 const pc = board[r][c];
-                if (pc) { const d = document.createElement('div'); d.className = 'piece'; const t = document.createElement('div'); t.className = 'piece-text'; t.style.cssText = PS[pc.color]; t.textContent = PU[pc.color + pc.type]; d.appendChild(t); sq.appendChild(d); }
+                if (pc) {
+                    const d = document.createElement('div'); d.className = 'piece';
+                    const t = document.createElement('div'); t.className = 'piece-text'; t.style.cssText = PS[pc.color]; t.textContent = PU[pc.color + pc.type]; d.appendChild(t);
+                    if (shieldedPieces[`${r},${c}`]) { const badge = document.createElement('span'); badge.className = 'shield-badge'; badge.textContent = '🛡️'; d.appendChild(badge); }
+                    const freeze = frozenCols.find(f => f.col === c && pc.color !== f.owner);
+                    if (freeze) { const fb = document.createElement('span'); fb.className = 'freeze-badge'; fb.textContent = freeze.turnsLeft; d.appendChild(fb); }
+                    sq.appendChild(d);
+                }
                 sq.addEventListener('click', onSqClick); g.appendChild(sq);
+            }
+            // Pick-mode banner
+            const outer = document.getElementById('boardOuter');
+            const oldBanner = outer.querySelector('.pick-mode-banner');
+            if (oldBanner) oldBanner.remove();
+            if (powerPickMode) {
+                const banner = document.createElement('div'); banner.className = 'pick-mode-banner';
+                banner.textContent = powerPickMode.type === 'col' ? '❄️ Clique em qualquer casa para congelar aquela coluna' : '👆 Clique em uma peça sua no tabuleiro';
+                outer.appendChild(banner);
             }
             updateCards();
         }
@@ -1031,20 +385,56 @@
             document.getElementById('captWhite').textContent = capturedW.slice(-6).map(p => PU[p] || '').join(' ');
             document.getElementById('captBlack').textContent = capturedB.slice(-6).map(p => PU[p] || '').join(' ');
             animC('captWhiteCount', capturedW.length); animC('captBlackCount', capturedB.length);
+            updPts('cardWhite', pointsW); updPts('cardBlack', pointsB);
+            renderShop();
         }
         function animC(id, v) { const el = document.getElementById(id), old = el.textContent; el.textContent = v; if (String(old) !== String(v)) { el.classList.remove('score-pop'); void el.offsetWidth; el.classList.add('score-pop'); } }
+        function updPts(cardId, pts) {
+            const card = document.getElementById(cardId);
+            let el = card.querySelector('.points-display');
+            if (!el) { el = document.createElement('div'); el.className = 'points-display'; card.appendChild(el); }
+            const cardColor = cardId === 'cardWhite' ? 'w' : 'b';
+            const taxActive = taxEvasion && taxEvasion.owner === cardColor;
+            el.className = 'points-display' + (taxActive ? ' tax-active' : '');
+            const taxLabel = taxActive ? ` <span style="font-size:.55rem;color:#ffe066;">x2 (${taxEvasion.turnsLeft}t)</span>` : '';
+            el.innerHTML = `<span class="points-icon">🪙</span><span class="points-value">${pts}</span><span style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;">pontos${taxLabel}</span>`;
+        }
 
         // ── Board resize ───────────────────────────────────────
         function resizeBoard() { const a = Math.min((window.innerWidth - 480) * .95, window.innerHeight * .72), s = Math.max(280, Math.floor(a / 8) * 8), o = document.getElementById('boardOuter'); o.style.width = s + 'px'; o.style.height = s + 'px'; }
         window.addEventListener('resize', () => { resizeBoard(); render(); });
 
-        // ── Click ──────────────────────────────────────────────
-        async function onSqClick(e) {
-            if (!myTurn || gameOver) return;
+        // ── Click handler ─────────────────────────────────────
+        function onSqClick(e) {
             const sq = e.currentTarget, row = +sq.dataset.row, col = +sq.dataset.col;
+
+            // Power pick-mode intercept
+            if (powerPickMode) {
+                if (powerPickMode.type === 'col') {
+                    const cb = powerPickMode.onPick;
+                    powerPickMode = null;
+                    document.body.classList.remove('pick-mode-col');
+                    render();
+                    cb(row, col);
+                    return;
+                }
+                if (powerPickMode.type === 'piece') {
+                    const piece = board[row][col];
+                    if (!piece || piece.color !== MY_CC) { showToast('Clique em uma peça sua.'); return; }
+                    if (powerPickMode.excludedTypes && powerPickMode.excludedTypes.includes(piece.type)) { showToast('Esta peça não pode ser selecionada.'); return; }
+                    const cb = powerPickMode.onPick;
+                    powerPickMode = null;
+                    document.body.classList.remove('pick-mode-pieces');
+                    render();
+                    cb(row, col);
+                    return;
+                }
+            }
+
+            if (!myTurn || gameOver) return;
             if (selected) {
                 const mv = legalMoves.find(m => m.row === row && m.col === col);
-                if (mv) { await execMove(selected.row, selected.col, mv); return; }
+                if (mv) { execMove(selected.row, selected.col, mv); return; }
                 if (board[row][col] && board[row][col].color === MY_CC) { selected = { row, col }; legalMoves = getLegal(row, col); render(); return; }
                 selected = null; legalMoves = []; render(); return;
             }
@@ -1057,19 +447,46 @@
         async function execMove(fr, fc, mv, isRemote = false) {
             const tr = mv.row, tc = mv.col;
             const piece = board[fr][fc]; if (!piece) return;
-            const captured = board[tr][tc];
             const movedColor = piece.color;
+            const targetKey = `${tr},${tc}`;
+            const captured = board[tr][tc];
+
+            // Shield check
+            if (captured && shieldedPieces[targetKey]) {
+                delete shieldedPieces[targetKey];
+                noReshieldKeys.add(targetKey);
+                showToast('🛡️ O escudo bloqueou a captura!');
+                selected = null; legalMoves = [];
+                turn = movedColor === 'w' ? 'b' : 'w';
+                render(); updateBanner();
+                if (!isRemote) { myTurn = false; await pushState(); } else { myTurn = true; }
+                return;
+            }
 
             if (captured) {
-                if (movedColor === 'w') capturedW.push(captured.color + captured.type);
-                else capturedB.push(captured.color + captured.type);
+                let pts = PIECE_POINT_VALUES[captured.type] || 0;
+                if (taxEvasion && taxEvasion.owner === movedColor) pts *= 2;
+                if (movedColor === 'w') { capturedW.push(captured.color + captured.type); pointsW += pts; }
+                else { capturedB.push(captured.color + captured.type); pointsB += pts; }
+                if (shieldedPieces[targetKey]) delete shieldedPieces[targetKey];
             }
             if (mv.enPassant) {
                 const epr = (movedColor === 'w') ? tr + 1 : tr - 1;
                 const ep = board[epr][tc];
-                if (ep) { movedColor === 'w' ? capturedW.push(ep.color + ep.type) : capturedB.push(ep.color + ep.type); }
+                if (ep) {
+                    let pts = PIECE_POINT_VALUES[ep.type] || 0;
+                    if (taxEvasion && taxEvasion.owner === movedColor) pts *= 2;
+                    if (movedColor === 'w') { capturedW.push(ep.color + ep.type); pointsW += pts; }
+                    else { capturedB.push(ep.color + ep.type); pointsB += pts; }
+                }
                 board[epr][tc] = null;
+                delete shieldedPieces[`${epr},${tc}`];
             }
+
+            // Transfer shield with moving piece
+            const fromKey = `${fr},${fc}`;
+            if (shieldedPieces[fromKey]) { delete shieldedPieces[fromKey]; shieldedPieces[targetKey] = true; noReshieldKeys.delete(targetKey); }
+
             board[tr][tc] = piece; board[fr][fc] = null;
             lastMove = { fr, fc, tr, tc };
 
@@ -1089,6 +506,7 @@
             const nextTurn = movedColor === 'w' ? 'b' : 'w';
             turn = nextTurn;
             selected = null; legalMoves = []; kingChecked = null;
+            tickPowerTimers();
 
             const kpos = findKIn(nextTurn, board);
             if (kpos && isSqAttacked(kpos.row, kpos.col, movedColor, board)) kingChecked = kpos;
@@ -1104,19 +522,12 @@
 
             if (!isRemote) {
                 myTurn = false;
-                if (mated) {
-                    await pushState({ status: 'finalizada', vencedor_id: session.user.id });
-                    showGameOver(true);
-                } else if (stale) {
-                    await pushState({ status: 'finalizada' });
-                    showGameOver(null);
-                } else {
-                    await pushState();
-                }
+                if (mated) { await pushState({ status: 'finalizada', vencedor_id: session.user.id }); showGameOver(true); }
+                else if (stale) { await pushState({ status: 'finalizada' }); showGameOver(null); }
+                else { await pushState(); }
             } else {
                 myTurn = true;
-                if (mated) { showGameOver(false); }
-                else if (stale) { showGameOver(null); }
+                if (mated) { showGameOver(false); } else if (stale) { showGameOver(null); }
             }
             if (mated || stale) { gameOver = true; if (pollInterval) clearInterval(pollInterval); }
         }
@@ -1225,7 +636,13 @@
         }
 
         // ── Chess engine ───────────────────────────────────────
-        function getLegal(r, c) { return getPseudo(r, c, board).filter(m => !isCheck(board[r][c].color, simMove(board, r, c, m.row, m.col, m))); }
+        function getLegal(r, c) {
+            const piece = board[r][c];
+            if (piece) {
+                for (const fc of frozenCols) { if (fc.col === c && piece.color !== fc.owner) return []; }
+            }
+            return getPseudo(r, c, board).filter(m => !isCheck(board[r][c].color, simMove(board, r, c, m.row, m.col, m)));
+        }
         function getAllLegal(color) { const ms = []; for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (board[r][c] && board[r][c].color === color) getLegal(r, c).forEach(m => ms.push(m)); return ms; }
         function simMove(b, fr, fc, tr, tc, mv) { const s = b.map(r => r.map(p => p ? { ...p } : null)); const p = s[fr][fc]; s[tr][tc] = p; s[fr][fc] = null; if (mv && mv.enPassant) { const er = (p.color === 'w') ? tr + 1 : tr - 1; s[er][tc] = null; } if (mv && mv.castle === 'K') { s[tr][5] = s[tr][7]; s[tr][7] = null; } if (mv && mv.castle === 'Q') { s[tr][3] = s[tr][0]; s[tr][0] = null; } return s; }
         function isCheck(col, b) { const k = findKIn(col, b); if (!k) return false; return isSqAttacked(k.row, k.col, col === 'w' ? 'b' : 'w', b); }
