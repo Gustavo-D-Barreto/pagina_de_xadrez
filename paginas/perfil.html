@@ -1700,11 +1700,18 @@
             const { data, error } = await sb.from('profiles')
                 .select('username, vitorias, partidas, derrotas, pontos, avatar_url')
                 .order('vitorias', { ascending: false })
+                .order('partidas', { ascending: false })
                 .limit(5);
 
             const body = document.getElementById('leaderboard-body');
 
+            if (error) {
+                console.error("Erro no Supabase ao carregar ranking:", error);
+            }
+
             if (error || !data || data.length === 0) {
+                if (!error) console.warn("Supabase retornou 0 linhas para o ranking. Pode ser falta de usuários ou bloqueio de RLS (Row Level Security).");
+
                 // Demo leaderboard
                 const demos = [
                     { username: 'GrandMestre_XII', vitorias: 312, partidas: 420, derrotas: 88, pontos: 5420, avatar_url: 'perfil01.png' },
