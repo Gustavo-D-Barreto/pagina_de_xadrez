@@ -421,7 +421,15 @@
             myPartidaId = partida.id;
             toast('Sala criada! Compartilhe o código com seu amigo.', 'success');
 
-            // Escuta Realtime — aguarda o adversário entrar (jogador_preto muda para outro ID)
+            let redirected = false;
+            const goToGame = () => {
+                if (redirected) return;
+                redirected = true;
+                if (pollInterval) clearInterval(pollInterval);
+                window.location.href = `ingame.html?sala=${code}&cor=branco`;
+            };
+
+            // Tentativa 1 — Realtime (se a tabela estiver na publicação supabase_realtime)
             roomSub = supabase
                 .channel('sala_' + code)
                 .on('postgres_changes', {
@@ -429,12 +437,18 @@
                     filter: `codigo_sala=eq.${code}`
                 }, (payload) => {
                     const p = payload.new;
-                    if (p.status === 'em_andamento' && p.jogador_preto !== session.user.id) {
-                        // Adversário entrou! Vai para o jogo como branco
-                        window.location.href = `ingame.html?sala=${code}&cor=branco`;
-                    }
+                    if (p.status === 'em_andamento' && p.jogador_preto !== session.user.id) goToGame();
                 })
                 .subscribe();
+
+            // Tentativa 2 — Polling a cada 2 seg (fallback confiável)
+            let pollInterval = setInterval(async () => {
+                const { data: p } = await supabase
+                    .from('partidas').select('status, jogador_preto')
+                    .eq('id', partida.id).single();
+                if (p && p.status === 'em_andamento' && p.jogador_preto !== session.user.id) goToGame();
+            }, 2000);
+
         };
 
         // ── CANCELAR SALA ──────────────────────────────────────
