@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="ingame-shared.css" />
     <link rel="stylesheet" href="ingame-online.css" />
     <script src="../funcionalidades/poderes.js"></script>
+    <script src="../funcionalidades/maldicao.js"></script>
 </head>
 
 <body>
@@ -94,6 +95,15 @@
             </div>
             <div class="shop-divider"></div>
             <div id="shopSlots" style="display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- ═══ MENU DE MALDIÇÃO ═══ -->
+    <div id="curseMenu">
+        <div id="curseMenuTitle">💀 Ativar Maldição?</div>
+        <div class="curse-menu-btns">
+            <button id="curseMenuConfirm">Sim</button>
+            <button id="curseMenuCancel">Cancelar</button>
         </div>
     </div>
 
@@ -194,6 +204,9 @@
             pointsW = 0; pointsB = 0; shieldedPieces = {}; noReshieldKeys = new Set();
             frozenCols = []; taxEvasion = null; powerPickMode = null;
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
+
+            Maldicao.initMaldicao();
+            Maldicao.assignAllIds(board);
         }
 
         // ── Serialize / Deserialize ────────────────────────────
@@ -215,6 +228,9 @@
                 const k = findKIn(turn, board);
                 if (k && isSqAttacked(k.row, k.col, turn === 'w' ? 'b' : 'w', board)) kingChecked = k;
                 myTurn = (turn === MY_CC);
+
+                // Garante que todas as peças tenham IDs para rastreamento de maldição
+                Maldicao.assignAllIds(board);
                 return true;
             } catch (e) { console.error('loadState error:', e); return false; }
         }
@@ -354,9 +370,21 @@
                     if (shieldedPieces[`${r},${c}`]) { const badge = document.createElement('span'); badge.className = 'shield-badge'; badge.textContent = '🛡️'; d.appendChild(badge); }
                     const freeze = frozenCols.find(f => f.col === c && pc.color !== f.owner);
                     if (freeze) { const fb = document.createElement('span'); fb.className = 'freeze-badge'; fb.textContent = freeze.turnsLeft; d.appendChild(fb); }
+
+                    // Maldição
+                    if (Maldicao.isAmaldicaoPronta(pc)) {
+                        d.classList.add('cursed-piece');
+                        const cb = document.createElement('span'); cb.className = 'curse-badge'; cb.textContent = '💀'; d.appendChild(cb);
+                    }
+
                     sq.appendChild(d);
                 }
-                sq.addEventListener('click', onSqClick); g.appendChild(sq);
+                sq.addEventListener('click', onSqClick);
+                sq.addEventListener('contextmenu', e => {
+                    e.preventDefault();
+                    if (myTurn) showCurseMenu(e.clientX, e.clientY, r, c);
+                });
+                g.appendChild(sq);
             }
             // Pick-mode banner
             const outer = document.getElementById('boardOuter');
@@ -375,6 +403,30 @@
             b.textContent = (turn === 'w' ? 'Vez das Brancas' : 'Vez das Pretas') + (mine ? ' — SUA VEZ' : '');
             b.className = 'turn-banner' + (turn === 'b' ? ' black-turn' : '');
         }
+
+        // ── MALDIÇÃO: Menu e Ativação ─────────────────────
+        function hideCurseMenu() { document.getElementById('curseMenu').classList.remove('visible'); }
+        function showCurseMenu(x, y, row, col) {
+            const piece = board[row][col];
+            if (!Maldicao.isAmaldicaoPronta(piece)) return;
+            if (piece.color !== MY_CC) return; // Só ativa as próprias
+            const menu = document.getElementById('curseMenu');
+            menu.style.left = x + 'px'; menu.style.top = y + 'px';
+            menu.classList.add('visible');
+            document.getElementById('curseMenuConfirm').onclick = async () => {
+                hideCurseMenu();
+                Maldicao.ativarMaldicao(row, col, piece, {
+                    board, enterPickMode, showToast,
+                    onAfterActivation: async () => {
+                        myTurn = false; turn = turn === 'w' ? 'b' : 'w';
+                        render(); updateBanner(); await pushState();
+                    }
+                });
+            };
+            document.getElementById('curseMenuCancel').onclick = hideCurseMenu;
+        }
+        document.addEventListener('click', e => { if (!e.target.closest('#curseMenu')) hideCurseMenu(); });
+
         function recordMove(notation, color) {
             if (color === 'w') { pendingWhiteMove = { num: moveHistory.length + 1, white: notation, black: null }; }
             else { if (pendingWhiteMove) { pendingWhiteMove.black = notation; moveHistory.push(pendingWhiteMove); pendingWhiteMove = null; } else { moveHistory.push({ num: moveHistory.length + 1, white: '—', black: notation }); } }
@@ -478,6 +530,10 @@
                 else { capturedB.push(captured.color + captured.type); pointsB += pts; }
                 if (shieldedPieces[targetKey]) delete shieldedPieces[targetKey];
                 if (window.XqSons) window.XqSons.somCaptura();
+
+                // Maldição
+                const justCursed = Maldicao.registrarCaptura(piece);
+                if (justCursed) showToast('💀 Uma peça foi amaldiçoada!');
             }
             if (mv.enPassant) {
                 const epr = (movedColor === 'w') ? tr + 1 : tr - 1;
@@ -510,6 +566,7 @@
             if (piece.type === 'P' && (tr === 0 || tr === 7)) {
                 promo = isRemote ? (mv.promo || 'Q') : await askPromo(movedColor);
                 board[tr][tc] = { color: movedColor, type: promo };
+                Maldicao.assignId(board[tr][tc]); // Promovida ganha ID
                 if (window.XqSons) window.XqSons.somPromocao();
             }
 

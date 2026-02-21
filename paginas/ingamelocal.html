@@ -440,6 +440,42 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ── MALDIÇÃO: Menu e Ativação ─────────────────────
+        function hideCurseMenu() {
+            document.getElementById('curseMenu').classList.remove('visible');
+        }
+
+        function showCurseMenu(x, y, row, col) {
+            const piece = board[row][col];
+            if (!Maldicao.isAmaldicaoPronta(piece)) return;
+            if (piece.color !== turn) return;
+
+            const menu = document.getElementById('curseMenu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('visible');
+
+            // Wire up confirm
+            document.getElementById('curseMenuConfirm').onclick = () => {
+                hideCurseMenu();
+                Maldicao.ativarMaldicao(row, col, piece, {
+                    board,
+                    enterPickMode,
+                    showToast,
+                    onAfterActivation: () => {
+                        skipTurn();
+                    }
+                });
+            };
+
+            document.getElementById('curseMenuCancel').onclick = hideCurseMenu;
+        }
+
+        // Hide menu on any click elsewhere
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#curseMenu')) hideCurseMenu();
+        });
+
         // ═══════════════════════════════════════════════════
         //  RENDER
         // ═══════════════════════════════════════════════════
@@ -516,6 +552,10 @@
                     }
 
                     sq.addEventListener('click', onSquareClick);
+                    sq.addEventListener('contextmenu', e => {
+                        e.preventDefault();
+                        showCurseMenu(e.clientX, e.clientY, r, c);
+                    });
                     grid.appendChild(sq);
                 }
             }
@@ -835,6 +875,7 @@
             if (piece.type === 'P' && (toRow === 0 || toRow === 7)) {
                 const promoted = await askPromotion(turn);
                 board[toRow][toCol] = { color: turn, type: promoted };
+                Maldicao.assignId(board[toRow][toCol]); // Peça nova precisa de ID
                 if (window.XqSons) window.XqSons.somPromocao();
             }
 
