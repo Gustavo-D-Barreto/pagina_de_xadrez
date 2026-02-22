@@ -44,7 +44,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: url('../spritesxadrez/sprites/background03.png') center/cover no-repeat;
+    background: url('../spritesxadrez/sprites/background06.png') center/cover no-repeat;
 }
 
 .page-bg::after {
