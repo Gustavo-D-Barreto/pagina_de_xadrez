@@ -361,44 +361,62 @@
                     }
                 );
             } else if (poder.id === 'espelho') {
-                enterPickMode('piece', ['K', 'Q'],
-                    (row, col) => {
-                        const adjEmpty = getAdjacentEmpty(row, col);
-                        if (adjEmpty.length === 0) {
+                const img = '../spritesxadrez/sprites/espelho.png';
+                const overlay = document.getElementById('powerOverlay');
+                const overlayImg = document.getElementById('powerOverlayImg');
+                overlayImg.src = img;
+                overlay.classList.add('visible');
+
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    enterPickMode('piece', ['K', 'Q'],
+                        (row, col) => {
+                            const adjEmpty = getAdjacentEmpty(row, col);
+                            if (adjEmpty.length === 0) {
+                                if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                                shopPowers[idx] = poder; renderShop(); // Restore
+                                updatePlayerCards(); showToast('😔 Sem espaço adjacente — poder cancelado.');
+                                return;
+                            }
+                            const [nr, nc] = adjEmpty[0];
+                            board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
+                            showToast('🪞 Peça duplicada!');
+                            render();
+                            skipTurn();
+                        },
+                        () => {
                             if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
                             shopPowers[idx] = poder; renderShop(); // Restore
-                            updatePlayerCards(); showToast('😔 Sem espaço adjacente — poder cancelado.');
-                            return;
+                            updatePlayerCards();
                         }
-                        const [nr, nc] = adjEmpty[0];
-                        board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
-                        showToast('🪞 Peça duplicada!');
-                        render();
-                        skipTurn();
-                    },
-                    () => {
-                        if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
-                        shopPowers[idx] = poder; renderShop(); // Restore
-                        updatePlayerCards();
-                    }
-                );
+                    );
+                }, 3000);
             } else if (poder.id === 'caminho_congelante') {
-                enterPickMode('col', [],
-                    (row, col) => {
-                        const enemy = turn === 'w' ? 'b' : 'w';
-                        // Remove existing freeze on same col by same owner if any
-                        frozenCols = frozenCols.filter(f => f.col !== col);
-                        frozenCols.push({ col, turnsLeft: 3, owner: turn });
-                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 3 turnos!`);
-                        render();
-                        skipTurn();
-                    },
-                    () => {
-                        if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
-                        shopPowers[idx] = poder; renderShop(); // Restore
-                        updatePlayerCards();
-                    }
-                );
+                const img = '../spritesxadrez/sprites/caminho_congelante.png';
+                const overlay = document.getElementById('powerOverlay');
+                const overlayImg = document.getElementById('powerOverlayImg');
+                overlayImg.src = img;
+                overlay.classList.add('visible');
+
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    enterPickMode('col', [],
+                        (row, col) => {
+                            const enemy = turn === 'w' ? 'b' : 'w';
+                            // Remove existing freeze on same col by same owner if any
+                            frozenCols = frozenCols.filter(f => f.col !== col);
+                            frozenCols.push({ col, turnsLeft: 3, owner: turn });
+                            showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 3 turnos!`);
+                            render();
+                            skipTurn();
+                        },
+                        () => {
+                            if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                            shopPowers[idx] = poder; renderShop(); // Restore
+                            updatePlayerCards();
+                        }
+                    );
+                }, 3000);
             } else if (poder.id === 'sonegar_impostos') {
                 // Activate immediately — no board pick needed
                 taxEvasion = { turnsLeft: 6, owner: turn };

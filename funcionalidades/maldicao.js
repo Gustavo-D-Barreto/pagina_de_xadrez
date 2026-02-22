@@ -164,24 +164,50 @@
      *
      * @param {number} row
      * @param {number} col
-     * @param {object} piece   - objeto peça do board
      * @param {object} context - mesmo context de ativarMaldicaoCavalo
      */
+    function showCurseOverlay(imagePath, callback) {
+        const overlay = document.getElementById('powerOverlay');
+        const overlayImg = document.getElementById('powerOverlayImg');
+        if (!overlay || !overlayImg) {
+            if (callback) callback();
+            return;
+        }
+
+        overlayImg.src = imagePath;
+        overlay.classList.add('visible');
+
+        setTimeout(() => {
+            overlay.classList.remove('visible');
+            if (callback) callback();
+        }, 3000);
+    }
+
     function ativarMaldicao(row, col, piece, context) {
         if (!isAmaldicaoPronta(piece)) return;
 
-        switch (piece.type) {
-            case 'N':
-                ativarMaldicaoCavalo(row, col, piece, context);
-                break;
-            case 'P':
-                ativarMaldicaoPeao(row, col, piece, context);
-                break;
-            case 'R':
-                context.showToast('⚠️ Habilidade da Torre ainda não implementada!');
-                break;
-            default:
-                context.showToast('⚠️ Habilidade desconhecida para esta peça.');
+        const done = () => {
+            switch (piece.type) {
+                case 'N':
+                    ativarMaldicaoCavalo(row, col, piece, context);
+                    break;
+                case 'P':
+                    ativarMaldicaoPeao(row, col, piece, context);
+                    break;
+                case 'R':
+                    context.showToast('⚠️ Habilidade da Torre ainda não implementada!');
+                    break;
+                default:
+                    context.showToast('⚠️ Habilidade desconhecida para esta peça.');
+            }
+        };
+
+        if (piece.type === 'N') {
+            showCurseOverlay('../spritesxadrez/sprites/cavalo_maldicao.png', done);
+        } else if (piece.type === 'P') {
+            showCurseOverlay('../spritesxadrez/sprites/peao_maldicao.png', done);
+        } else {
+            done();
         }
     }
 

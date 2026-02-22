@@ -328,29 +328,47 @@
                     await pushState();
                 }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
             } else if (p.id === 'espelho') {
-                enterPickMode('piece', ['K', 'Q'], async (row, col) => {
-                    const adj = getAdjacentEmpty(row, col);
-                    if (adj.length === 0) {
-                        if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                        shopPowers[i] = p; renderShop(); updateCards();
-                        showToast('😔 Sem espaço adjacente — poder cancelado.');
-                        return;
-                    } else {
-                        const [nr, nc] = adj[0];
-                        board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
-                        showToast('🪞 Peça duplicada!'); render();
-                    }
-                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                    await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                const img = '../spritesxadrez/sprites/espelho.png';
+                const overlay = document.getElementById('powerOverlay');
+                const overlayImg = document.getElementById('powerOverlayImg');
+                overlayImg.src = img;
+                overlay.classList.add('visible');
+
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    enterPickMode('piece', ['K', 'Q'], async (row, col) => {
+                        const adj = getAdjacentEmpty(row, col);
+                        if (adj.length === 0) {
+                            if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
+                            shopPowers[i] = p; renderShop(); updateCards();
+                            showToast('😔 Sem espaço adjacente — poder cancelado.');
+                            return;
+                        } else {
+                            const [nr, nc] = adj[0];
+                            board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
+                            showToast('🪞 Peça duplicada!'); render();
+                        }
+                        myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                        await pushState();
+                    }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                }, 3000);
             } else if (p.id === 'caminho_congelante') {
-                enterPickMode('col', [], async (row, col) => {
-                    frozenCols = frozenCols.filter(f => f.col !== col);
-                    frozenCols.push({ col, turnsLeft: 3, owner: MY_CC });
-                    showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
-                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                    await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                const img = '../spritesxadrez/sprites/caminho_congelante.png';
+                const overlay = document.getElementById('powerOverlay');
+                const overlayImg = document.getElementById('powerOverlayImg');
+                overlayImg.src = img;
+                overlay.classList.add('visible');
+
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    enterPickMode('col', [], async (row, col) => {
+                        frozenCols = frozenCols.filter(f => f.col !== col);
+                        frozenCols.push({ col, turnsLeft: 3, owner: MY_CC });
+                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
+                        myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+                        await pushState();
+                    }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                }, 3000);
             } else if (p.id === 'sonegar_impostos') {
                 taxEvasion = { turnsLeft: 6, owner: MY_CC };
                 showToast('💰 Pontos dobrados por 6 turnos!'); render();
