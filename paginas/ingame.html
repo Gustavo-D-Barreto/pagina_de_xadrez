@@ -323,6 +323,98 @@
                 showToast('💰 Pontos dobrados por 6 turnos!'); render();
                 myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                 await pushState();
+            } else if (p.id === 'corrente') {
+                enterPickMode('piece', [], async (row, col) => {
+                    const myColor = MY_CC;
+                    const enemyColor = MY_CC === 'w' ? 'b' : 'w';
+
+                    let foundUp = null;
+                    for (let r = row - 1; r >= 0; r--) {
+                        const pc = board[r][col];
+                        if (pc) {
+                            if (pc.color === myColor) break;
+                            if (pc.color === enemyColor) { foundUp = { r, dist: row - r }; break; }
+                        }
+                    }
+
+                    let foundDown = null;
+                    for (let r = row + 1; r < 8; r++) {
+                        const pc = board[r][col];
+                        if (pc) {
+                            if (pc.color === myColor) break;
+                            if (pc.color === enemyColor) { foundDown = { r, dist: r - row }; break; }
+                        }
+                    }
+
+                    let targetToPull = null;
+                    if (foundUp && foundDown) {
+                        if (foundUp.dist <= foundDown.dist) targetToPull = foundUp.r;
+                        else targetToPull = foundDown.r;
+                    } else if (foundUp) {
+                        targetToPull = foundUp.r;
+                    } else if (foundDown) {
+                        targetToPull = foundDown.r;
+                    }
+
+                    if (targetToPull !== null) {
+                        const enemyPiece = board[targetToPull][col];
+                        const pullDirection = targetToPull < row ? -1 : 1;
+                        const adjacentRow = row + pullDirection;
+
+                        if (targetToPull !== adjacentRow) {
+                            const sqStart = document.querySelector(`.sq[data-row="${targetToPull}"][data-col="${col}"]`);
+                            const sqEnd = document.querySelector(`.sq[data-row="${adjacentRow}"][data-col="${col}"]`);
+                            if (sqStart && sqEnd) {
+                                const pieceEl = sqStart.querySelector('.piece');
+                                if (pieceEl) {
+                                    const rectStart = sqStart.getBoundingClientRect();
+                                    const rectEnd = sqEnd.getBoundingClientRect();
+                                    const dy = rectEnd.top - rectStart.top;
+
+                                    pieceEl.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                                    const isRotated = document.getElementById('boardOuter').classList.contains('rotated');
+                                    pieceEl.style.transform = isRotated ? `rotate(180deg) translateY(${-dy}px)` : `translateY(${dy}px)`;
+                                    pieceEl.style.zIndex = '999';
+                                }
+                            }
+
+                            setTimeout(async () => {
+                                board[adjacentRow][col] = enemyPiece;
+                                board[targetToPull][col] = null;
+
+                                const oldKey = `${targetToPull},${col}`;
+                                const newKey = `${adjacentRow},${col}`;
+                                if (shieldedPieces[oldKey]) {
+                                    delete shieldedPieces[oldKey];
+                                    shieldedPieces[newKey] = true;
+                                    noReshieldKeys.delete(newKey);
+                                }
+
+                                showToast('💥 Peça inimiga puxada!');
+                                myTurn = false;
+                                turn = turn === 'w' ? 'b' : 'w';
+                                render();
+                                updateBanner();
+                                await pushState();
+                            }, 800);
+                        } else {
+                            showToast('💥 Peça inimiga puxada!');
+                            myTurn = false;
+                            turn = turn === 'w' ? 'b' : 'w';
+                            render();
+                            updateBanner();
+                            await pushState();
+                        }
+                    } else {
+                        // Cancel
+                        if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
+                        shopPowers[i] = p; renderShop(); updateCards();
+                        showToast('😔 Nenhuma peça inimiga na linha para puxar — poder cancelado.');
+                    }
+                }, () => {
+                    if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
+                    shopPowers[i] = p; renderShop(); updateCards();
+                });
             }
         };
 

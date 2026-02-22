@@ -60,7 +60,7 @@ const TODOS_OS_PODERES = [
         descricao: 'voce escolhe uma peça sua , e puxa a peça inimiga mais proxima verticalmente',
         icone: '💥',
         custo: 6,
-        ativo: false
+        ativo: true
     }
 ];
 

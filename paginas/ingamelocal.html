@@ -374,6 +374,99 @@
                 showToast('💰 Sonegar Impostos ativo! Pontos dobrados por 6 turnos.');
                 render();
                 skipTurn();
+            } else if (poder.id === 'corrente') {
+                enterPickMode('piece', [],
+                    (row, col) => {
+                        const myColor = turn;
+                        const enemyColor = turn === 'w' ? 'b' : 'w';
+
+                        let foundUp = null; // { r, dist }
+                        for (let r = row - 1; r >= 0; r--) {
+                            const p = board[r][col];
+                            if (p) {
+                                if (p.color === myColor) break; // Blocked by ally
+                                if (p.color === enemyColor) { foundUp = { r, dist: row - r }; break; }
+                            }
+                        }
+
+                        let foundDown = null; // { r, dist }
+                        for (let r = row + 1; r < 8; r++) {
+                            const p = board[r][col];
+                            if (p) {
+                                if (p.color === myColor) break; // Blocked by ally
+                                if (p.color === enemyColor) { foundDown = { r, dist: r - row }; break; }
+                            }
+                        }
+
+                        let targetToPull = null;
+                        if (foundUp && foundDown) {
+                            if (foundUp.dist <= foundDown.dist) targetToPull = foundUp.r;
+                            else targetToPull = foundDown.r;
+                        } else if (foundUp) {
+                            targetToPull = foundUp.r;
+                        } else if (foundDown) {
+                            targetToPull = foundDown.r;
+                        }
+
+                        if (targetToPull !== null) {
+                            const enemyPiece = board[targetToPull][col];
+                            const pullDirection = targetToPull < row ? -1 : 1;
+                            const adjacentRow = row + pullDirection;
+
+                            if (targetToPull !== adjacentRow) {
+                                const sqStart = document.querySelector(`.sq[data-row="${targetToPull}"][data-col="${col}"]`);
+                                const sqEnd = document.querySelector(`.sq[data-row="${adjacentRow}"][data-col="${col}"]`);
+                                if (sqStart && sqEnd) {
+                                    const pieceEl = sqStart.querySelector('.piece');
+                                    if (pieceEl) {
+                                        const rectStart = sqStart.getBoundingClientRect();
+                                        const rectEnd = sqEnd.getBoundingClientRect();
+                                        const dy = rectEnd.top - rectStart.top;
+
+                                        pieceEl.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                                        const isRotated = document.getElementById('boardOuter').classList.contains('rotated');
+                                        pieceEl.style.transform = isRotated ? `rotate(180deg) translateY(${-dy}px)` : `translateY(${dy}px)`;
+                                        pieceEl.style.zIndex = '999';
+                                    }
+                                }
+
+                                setTimeout(() => {
+                                    // Move it
+                                    board[adjacentRow][col] = enemyPiece;
+                                    board[targetToPull][col] = null;
+
+                                    // Update shield positions if it had one
+                                    const oldKey = `${targetToPull},${col}`;
+                                    const newKey = `${adjacentRow},${col}`;
+                                    if (shieldedPieces[oldKey]) {
+                                        delete shieldedPieces[oldKey];
+                                        shieldedPieces[newKey] = true;
+                                        noReshieldKeys.delete(newKey);
+                                    }
+
+                                    showToast('💥 Peça inimiga puxada!');
+                                    render();
+                                    skipTurn();
+                                }, 800);
+                            } else {
+                                showToast('💥 Peça inimiga puxada!');
+                                render();
+                                skipTurn();
+                            }
+                        } else {
+                            // Cancel power if no target
+                            if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                            shopPowers[idx] = poder; renderShop();
+                            updatePlayerCards();
+                            showToast('😔 Nenhuma peça inimiga na linha para puxar — poder cancelado.');
+                        }
+                    },
+                    () => {
+                        if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                        shopPowers[idx] = poder; renderShop(); // Restore
+                        updatePlayerCards();
+                    }
+                );
             }
         }
 
