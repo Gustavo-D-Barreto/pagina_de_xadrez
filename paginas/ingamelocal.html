@@ -69,6 +69,20 @@
             </div>
             <div class="history-divider"></div>
             <div class="history-list" id="historyList"></div>
+
+            <!-- Valores das Peças -->
+            <div class="piece-values-card">
+                <div class="piece-val" title="Peão"><span
+                        style="color:#fff; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,255,255,.3);">♙</span> 1</div>
+                <div class="piece-val" title="Cavalo"><span
+                        style="color:#fff; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,255,255,.3);">♘</span> 3</div>
+                <div class="piece-val" title="Bispo"><span
+                        style="color:#fff; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,255,255,.3);">♗</span> 3</div>
+                <div class="piece-val" title="Torre"><span
+                        style="color:#fff; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,255,255,.3);">♖</span> 5</div>
+                <div class="piece-val" title="Rainha"><span
+                        style="color:#fff; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,255,255,.3);">♕</span> 9</div>
+            </div>
         </div>
 
         <!-- ════════════════ CENTER (board) ════════════════ -->
@@ -77,6 +91,21 @@
 
             <div class="board-outer" id="boardOuter">
                 <img class="board-bg-img" src="../spritesxadrez/sprites/spr_tabuleiro2.png" alt="Tabuleiro" />
+
+                <!-- Coordenadas -->
+                <div class="coords x-coords top">
+                    <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+                </div>
+                <div class="coords x-coords bottom">
+                    <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+                </div>
+                <div class="coords y-coords left">
+                    <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+                <div class="coords y-coords right">
+                    <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+
                 <div class="board-grid" id="boardGrid"></div>
             </div>
 
@@ -535,7 +564,7 @@
             toast.className = 'purchase-toast';
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 6000);
         }
 
         // ── MALDIÇÃO: Menu e Ativação ─────────────────────
