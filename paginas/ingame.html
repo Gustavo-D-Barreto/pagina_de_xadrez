@@ -309,8 +309,9 @@
             if (myPts < p.custo) { showToast('🪙 Pontos insuficientes!'); return; }
             if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
 
-            // Sorteia um novo poder diferente do recém-comprado
-            const ativos = TODOS_OS_PODERES.filter(pw => pw.ativo && pw.id !== p.id);
+            // Sorteia um novo poder que não esteja atualmente na loja
+            const idsNaLoja = shopPowers.map(sp => sp.id);
+            const ativos = TODOS_OS_PODERES.filter(pw => pw.ativo && !idsNaLoja.includes(pw.id));
             let next = p;
             if (ativos.length > 0) {
                 next = ativos[Math.floor(Math.random() * ativos.length)];
