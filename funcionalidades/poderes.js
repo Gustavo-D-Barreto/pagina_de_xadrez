@@ -39,9 +39,9 @@ const TODOS_OS_PODERES = [
         ativo: true
     },
     {
-        id: 'buraco_negro',
-        nome: 'Buraco Negro',
-        descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar um buraco negro,que destroi qualquer peça que cair la.',
+        id: 'armadilha',
+        nome: 'Armadilha',
+        descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar uma armadilha que dura 8 turnos,que destroi qualquer peça que cair la.',
         icone: '💫',
         custo: 5,
         ativo: false
