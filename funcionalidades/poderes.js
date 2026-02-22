@@ -44,7 +44,7 @@ const TODOS_OS_PODERES = [
         descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar uma armadilha que dura 8 turnos,que destroi qualquer peça que cair la.',
         icone: '💫',
         custo: 5,
-        ativo: false
+        ativo: true
     },
     {
         id: 'caminho_congelante',

@@ -108,7 +108,7 @@
 
                 <div class="board-grid" id="boardGrid"></div>
             </div>
-
+            <div class="power-overlay-huge" id="powerOverlay"><img src="" id="powerOverlayImg" alt="Poder" /></div>
             <div class="btn-row">
                 <button class="btn btn-profile" onclick="window.location.href='perfil.html'">👤 Perfil</button>
                 <button class="btn" id="btnNew">Nova Partida</button>
@@ -222,8 +222,9 @@
         // Sonegar Impostos: { turnsLeft, owner } or null
         let taxEvasion = null;
 
-        // Board pick-mode: { type: 'piece'|'col', excludedTypes, onPick, onCancel }
+        // Board pick-mode: { type: 'piece'|'col'|'empty', excludedTypes, onPick, onCancel }
         let powerPickMode = null;
+        let armadilhas = [];
 
         // ═══════════════════════════════════════════════════
         //  BOARD INIT
@@ -258,7 +259,8 @@
             frozenCols = [];
             taxEvasion = null;
             powerPickMode = null;
-            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
+            armadilhas = [];
+            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
 
             // Maldição
             Maldicao.initMaldicao();
@@ -403,6 +405,29 @@
                 showToast('💰 Sonegar Impostos ativo! Pontos dobrados por 6 turnos.');
                 render();
                 skipTurn();
+            } else if (poder.id === 'armadilha') {
+                const img = '../spritesxadrez/sprites/poder_armadilha.png';
+                const overlay = document.getElementById('powerOverlay');
+                const overlayImg = document.getElementById('powerOverlayImg');
+                overlayImg.src = img;
+                overlay.classList.add('visible');
+
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    enterPickMode('empty', [],
+                        (row, col) => {
+                            armadilhas.push({ row, col, turnsLeft: 8, owner: turn });
+                            showToast('💫 Armadilha colocada!');
+                            render();
+                            skipTurn();
+                        },
+                        () => {
+                            if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                            shopPowers[idx] = poder; renderShop(); // Restore
+                            updatePlayerCards();
+                        }
+                    );
+                }, 3000);
             } else if (poder.id === 'corrente') {
                 enterPickMode('piece', [],
                     (row, col) => {
@@ -532,6 +557,8 @@
                     showToast('💰 Sonegar Impostos expirou!');
                 }
             }
+            // Tick armadilhas
+            armadilhas = armadilhas.map(a => ({ ...a, turnsLeft: a.turnsLeft - 1 })).filter(a => a.turnsLeft > 0);
         }
 
         // ── Board pick-mode helpers ─────────────────────────────
@@ -541,7 +568,7 @@
         // onCancel()        — called via Escape or banner cancel
         function enterPickMode(type, excludedTypes, onPick, onCancel) {
             powerPickMode = { type, excludedTypes, onPick, onCancel };
-            document.body.classList.add(type === 'col' ? 'pick-mode-col' : 'pick-mode-pieces');
+            document.body.classList.add(type === 'col' ? 'pick-mode-col' : (type === 'empty' ? 'pick-mode-empty' : 'pick-mode-pieces'));
             render(); // banner appears in render()
         }
 
@@ -549,7 +576,7 @@
             if (!powerPickMode) return;
             const cb = powerPickMode.onCancel;
             powerPickMode = null;
-            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col');
+            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
             render();
             if (cb) cb();
         }
@@ -678,6 +705,17 @@
                         sq.appendChild(pDiv);
                     }
 
+                    // Render armadilhas
+                    const a = armadilhas.find(a => a.row === r && a.col === c);
+                    if (a) {
+                        const t = document.createElement('div');
+                        t.className = 'trap-indicator';
+                        t.textContent = '💫';
+                        t.style.cssText = 'position:absolute; bottom:2px; left:2px; font-size:1.2rem; pointer-events:none; z-index:5;';
+                        sq.appendChild(t);
+                        if (a.owner === turn) sq.style.boxShadow = 'inset 0 0 10px rgba(255, 215, 0, 0.5)';
+                    }
+
                     sq.addEventListener('click', onSquareClick);
                     sq.addEventListener('contextmenu', e => {
                         e.preventDefault();
@@ -694,9 +732,10 @@
             if (powerPickMode) {
                 const banner = document.createElement('div');
                 banner.className = 'pick-mode-banner';
-                banner.textContent = powerPickMode.type === 'col'
-                    ? '❄️ Clique em qualquer casa para congelar aquela coluna'
-                    : '👆 Clique em uma peça sua no tabuleiro';
+                let msg = '👆 Clique em uma peça sua no tabuleiro';
+                if (powerPickMode.type === 'col') msg = '❄️ Clique em qualquer casa para congelar aquela coluna';
+                if (powerPickMode.type === 'empty') msg = '💫 Clique em uma casa vazia para colocar a armadilha';
+                banner.textContent = msg;
                 outer.appendChild(banner);
             }
 
@@ -886,6 +925,15 @@
                     cb(row, col);
                     return;
                 }
+                if (powerPickMode.type === 'empty') {
+                    if (board[row][col]) { showToast('Clique em uma casa vazia.'); return; }
+                    const cb = powerPickMode.onPick;
+                    powerPickMode = null;
+                    document.body.classList.remove('pick-mode-empty');
+                    render();
+                    cb(row, col);
+                    return;
+                }
             }
 
             // ── Normal chess click ─────────────────────────────
@@ -912,9 +960,14 @@
         //  EXECUTE MOVE
         // ═══════════════════════════════════════════════════
         async function executeMove(move) {
+            if (!selected) return;
             const { row: fromRow, col: fromCol } = selected;
             const { row: toRow, col: toCol } = move;
             const piece = board[fromRow][fromCol];
+            if (!piece) return;
+            selected = null;
+            legalSquares = [];
+            const movedColor = turn;
 
             // --- SHIELD CHECK before capture ---
             const targetKey = `${toRow},${toCol}`;
@@ -979,6 +1032,27 @@
             board[fromRow][fromCol] = null;
             lastMove = { fromRow, fromCol, toRow, toCol };
 
+            // Check trap
+            const tIdx = armadilhas.findIndex(a => a.row === toRow && a.col === toCol);
+            let trapTriggered = false;
+            let trapOwner = null;
+            if (tIdx !== -1) {
+                trapOwner = armadilhas[tIdx].owner;
+                armadilhas.splice(tIdx, 1);
+                board[toRow][toCol] = null;
+                trapTriggered = true;
+                showToast('💫 Peça destruída pela armadilha!');
+                if (window.XqSons) window.XqSons.somCaptura();
+
+                // Points if enemy piece
+                if (trapOwner !== movedColor) {
+                    let pts = PIECE_POINT_VALUES[piece.type] || 0;
+                    if (taxEvasion && taxEvasion.owner === trapOwner) pts *= 2;
+                    if (trapOwner === 'w') { capturedW.push(piece.color + piece.type); pointsW += pts; }
+                    else { capturedB.push(piece.color + piece.type); pointsB += pts; }
+                }
+            }
+
             // castling
             if (move.castle) {
                 if (move.castle === 'K') { board[toRow][5] = board[toRow][7]; board[toRow][7] = null; }
@@ -995,18 +1069,17 @@
 
             // en passant target
             enPassantTarget = null;
-            if (piece.type === 'P' && Math.abs(toRow - fromRow) === 2)
+            if (piece.type === 'P' && Math.abs(toRow - fromRow) === 2 && !trapTriggered)
                 enPassantTarget = { row: (fromRow + toRow) / 2, col: toCol };
 
             // pawn promotion
-            if (piece.type === 'P' && (toRow === 0 || toRow === 7)) {
+            if (piece.type === 'P' && (toRow === 0 || toRow === 7) && !trapTriggered) {
                 const promoted = await askPromotion(turn);
                 board[toRow][toCol] = { color: turn, type: promoted };
                 Maldicao.assignId(board[toRow][toCol]); // Peça nova precisa de ID
                 if (window.XqSons) window.XqSons.somPromocao();
             }
 
-            const movedColor = turn;
             const movedPiece = board[toRow][toCol];
 
             // Eventos aleatórios: moeda e meteoro
@@ -1014,27 +1087,28 @@
             tickEventos(movedColor);
 
             turn = (turn === 'w') ? 'b' : 'w';
-            selected = null;
             legalSquares = [];
 
+            const kingDestroyed = trapTriggered && piece.type === 'K';
+
             kingChecked = null;
-            const opponentKingPos = findKing(turn);
-            const newCheck = opponentKingPos && isInCheck(turn, board);
+            const opponentKingPos = kingDestroyed ? null : findKing(turn);
+            const newCheck = !kingDestroyed && opponentKingPos && isInCheck(turn, board);
             if (newCheck) kingChecked = opponentKingPos;
 
-            const allMoves = getAllLegalMoves(turn);
-            const isMate = allMoves.length === 0 && newCheck;
+            const allMoves = kingDestroyed ? [] : getAllLegalMoves(turn);
+            const isMate = kingDestroyed || (allMoves.length === 0 && newCheck);
 
             // ── Sons pós-jogada ──────────────────────────────────
             if (window.XqSons) {
                 if (isMate) window.XqSons.somFimDeJogo(false);
-                else if (newCheck) window.XqSons.somXeque();
-                else if (!captured && !move.castle) window.XqSons.somMovimento();
+                else if (newCheck && !trapTriggered) window.XqSons.somXeque();
+                else if (!captured && !move.castle && !trapTriggered) window.XqSons.somMovimento();
             }
 
             const notation = toAlgebraic(
                 { ...move, fromCol: fromCol },
-                movedPiece,
+                board[toRow][toCol] || piece,
                 captured,
                 newCheck,
                 isMate
