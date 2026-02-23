@@ -25,7 +25,7 @@
         P: 2,   // Peão    → 2 capturas
         N: 3,   // Cavalo  → 3 capturas
         R: 5,   // Torre   → 5 capturas
-        // Bispo, Rainha, Rei → sem maldição por enquanto
+        Q: 3,   // Rainha  → 3 capturas
     };
 
     // ── Estado interno ────────────────────────────────────────────
@@ -158,6 +158,19 @@
         if (onAfterActivation) onAfterActivation();
     }
 
+    function ativarMaldicaoRainha(row, col, piece, context) {
+        const { showToast, onAfterActivation } = context;
+
+        // Marca que a maldição foi usada
+        piece.cursed = false;
+        piece.curseUsed = true;
+
+        // Visual roxo já é garantido pelo CSS .cursed-piece se piece.cursed for true, 
+        // mas aqui a gente marca que a habilidade PASSIVA de clonagem está ativa.
+        showToast('💀 Maldição da Rainha! Agora ela criará cópias de cada peça que capturar!');
+        if (onAfterActivation) onAfterActivation();
+    }
+
     /**
      * Ponto de entrada para ativar qualquer maldição.
      * Detecta o tipo da peça e chama a habilidade correspondente.
@@ -193,6 +206,9 @@
                     break;
                 case 'P':
                     ativarMaldicaoPeao(row, col, piece, context);
+                    break;
+                case 'Q':
+                    ativarMaldicaoRainha(row, col, piece, context);
                     break;
                 case 'R':
                     context.showToast('⚠️ Habilidade da Torre ainda não implementada!');

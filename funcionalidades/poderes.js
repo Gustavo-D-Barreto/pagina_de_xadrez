@@ -49,7 +49,7 @@ const TODOS_OS_PODERES = [
     {
         id: 'caminho_congelante',
         nome: 'Caminho Congelante',
-        descricao: 'Congela uma coluna inteira por 3 turnos, impedindo o adversário de mover peças nela.',
+        descricao: 'Congela uma coluna inteira por 4 turnos, impedindo o adversário de mover peças nela.',
         icone: '❄️',
         custo: 12,
         ativo: true

@@ -364,8 +364,8 @@
                     overlay.classList.remove('visible');
                     enterPickMode('col', [], async (row, col) => {
                         frozenCols = frozenCols.filter(f => f.col !== col);
-                        frozenCols.push({ col, turnsLeft: 3, owner: MY_CC });
-                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); render();
+                        frozenCols.push({ col, turnsLeft: 4, owner: MY_CC });
+                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 4 turnos!`); render();
                         myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
                         await pushState();
                     }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
@@ -729,6 +729,7 @@
                 const justCursed = Maldicao.registrarCaptura(piece);
                 if (justCursed) showToast('💀 Uma peça foi amaldiçoada!');
             }
+
             if (mv.enPassant) {
                 const epr = (movedColor === 'w') ? tr + 1 : tr - 1;
                 const ep = board[epr][tc];
@@ -744,9 +745,24 @@
 
             // Transfer shield with moving piece
             const fromKey = `${fr},${fc}`;
-            if (shieldedPieces[fromKey]) { delete shieldedPieces[fromKey]; shieldedPieces[targetKey] = true; noReshieldKeys.delete(targetKey); }
+            if (shieldedPieces[fromKey]) {
+                delete shieldedPieces[fromKey];
+                shieldedPieces[targetKey] = true;
+                noReshieldKeys.delete(targetKey);
+            }
 
             board[tr][tc] = piece; board[fr][fc] = null;
+
+            // --- CLONAGEM DA RAINHA (Maldição) ---
+            if (captured && piece.type === 'Q' && piece.curseUsed) {
+                board[fr][fc] = {
+                    color: piece.color,
+                    type: captured.type,
+                    id: null
+                };
+                Maldicao.assignId(board[fr][fc]);
+                showToast(`💀 Maldição da Rainha! Clone criado!`);
+            }
             lastMove = { fr, fc, tr, tc };
 
             // Check trap

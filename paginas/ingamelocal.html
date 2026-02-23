@@ -406,8 +406,8 @@
                             const enemy = turn === 'w' ? 'b' : 'w';
                             // Remove existing freeze on same col by same owner if any
                             frozenCols = frozenCols.filter(f => f.col !== col);
-                            frozenCols.push({ col, turnsLeft: 3, owner: turn });
-                            showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 3 turnos!`);
+                            frozenCols.push({ col, turnsLeft: 4, owner: turn });
+                            showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 4 turnos!`);
                             render();
                             skipTurn();
                         },
@@ -1049,6 +1049,20 @@
             // move piece
             board[toRow][toCol] = piece;
             board[fromRow][fromCol] = null;
+
+            // --- CLONAGEM DA RAINHA (Maldição) ---
+            if (captured && piece.type === 'Q' && piece.curseUsed) {
+                // Cria uma cópia da peça inimiga capturada, mas com a cor da rainha
+                // Nasce na célula anterior da rainha (fromRow, fromCol)
+                board[fromRow][fromCol] = {
+                    color: piece.color,
+                    type: captured.type,
+                    id: null // O assignId abaixo cuidará disso
+                };
+                Maldicao.assignId(board[fromRow][fromCol]);
+                showToast(`💀 Maldição da Rainha! Um clone de ${captured.type} foi criado!`);
+            }
+
             lastMove = { fromRow, fromCol, toRow, toCol };
 
             // Check trap
