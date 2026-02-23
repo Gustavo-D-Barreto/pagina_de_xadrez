@@ -19,7 +19,7 @@ const TODOS_OS_PODERES = [
         nome: 'Escudo Covarde',
         descricao: 'Escolha uma peça sua (exceto o rei) para protegê-la de ser capturada uma vez.',
         icone: '🛡️',
-        custo: 5,
+        custo: 20,
         ativo: true
     },
     {
@@ -43,7 +43,7 @@ const TODOS_OS_PODERES = [
         nome: 'Armadilha',
         descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar uma armadilha que dura 8 turnos,que destroi qualquer peça que cair la.',
         icone: '💫',
-        custo: 5,
+        custo: 7,
         ativo: true
     },
     {
@@ -51,7 +51,7 @@ const TODOS_OS_PODERES = [
         nome: 'Caminho Congelante',
         descricao: 'Congela uma coluna inteira por 3 turnos, impedindo o adversário de mover peças nela.',
         icone: '❄️',
-        custo: 10,
+        custo: 12,
         ativo: true
     },
     {
@@ -59,7 +59,7 @@ const TODOS_OS_PODERES = [
         nome: 'Corrente',
         descricao: 'voce escolhe uma peça sua , e puxa a peça inimiga mais proxima verticalmente',
         icone: '💥',
-        custo: 6,
+        custo: 8,
         ativo: true
     }
 ];
