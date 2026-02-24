@@ -75,7 +75,7 @@ const TODOS_OS_PODERES = [
         nome: 'Inferno',
         descricao: 'Amaldiçoa todas as suas peças imediatamente.',
         icone: '🔥',
-        custo: 35,
+        custo: 25,
         ativo: true
     }
 ];
