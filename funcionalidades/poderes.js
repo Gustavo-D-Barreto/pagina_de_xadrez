@@ -61,6 +61,14 @@ const TODOS_OS_PODERES = [
         icone: '💥',
         custo: 8,
         ativo: true
+    },
+    {
+        id: 'fantasma_da_noite',
+        nome: 'Fantasma da Noite',
+        descricao: 'Escolha uma peça sua (menos rei e rainha), esta peça pode atravessar peças aliadas até o final da partida.',
+        icone: '👻',
+        custo: 20,
+        ativo: true
     }
 ];
 

@@ -540,6 +540,20 @@
                         updatePlayerCards();
                     }
                 );
+            } else if (poder.id === 'fantasma_da_noite') {
+                enterPickMode('piece', ['K', 'Q'],
+                    (row, col) => {
+                        board[row][col].isGhost = true;
+                        showToast('👻 Peça amaldiçoada com Fantasma da Noite!');
+                        render();
+                        skipTurn();
+                    },
+                    () => {
+                        if (turn === 'w') pointsW += poder.custo; else pointsB += poder.custo;
+                        shopPowers[idx] = poder; renderShop(); // Restore
+                        updatePlayerCards();
+                    }
+                );
             }
         }
 
@@ -719,6 +733,16 @@
                             cb.className = 'curse-badge';
                             cb.textContent = '💀';
                             pDiv.appendChild(cb);
+                        }
+
+                        // Ghost badge 👻
+                        if (piece.isGhost) {
+                            const gb = document.createElement('span');
+                            gb.className = 'ghost-badge';
+                            gb.textContent = '👻';
+                            gb.style.cssText = 'position:absolute; top:-5px; right:-5px; font-size:1rem; z-index:10; filter: drop-shadow(0 0 5px cyan);';
+                            pDiv.appendChild(gb);
+                            pDiv.style.opacity = '0.85';
                         }
 
                         sq.appendChild(pDiv);
@@ -1245,7 +1269,13 @@
                 let nr = r + dr, nc = c + dc;
                 while (inBounds(nr, nc)) {
                     moves.push({ row: nr, col: nc });
-                    if (b[nr][nc]) break;
+                    if (b[nr][nc]) {
+                        if (p.isGhost && b[nr][nc].color === p.color) {
+                            // atravessa aliada
+                        } else {
+                            break;
+                        }
+                    }
                     nr += dr; nc += dc;
                 }
             };
@@ -1292,8 +1322,18 @@
                 while (inBounds(nr, nc)) {
                     if (!b[nr][nc]) { moves.push({ row: nr, col: nc, capture: false }); }
                     else {
-                        if (b[nr][nc].color === enemy) moves.push({ row: nr, col: nc, capture: true });
-                        break;
+                        if (b[nr][nc].color === enemy) {
+                            moves.push({ row: nr, col: nc, capture: true });
+                            break; // Always blocked by enemy
+                        } else {
+                            // Hit an ally
+                            if (p.isGhost) {
+                                // Jump over it, but cannot land on it
+                                // Just continue the loop
+                            } else {
+                                break; // Blocked by ally
+                            }
+                        }
                     }
                     nr += dr; nc += dc;
                 }
