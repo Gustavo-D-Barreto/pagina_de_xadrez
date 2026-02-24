@@ -494,6 +494,21 @@
                     if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
                     shopPowers[i] = p; renderShop(); updateCards();
                 });
+            } else if (p.id === 'inferno') {
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const pc = board[r][c];
+                        if (pc && pc.color === MY_CC) {
+                            pc.cursed = true;
+                        }
+                    }
+                }
+                showToast('🔥 INFERNO! Todas as suas peças foram amaldiçoadas!');
+                myTurn = false;
+                turn = turn === 'w' ? 'b' : 'w';
+                render();
+                updateBanner();
+                await pushState();
             }
         };
 

@@ -22,10 +22,11 @@
 
     // ── Limites de captura para cada tipo de peça ─────────────────
     const CURSE_THRESHOLDS = {
-        P: 2,   // Peão    → 2 capturas
-        N: 3,   // Cavalo  → 3 capturas
-        R: 5,   // Torre   → 5 capturas
-        Q: 3,   // Rainha  → 3 capturas
+        P: 1,   // Peão    → 1 captura
+        N: 2,   // Cavalo  → 2 capturas
+        B: 2,   // Bispo   → 2 capturas
+        R: 2,   // Torre   → 2 capturas
+        Q: 2,   // Rainha  → 2 capturas
     };
 
     // ── Estado interno ────────────────────────────────────────────
