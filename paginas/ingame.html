@@ -283,7 +283,22 @@
         }
 
         // ── Shop ───────────────────────────────────────────────
-        function initShop() { const ativos = TODOS_OS_PODERES.filter(p => p.ativo); const s = embaralharPoderes(ativos, ativos.length, SALA); shopPowers = s.slice(0, 4); remainingPool = s.slice(4); renderShop(); }
+        function getTotalTurns() {
+            return (moveHistory ? moveHistory.length * 2 : 0) + (pendingWhiteMove ? 1 : 0);
+        }
+
+        function initShop() {
+            const totalTurns = getTotalTurns();
+            const ativos = TODOS_OS_PODERES.filter(p => {
+                if (!p.ativo) return false;
+                if (p.id === 'inferno' && totalTurns < 20) return false;
+                return true;
+            });
+            const s = embaralharPoderes(ativos, ativos.length, SALA);
+            shopPowers = s.slice(0, 4);
+            remainingPool = s.slice(4);
+            renderShop();
+        }
         function renderShop() {
             const cont = document.getElementById('shopSlots'); cont.innerHTML = '';
             shopPowers.forEach((p, i) => cont.appendChild(mkCard(p, i)));
@@ -311,7 +326,13 @@
 
             // Sorteia um novo poder que não esteja atualmente na loja
             const idsNaLoja = shopPowers.map(sp => sp.id);
-            const ativos = TODOS_OS_PODERES.filter(pw => pw.ativo && !idsNaLoja.includes(pw.id));
+            const totalTurns = getTotalTurns();
+            const ativos = TODOS_OS_PODERES.filter(pw => {
+                if (!pw.ativo) return false;
+                if (idsNaLoja.includes(pw.id)) return false;
+                if (pw.id === 'inferno' && totalTurns < 20) return false;
+                return true;
+            });
             let next = p;
             if (ativos.length > 0) {
                 next = ativos[Math.floor(Math.random() * ativos.length)];
