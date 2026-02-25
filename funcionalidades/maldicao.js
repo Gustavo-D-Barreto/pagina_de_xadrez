@@ -37,12 +37,17 @@
 
     let _nextId = 1; // ID único por peça (incrementado a cada initBoard)
 
+    // ── Estado das zonas de segurança da Torre ────────────────────
+    // Cada entrada: { row, col, turnsLeft, owner } (owner = cor da torre)
+    let _rookSafetyZones = [];
+
     // ── API pública ───────────────────────────────────────────────
 
     function initMaldicao() {
         // Reseta o gerador de IDs; o zeragem de peças
         // acontece naturalmente quando o board é recriado.
         _nextId = 1;
+        _rookSafetyZones = [];
     }
 
     /**
@@ -172,6 +177,59 @@
         if (onAfterActivation) onAfterActivation();
     }
 
+    function ativarMaldicaoTorre(row, col, piece, context) {
+        const { board, showToast, onAfterActivation } = context;
+
+        // Marca que a maldição foi usada
+        piece.cursed = false;
+        piece.curseUsed = true;
+
+        // Registra zona de segurança: todas as células no raio 1 ao redor da torre
+        const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]];
+        for (const [dr, dc] of dirs) {
+            const r = row + dr, c = col + dc;
+            if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                // Remove zona anterior na mesma posição (se houver) para evitar duplicatas
+                _rookSafetyZones = _rookSafetyZones.filter(z => !(z.row === r && z.col === c));
+                _rookSafetyZones.push({ row: r, col: c, turnsLeft: 6, owner: piece.color });
+            }
+        }
+
+        showToast('💀 Maldição da Torre! Zona de proteção criada por 6 turnos!');
+        if (onAfterActivation) onAfterActivation();
+    }
+
+    /**
+     * Avança os timers da zona de segurança da Torre em 1 turno.
+     * Deve ser chamado toda vez que um turno passa (em tickPowerTimers).
+     */
+    function tickRookSafetyZones() {
+        _rookSafetyZones = _rookSafetyZones
+            .map(z => ({ ...z, turnsLeft: z.turnsLeft - 1 }))
+            .filter(z => z.turnsLeft > 0);
+    }
+
+    /**
+     * Verifica se uma posição está dentro de uma zona de proteção da Torre
+     * para uma peça aliada (owner = cor do aliado).
+     * @param {number} row
+     * @param {number} col
+     * @param {string} pieceColor - cor da peça que está na posição
+     * @returns {boolean}
+     */
+    function isInRookSafetyZone(row, col, pieceColor) {
+        return _rookSafetyZones.some(z => z.row === row && z.col === col && z.owner === pieceColor);
+    }
+
+    /**
+     * Retorna os turnos restantes da zona de proteção para uma célula e cor.
+     * Retorna 0 se não estiver em zona.
+     */
+    function getRookSafetyTurns(row, col, pieceColor) {
+        const z = _rookSafetyZones.find(z => z.row === row && z.col === col && z.owner === pieceColor);
+        return z ? z.turnsLeft : 0;
+    }
+
     /**
      * Ponto de entrada para ativar qualquer maldição.
      * Detecta o tipo da peça e chama a habilidade correspondente.
@@ -212,7 +270,7 @@
                     ativarMaldicaoRainha(row, col, piece, context);
                     break;
                 case 'R':
-                    context.showToast('⚠️ Habilidade da Torre ainda não implementada!');
+                    ativarMaldicaoTorre(row, col, piece, context);
                     break;
                 default:
                     context.showToast('⚠️ Habilidade desconhecida para esta peça.');
@@ -237,6 +295,10 @@
         isAmaldicaoPronta,
         ativarMaldicao,
         CURSE_THRESHOLDS,
+        // Torre
+        tickRookSafetyZones,
+        isInRookSafetyZone,
+        getRookSafetyTurns,
     };
 
 })();

@@ -619,6 +619,8 @@
             }
             // Tick armadilhas
             armadilhas = armadilhas.map(a => ({ ...a, turnsLeft: a.turnsLeft - 1 })).filter(a => a.turnsLeft > 0);
+            // Tick zona de segurança da Torre
+            Maldicao.tickRookSafetyZones();
         }
 
         // ── Board pick-mode helpers ─────────────────────────────
@@ -742,6 +744,18 @@
                             badge.className = 'shield-badge';
                             badge.textContent = '🛡️';
                             pDiv.appendChild(badge);
+                        }
+
+                        // Rook safety zone badge
+                        const rookZoneTurns = Maldicao.getRookSafetyTurns(r, c, piece.color);
+                        if (rookZoneTurns > 0) {
+                            const rb = document.createElement('span');
+                            rb.className = 'rook-zone-badge';
+                            rb.textContent = '🛡️';
+                            rb.style.cssText = 'position:absolute; bottom:-4px; right:-4px; font-size:0.75rem; z-index:10; filter: drop-shadow(0 0 4px gold);';
+                            rb.title = `Zona de proteção: ${rookZoneTurns} turnos`;
+                            pDiv.appendChild(rb);
+                            sq.style.boxShadow = (sq.style.boxShadow ? sq.style.boxShadow + ', ' : '') + 'inset 0 0 10px rgba(255,215,0,0.4)';
                         }
 
                         // Freeze badge: show turns remaining for frozen enemy pieces
@@ -1047,17 +1061,14 @@
                 delete shieldedPieces[targetKey];
                 noReshieldKeys.add(targetKey);
                 showToast('🛡️ O escudo bloqueou a captura!');
-                // The attacker still moves to the square? No — the shield blocks the move entirely:
-                // The piece stays, turn passes.
-                selected = null;
-                legalSquares = [];
-                turn = (turn === 'w') ? 'b' : 'w';
-                isFlipped = (turn === 'b');
-                const outerB = document.getElementById('boardOuter');
-                if (isFlipped) outerB.classList.add('rotated');
-                else outerB.classList.remove('rotated');
-                render();
-                updateTurnBanner();
+                skipTurn();
+                return;
+            }
+
+            // --- ROOK SAFETY ZONE CHECK before capture ---
+            if (captured && Maldicao.isInRookSafetyZone(toRow, toCol, captured.color)) {
+                showToast('🛡️ A zona sagrada da Torre protegeu a peça!');
+                skipTurn();
                 return;
             }
 

@@ -46,8 +46,8 @@ class XadrezIA {
         }
 
         let bestMove = null;
-        let bestScore = -Infinity;
         const isMax = (color === 'w');
+        let bestScore = isMax ? -Infinity : Infinity;
 
         // Ordena capturas primeiro para melhorar a poda
         const ordered = this._orderMoves(board, allMoves);
