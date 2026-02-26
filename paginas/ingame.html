@@ -658,8 +658,7 @@
                 Maldicao.ativarMaldicao(row, col, piece, {
                     board, enterPickMode, showToast,
                     onAfterActivation: async () => {
-                        myTurn = false; turn = turn === 'w' ? 'b' : 'w';
-                        render(); updateBanner(); await pushState();
+                        render(); await pushState();
                     }
                 });
             };
