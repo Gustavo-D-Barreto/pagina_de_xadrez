@@ -1219,7 +1219,7 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ctext y='14' font-size='12' opacity='0.18'%3E❄%3C/text%3E%3C/svg%3E") center/60% no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ctext y='14' font-size='12' opacity='0.18'%3E❄%3C/text%3E%3C/svg%3E") center/60% no-repeat;
     pointer-events: none;
     z-index: 1;
 }

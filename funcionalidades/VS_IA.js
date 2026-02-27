@@ -13,7 +13,7 @@
 class XadrezVsIA {
     /**
      * @param {object} config
-     * @param {string}   config.serverUrl      - URL do servidor Python (default: 'http://localhost:5000')
+     * @param {string}   config.serverUrl      - URL do servidor Python (default: 'https://localhost:5000')
      * @param {string}   config.playerColor    - 'w' (brancas) ou 'b' (pretas)
      * @param {number}   config.difficulty     - 1=fácil, 2=médio, 3=difícil
      * @param {function} config.onBoardUpdate  - cb(board) chamado após cada jogada
@@ -25,7 +25,7 @@ class XadrezVsIA {
      * @param {function} config.showToast      - cb(msg) para notificações visuais
      */
     constructor(config = {}) {
-        this.serverUrl = config.serverUrl || 'http://localhost:5000';
+        this.serverUrl = config.serverUrl || 'https://localhost:5000';
         this.playerColor = config.playerColor || 'w';
         this.difficulty = config.difficulty || 2;
 

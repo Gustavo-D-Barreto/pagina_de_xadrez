@@ -1217,7 +1217,7 @@
         <a href="../index.html" class="header-logo">
             <div class="logo-icon">
                 <!-- Chess king SVG icon -->
-                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="https://www.w3.org/2000/svg">
                     <path d="M20 4 L22 10 L28 10 L23 14 L25 20 L20 16 L15 20 L17 14 L12 10 L18 10 Z" fill="#c9a84c"
                         opacity="0.9" />
                     <rect x="12" y="28" width="16" height="4" rx="1" fill="#c9a84c" opacity="0.8" />
@@ -1234,8 +1234,6 @@
             <a href="lobby.html">Jogar</a>
             <div class="nav-sep"></div>
             <a href="perfil.html" class="active">Perfil</a>
-            <div class="nav-sep"></div>
-            <a href="ranking.html">Ranking</a>
         </nav>
 
         <a href="lobby.html" class="nav-btn">Jogar Agora</a>
@@ -1414,36 +1412,7 @@
             <div class="divider"></div>
         </div>
 
-        <!-- TOP 5 LEADERBOARD -->
-        <section class="leaderboard-section">
-            <div class="section-rule">
-                <div class="rule-line"></div>
-                <div class="rule-diamond"></div>
-                <div class="rule-label">Hall da Fama</div>
-                <div class="rule-diamond"></div>
-                <div class="rule-line"></div>
-            </div>
 
-            <div class="leaderboard-title">Top 5 Campeões</div>
-            <div class="leaderboard-sub">Os maiores mestres do tabuleiro</div>
-
-            <div class="leaderboard-table">
-                <div class="lb-header">
-                    <div style="text-align:center">#</div>
-                    <div>Jogador</div>
-                    <div style="text-align:center">Vitórias</div>
-                    <div style="text-align:center">Partidas</div>
-                    <div style="text-align:center">Derrotas</div>
-                    <div style="text-align:center">Pontos</div>
-                </div>
-                <div id="leaderboard-body">
-                    <!-- filled by JS -->
-                    <div style="padding:40px; text-align:center; color:var(--text-muted);">
-                        Carregando ranking...
-                    </div>
-                </div>
-            </div>
-        </section>
 
     </main>
 
@@ -1694,65 +1663,9 @@
         }
 
         // ----------------------------------------------------------------
-        // LOAD LEADERBOARD (Top 5)
-        // ----------------------------------------------------------------
-        async function loadLeaderboard() {
-            const { data, error } = await sb.from('profiles')
-                .select('username, vitorias, partidas, derrotas, pontos, avatar_url')
-                .order('vitorias', { ascending: false })
-                .order('partidas', { ascending: false })
-                .limit(5);
-
-            const body = document.getElementById('leaderboard-body');
-
-            if (error) {
-                console.error("Erro no Supabase ao carregar ranking:", error);
-            }
-
-            if (error || !data || data.length === 0) {
-                if (!error) console.warn("Supabase retornou 0 linhas para o ranking. Pode ser falta de usuários ou bloqueio de RLS (Row Level Security).");
-
-                // Demo leaderboard
-                const demos = [
-                    { username: 'GrandMestre_XII', vitorias: 312, partidas: 420, derrotas: 88, pontos: 5420, avatar_url: 'perfil01.png' },
-                    { username: 'ShadowQueen', vitorias: 287, partidas: 390, derrotas: 90, pontos: 4870, avatar_url: 'perfil02.png' },
-                    { username: 'IronBishop', vitorias: 241, partidas: 350, derrotas: 99, pontos: 4020, avatar_url: 'perfil03.png' },
-                    { username: 'DragonKnight99', vitorias: 198, partidas: 310, derrotas: 102, pontos: 3200, avatar_url: 'perfil01.png' },
-                    { username: 'EmberKing', vitorias: 155, partidas: 260, derrotas: 95, pontos: 2780, avatar_url: 'perfil02.png' },
-                ];
-                body.innerHTML = demos.map((p, i) => lbRowHTML(p, i + 1)).join('');
-                return;
-            }
-
-            body.innerHTML = data.map((p, i) => lbRowHTML(p, i + 1)).join('');
-        }
-
-        function lbRowHTML(p, pos) {
-            const posClass = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : 'other';
-            const rowClass = pos <= 3 ? `rank-${pos}` : '';
-            const crownClass = pos === 1 ? 'crown' : '';
-            const avatarSrc = p.avatar_url || 'perfil01.png';
-            const delay = (pos - 1) * 0.1;
-            return `
-    <div class="lb-row ${rowClass}" style="animation-delay:${delay}s">
-      <div class="lb-pos ${posClass} ${crownClass}">${pos}°</div>
-      <div class="lb-player">
-        <img class="lb-avatar" src="${avatarSrc}" alt="${p.username}"
-             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSIyMCIgZmlsbD0iIzFhMmEzYSIvPjx0ZXh0IHg9IjIwIiB5PSIyNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2M5YTg0YyI+8J+RtjwvdGV4dD48L3N2Zz4='" />
-        <span class="lb-name">${p.username || 'Anônimo'}</span>
-      </div>
-      <div class="lb-wins">${p.vitorias ?? 0}</div>
-      <div class="lb-games">${p.partidas ?? 0}</div>
-      <div class="lb-losses">${p.derrotas ?? 0}</div>
-      <div class="lb-pts">${p.pontos ?? 0}</div>
-    </div>`;
-        }
-
-        // ----------------------------------------------------------------
         // INIT
         // ----------------------------------------------------------------
         loadProfile();
-        loadLeaderboard();
     </script>
 
 </body>
