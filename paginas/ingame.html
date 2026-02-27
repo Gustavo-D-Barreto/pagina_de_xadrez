@@ -31,46 +31,85 @@
     </div>
 
     <div class="game-root" id="gameRoot" style="display:none">
-        <!-- LEFT -->
-        <div class="left-panel">
+        <!-- LEFT SIDEBAR -->
+        <div class="left-sidebar">
             <div class="player-card black-card" id="cardBlack">
                 <div class="player-card-header">
-                    <div class="player-avatar black-avatar">♚</div>
-                    <div>
+                    <div class="player-avatar black-avatar">♔</div>
+                    <div style="flex:1;">
                         <div class="player-name" id="nameBlack">Pretas</div>
                         <span class="turn-badge">SUA VEZ</span>
+                    </div>
+                </div>
+                <div class="player-stats-row">
+                    <div class="stat-chip">
+                        <span class="stat-icon">🪙</span>
+                        <div>
+                            <div class="stat-val" id="coinsBlack">0</div>
+                            <div class="stat-label">moedas</div>
+                        </div>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-icon">⚔️</span>
+                        <div>
+                            <div class="stat-val" id="ptsBlack">0</div>
+                            <div class="stat-label">pontos</div>
+                        </div>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
                 <div class="captured-pieces" id="captBlack"></div>
                 <div class="capture-count" id="captBlackCount">0</div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.3;">
-                <div style="width:1px;flex:1;background:var(--border);"></div>
-                <span style="font-size:1.2rem;">⚔️</span>
-                <div style="width:1px;flex:1;background:var(--border);"></div>
+
+            <div class="history-panel">
+                <div class="history-header">
+                    <div class="history-title">Histórico</div>
+                </div>
+                <div class="history-divider"></div>
+                <div class="history-list" id="historyList"></div>
             </div>
+
+            <!-- Inventory Black -->
+            <div class="inventory-panel" id="inventoryBlack">
+                <div class="inventory-label">🎒 Inventário Pretas</div>
+                <div class="inv-slots-row" id="invSlotsBlack"></div>
+            </div>
+
+            <!-- Inventory White -->
+            <div class="inventory-panel" id="inventoryWhite">
+                <div class="inventory-label">🎒 Inventário Brancas</div>
+                <div class="inv-slots-row" id="invSlotsWhite"></div>
+            </div>
+
             <div class="player-card white-card active-turn" id="cardWhite">
                 <div class="player-card-header">
                     <div class="player-avatar white-avatar">♔</div>
-                    <div>
+                    <div style="flex:1;">
                         <div class="player-name" id="nameWhite">Brancas</div>
                         <span class="turn-badge">SUA VEZ</span>
+                    </div>
+                </div>
+                <div class="player-stats-row">
+                    <div class="stat-chip">
+                        <span class="stat-icon">🪙</span>
+                        <div>
+                            <div class="stat-val" id="coinsWhite">0</div>
+                            <div class="stat-label">moedas</div>
+                        </div>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-icon">⚔️</span>
+                        <div>
+                            <div class="stat-val" id="ptsWhite">0</div>
+                            <div class="stat-label">pontos</div>
+                        </div>
                     </div>
                 </div>
                 <div class="capture-label">Peças capturadas</div>
                 <div class="captured-pieces" id="captWhite"></div>
                 <div class="capture-count" id="captWhiteCount">0</div>
             </div>
-        </div>
-
-        <!-- HISTORY -->
-        <div class="history-panel">
-            <div class="history-header">
-                <div class="history-title">Histórico</div>
-            </div>
-            <div class="history-divider"></div>
-            <div class="history-list" id="historyList"></div>
 
             <!-- Valores das Peças -->
             <div class="piece-values-card">
@@ -220,6 +259,9 @@
         let powerPickMode = null;
         // Armadilhas
         let armadilhas = [];
+        // Inventários de poderes
+        let inventoryW = [];   // { ...poder } — max 4
+        let inventoryB = [];   // { ...poder } — max 4
 
         // ── Init ───────────────────────────────────────────────
         function freshBoard() {
@@ -235,6 +277,7 @@
             myTurn = (MY_CC === 'w');
             pointsW = 0; pointsB = 0; shieldedPieces = {}; noReshieldKeys = new Set();
             frozenCols = []; taxEvasion = null; powerPickMode = null; armadilhas = [];
+            inventoryW = []; inventoryB = [];
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
 
             Maldicao.initMaldicao();
@@ -313,8 +356,8 @@
                 ? '<div class="sold-badge">Usado</div>'
                 : inactive
                     ? '<div class="sold-badge">Em breve</div>'
-                    : `<button class="buy-btn" onclick="buyPower(${i})" ${canAfford && myTurn ? '' : 'disabled style="opacity:.4;cursor:not-allowed"'}>Comprar</button>`;
-            c.innerHTML = `<div class="power-card-top"><span class="power-icon">${p.icone}</span><div><div class="power-name">${p.nome}</div></div></div><div class="power-desc">${p.descricao}</div><div class="power-footer"><div class="power-cost"><span>🪙</span>${p.custo}</div>${actionHtml}</div>`;
+                    : `<button class="buy-btn" onclick="buyPower(${i})" ${canAfford && myTurn ? '' : 'disabled'}>Comprar</button>`;
+            c.innerHTML = `<div class="power-card-left"><div class="power-icon-wrap">${p.icone}</div><div class="power-cost">🪙 ${p.custo} MOEDAS</div></div><div class="power-card-body"><div class="power-name">${p.nome}</div><div class="power-desc">${p.descricao}</div><div class="power-action">${actionHtml}</div></div>`;
             return c;
         }
         window.buyPower = async function (i) {
@@ -322,9 +365,13 @@
             if (!p || p.sold || !p.ativo || !myTurn) return;
             const myPts = MY_CC === 'w' ? pointsW : pointsB;
             if (myPts < p.custo) { showToast('🪙 Pontos insuficientes!'); return; }
-            if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
 
-            // Sorteia um novo poder que não esteja atualmente na loja
+            const myInv = MY_CC === 'w' ? inventoryW : inventoryB;
+            if (myInv.length >= 4) { showToast('🎒 Inventário cheio! Use um poder antes de comprar mais.'); return; }
+
+            if (MY_CC === 'w') pointsW -= p.custo; else pointsB -= p.custo;
+            myInv.push({ ...p });
+
             const idsNaLoja = shopPowers.map(sp => sp.id);
             const totalTurns = getTotalTurns();
             const ativos = TODOS_OS_PODERES.filter(pw => {
@@ -334,213 +381,139 @@
                 return true;
             });
             let next = p;
-            if (ativos.length > 0) {
-                next = ativos[Math.floor(Math.random() * ativos.length)];
-            }
+            if (ativos.length > 0) next = ativos[Math.floor(Math.random() * ativos.length)];
             shopPowers[i] = { ...next, entrando: true };
             renderShop();
             setTimeout(() => { if (shopPowers[i] && shopPowers[i].entrando) { delete shopPowers[i].entrando; renderShop(); } }, 50);
             updateCards();
 
+            showToast(`${p.icone} ${p.nome} adicionado ao inventário!`);
+            // Consume the turn for the purchase
+            myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
+            await pushState();
+        };
+
+        window.useInventoryPower = async function (color, slotIdx) {
+            if (!myTurn || MY_CC !== color) return;
+            const inv = color === 'w' ? inventoryW : inventoryB;
+            const p = inv[slotIdx];
+            if (!p) return;
+
+            inv.splice(slotIdx, 1);
+            renderInventory();
+            updateCards();
+
+            const afterUse = async () => {
+                // Power use does NOT skip the chess turn
+                render(); updateBanner(); await pushState();
+            };
+
+            const restore = () => { inv.splice(slotIdx, 0, p); renderInventory(); updateCards(); };
+
             if (p.id === 'escudo_covarde') {
                 enterPickMode('piece', ['K'], async (row, col) => {
                     shieldedPieces[`${row},${col}`] = true;
-                    showToast('🛡️ Escudo aplicado!'); render();
-                    myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                    await pushState();
-                }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                    showToast('🛡️ Escudo aplicado!'); await afterUse();
+                }, restore);
             } else if (p.id === 'espelho') {
-                const img = '../spritesxadrez/sprites/espelho.png';
                 const overlay = document.getElementById('powerOverlay');
-                const overlayImg = document.getElementById('powerOverlayImg');
-                overlayImg.src = img;
+                document.getElementById('powerOverlayImg').src = '../spritesxadrez/sprites/espelho.png';
                 overlay.classList.add('visible');
-
                 setTimeout(() => {
                     overlay.classList.remove('visible');
                     enterPickMode('piece', ['K', 'Q'], async (row, col) => {
                         const adj = getAdjacentEmpty(row, col);
-                        if (adj.length === 0) {
-                            if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                            shopPowers[i] = p; renderShop(); updateCards();
-                            showToast('😔 Sem espaço adjacente — poder cancelado.');
-                            return;
-                        } else {
-                            const [nr, nc] = adj[0];
-                            board[nr][nc] = { color: board[row][col].color, type: board[row][col].type };
-                            showToast('🪞 Peça duplicada!'); render();
-                        }
-                        myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                        await pushState();
-                    }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                        if (!adj.length) { restore(); showToast('😔 Sem espaço — cancelado.'); return; }
+                        board[adj[0][0]][adj[0][1]] = { color: board[row][col].color, type: board[row][col].type };
+                        showToast('🪩 Peça duplicada!'); await afterUse();
+                    }, restore);
                 }, 3000);
             } else if (p.id === 'caminho_congelante') {
-                const img = '../spritesxadrez/sprites/caminho_congelante.png';
                 const overlay = document.getElementById('powerOverlay');
-                const overlayImg = document.getElementById('powerOverlayImg');
-                overlayImg.src = img;
+                document.getElementById('powerOverlayImg').src = '../spritesxadrez/sprites/caminho_congelante.png';
                 overlay.classList.add('visible');
-
                 setTimeout(() => {
                     overlay.classList.remove('visible');
                     enterPickMode('col', [], async (row, col) => {
                         frozenCols = frozenCols.filter(f => f.col !== col);
                         frozenCols.push({ col, turnsLeft: 4, owner: MY_CC });
-                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada por 4 turnos!`); render();
-                        myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                        await pushState();
-                    }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                        showToast(`❄️ Coluna ${String.fromCharCode(97 + col).toUpperCase()} congelada!`); await afterUse();
+                    }, restore);
                 }, 3000);
             } else if (p.id === 'sonegar_impostos') {
                 taxEvasion = { turnsLeft: 6, owner: MY_CC };
-                showToast('💰 Pontos dobrados por 6 turnos!'); render();
-                myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                await pushState();
+                showToast('💰 Sonegar Impostos ativo!'); await afterUse();
             } else if (p.id === 'armadilha') {
-                const img = '../spritesxadrez/sprites/poder_armadilha.png';
                 const overlay = document.getElementById('powerOverlay');
-                const overlayImg = document.getElementById('powerOverlayImg');
-                overlayImg.src = img;
+                document.getElementById('powerOverlayImg').src = '../spritesxadrez/sprites/poder_armadilha.png';
                 overlay.classList.add('visible');
-
                 setTimeout(() => {
                     overlay.classList.remove('visible');
                     enterPickMode('empty', [], async (row, col) => {
                         armadilhas.push({ row, col, turnsLeft: 8, owner: MY_CC });
-                        showToast('💫 Armadilha colocada!'); render();
-                        myTurn = false; turn = turn === 'w' ? 'b' : 'w'; render(); updateBanner();
-                        await pushState();
-                    }, () => { if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo; shopPowers[i] = p; renderShop(); updateCards(); });
+                        showToast('💫 Armadilha colocada!'); await afterUse();
+                    }, restore);
                 }, 3000);
             } else if (p.id === 'corrente') {
                 enterPickMode('piece', [], async (row, col) => {
-                    const myColor = MY_CC;
-                    const enemyColor = MY_CC === 'w' ? 'b' : 'w';
-
-                    let foundUp = null;
-                    for (let r = row - 1; r >= 0; r--) {
-                        const pc = board[r][col];
-                        if (pc) {
-                            if (pc.color === myColor) break;
-                            if (pc.color === enemyColor) { foundUp = { r, dist: row - r }; break; }
-                        }
-                    }
-
-                    let foundDown = null;
-                    for (let r = row + 1; r < 8; r++) {
-                        const pc = board[r][col];
-                        if (pc) {
-                            if (pc.color === myColor) break;
-                            if (pc.color === enemyColor) { foundDown = { r, dist: r - row }; break; }
-                        }
-                    }
-
-                    let targetToPull = null;
-                    if (foundUp && foundDown) {
-                        if (foundUp.dist <= foundDown.dist) targetToPull = foundUp.r;
-                        else targetToPull = foundDown.r;
-                    } else if (foundUp) {
-                        targetToPull = foundUp.r;
-                    } else if (foundDown) {
-                        targetToPull = foundDown.r;
-                    }
-
-                    if (targetToPull !== null) {
-                        const enemyPiece = board[targetToPull][col];
-                        const pullDirection = targetToPull < row ? -1 : 1;
-                        const adjacentRow = row + pullDirection;
-
-                        if (targetToPull !== adjacentRow) {
-                            const sqStart = document.querySelector(`.sq[data-row="${targetToPull}"][data-col="${col}"]`);
-                            const sqEnd = document.querySelector(`.sq[data-row="${adjacentRow}"][data-col="${col}"]`);
-                            if (sqStart && sqEnd) {
-                                const pieceEl = sqStart.querySelector('.piece');
-                                if (pieceEl) {
-                                    const rectStart = sqStart.getBoundingClientRect();
-                                    const rectEnd = sqEnd.getBoundingClientRect();
-                                    const dy = rectEnd.top - rectStart.top;
-
-                                    pieceEl.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
-                                    const isRotated = document.getElementById('boardOuter').classList.contains('rotated');
-                                    pieceEl.style.transform = isRotated ? `rotate(180deg) translateY(${-dy}px)` : `translateY(${dy}px)`;
-                                    pieceEl.style.zIndex = '999';
-                                }
-                            }
-
-                            setTimeout(async () => {
-                                board[adjacentRow][col] = enemyPiece;
-                                board[targetToPull][col] = null;
-
-                                const oldKey = `${targetToPull},${col}`;
-                                const newKey = `${adjacentRow},${col}`;
-                                if (shieldedPieces[oldKey]) {
-                                    delete shieldedPieces[oldKey];
-                                    shieldedPieces[newKey] = true;
-                                    noReshieldKeys.delete(newKey);
-                                }
-
-                                showToast('💥 Peça inimiga puxada!');
-                                myTurn = false;
-                                turn = turn === 'w' ? 'b' : 'w';
-                                render();
-                                updateBanner();
-                                await pushState();
-                            }, 800);
-                        } else {
-                            showToast('💥 Peça inimiga puxada!');
-                            myTurn = false;
-                            turn = turn === 'w' ? 'b' : 'w';
-                            render();
-                            updateBanner();
-                            await pushState();
-                        }
-                    } else {
-                        // Cancel
-                        if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                        shopPowers[i] = p; renderShop(); updateCards();
-                        showToast('😔 Nenhuma peça inimiga na linha para puxar — poder cancelado.');
-                    }
-                }, () => {
-                    if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                    shopPowers[i] = p; renderShop(); updateCards();
-                });
+                    let fU = null, fD = null;
+                    for (let r = row - 1; r >= 0; r--) { const pc = board[r][col]; if (pc) { if (pc.color === MY_CC) break; fU = { r, dist: row - r }; break; } }
+                    for (let r = row + 1; r < 8; r++) { const pc = board[r][col]; if (pc) { if (pc.color === MY_CC) break; fD = { r, dist: r - row }; break; } }
+                    let tgt = null;
+                    if (fU && fD) tgt = fU.dist <= fD.dist ? fU.r : fD.r; else if (fU) tgt = fU.r; else if (fD) tgt = fD.r;
+                    if (tgt !== null) {
+                        const ep = board[tgt][col], pd = tgt < row ? -1 : 1, ar = row + pd;
+                        board[ar][col] = ep; board[tgt][col] = null;
+                        showToast('💥 Peça inimiga puxada!'); await afterUse();
+                    } else { restore(); showToast('😔 Nenhuma peça para puxar.'); }
+                }, restore);
             } else if (p.id === 'fantasma_da_noite') {
                 enterPickMode('piece', ['K', 'Q'], async (row, col) => {
                     board[row][col].isGhost = true;
-                    showToast('👻 Peça amaldiçoada com Fantasma da Noite!');
-                    myTurn = false; turn = turn === 'w' ? 'b' : 'w';
-                    render(); updateBanner();
-                    await pushState();
-                }, () => {
-                    if (MY_CC === 'w') pointsW += p.custo; else pointsB += p.custo;
-                    shopPowers[i] = p; renderShop(); updateCards();
-                });
+                    showToast('👻 Fantasma da Noite!'); await afterUse();
+                }, restore);
             } else if (p.id === 'inferno') {
-                for (let r = 0; r < 8; r++) {
-                    for (let c = 0; c < 8; c++) {
-                        const pc = board[r][c];
-                        if (pc && pc.color === MY_CC) {
-                            pc.cursed = true;
-                        }
-                    }
-                }
-                showToast('🔥 INFERNO! Todas as suas peças foram amaldiçoadas!');
-                myTurn = false;
-                turn = turn === 'w' ? 'b' : 'w';
-                render();
-                updateBanner();
-                await pushState();
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const pc = board[r][c]; if (pc && pc.color === MY_CC) pc.cursed = true; }
+                showToast('🔥 INFERNO!'); await afterUse();
             }
         };
 
+        function renderInventory() {
+            _renderInvPanel('invSlotsWhite', inventoryW, 'w');
+            _renderInvPanel('invSlotsBlack', inventoryB, 'b');
+        }
+        function _renderInvPanel(cid, inv, color) {
+            const container = document.getElementById(cid);
+            if (!container) return;
+            container.innerHTML = '';
+            const canAct = (turn === color && myTurn && MY_CC === color);
+            for (let i = 0; i < 4; i++) {
+                const slot = document.createElement('div');
+                if (i < inv.length) {
+                    const pw = inv[i];
+                    slot.className = 'inv-slot has-item' + (canAct ? ' can-use' : ' disabled');
+                    slot.title = pw.nome + ': ' + pw.descricao;
+                    slot.innerHTML = `<span class="inv-icon">${pw.icone}</span><span class="inv-name">${pw.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">Usar</button>` : ''}`;
+                } else {
+                    slot.className = 'inv-slot empty-slot';
+                    slot.innerHTML = '＋';
+                }
+                container.appendChild(slot);
+            }
+        }
+
         function getAdjacentEmpty(row, col) {
+
             const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
             return dirs.map(([dr, dc]) => [row + dr, col + dc]).filter(([r, c]) => inB(r, c) && !board[r][c]);
         }
 
         function enterPickMode(type, excludedTypes, onPick, onCancel) {
             powerPickMode = { type, excludedTypes, onPick, onCancel };
-            document.body.classList.add(type === 'col' ? 'pick-mode-col' : (type === 'empty' ? 'pick-mode-empty' : 'pick-mode-pieces'));
+            if (type === 'col') document.body.classList.add('pick-mode-col');
+            else if (type === 'empty') document.body.classList.add('pick-mode-empty');
+            else if (type === 'enemy') document.body.classList.add('pick-mode-enemy');
+            else document.body.classList.add('pick-mode-pieces');
             render();
         }
 
@@ -548,7 +521,7 @@
             if (!powerPickMode) return;
             const cb = powerPickMode.onCancel;
             powerPickMode = null;
-            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
+            document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty', 'pick-mode-enemy');
             render();
             if (cb) cb();
         }
@@ -556,6 +529,8 @@
         function tickPowerTimers() {
             frozenCols = frozenCols.map(f => ({ ...f, turnsLeft: f.turnsLeft - 1 })).filter(f => f.turnsLeft > 0);
             armadilhas = armadilhas.map(a => ({ ...a, turnsLeft: a.turnsLeft - 1 })).filter(a => a.turnsLeft > 0);
+            // Tick zona de segurança da Torre
+            Maldicao.tickRookSafetyZones();
             if (taxEvasion) {
                 taxEvasion.turnsLeft--;
                 if (taxEvasion.turnsLeft <= 0) { taxEvasion = null; showToast('💰 Sonegar Impostos expirou!'); }
@@ -583,6 +558,17 @@
                     const d = document.createElement('div'); d.className = 'piece';
                     const t = document.createElement('div'); t.className = 'piece-text'; t.style.cssText = PS[pc.color]; t.textContent = PU[pc.color + pc.type]; d.appendChild(t);
                     if (shieldedPieces[`${r},${c}`]) { const badge = document.createElement('span'); badge.className = 'shield-badge'; badge.textContent = '🛡️'; d.appendChild(badge); }
+                    // Rook safety zone badge (azul)
+                    const rookZoneTurns = Maldicao.getRookSafetyTurns(r, c, pc.color);
+                    if (rookZoneTurns > 0) {
+                        const rb = document.createElement('span');
+                        rb.className = 'rook-zone-badge';
+                        rb.textContent = '🛡️';
+                        rb.style.cssText = 'position:absolute; bottom:-4px; right:-4px; font-size:0.75rem; z-index:10; filter: drop-shadow(0 0 4px cyan);';
+                        rb.title = `Zona de segurança: ${rookZoneTurns} turnos`;
+                        d.appendChild(rb);
+                        sq.style.boxShadow = (sq.style.boxShadow ? sq.style.boxShadow + ', ' : '') + 'inset 0 0 12px rgba(0,150,255,0.45)';
+                    }
                     const freeze = frozenCols.find(f => f.col === c && pc.color !== f.owner);
                     if (freeze) { const fb = document.createElement('span'); fb.className = 'freeze-badge'; fb.textContent = freeze.turnsLeft; d.appendChild(fb); }
 
@@ -631,7 +617,8 @@
                 const banner = document.createElement('div'); banner.className = 'pick-mode-banner';
                 let msg = '👆 Clique em uma peça sua no tabuleiro';
                 if (powerPickMode.type === 'col') msg = '❄️ Clique em qualquer casa para congelar aquela coluna';
-                if (powerPickMode.type === 'empty') msg = '� Clique em uma casa vazia para colocar a armadilha';
+                if (powerPickMode.type === 'empty') msg = '💫 Clique em uma casa vazia para colocar a armadilha';
+                if (powerPickMode.type === 'enemy') msg = '💀 Clique em uma peça inimiga na diagonal do bispo para capturá-la';
                 banner.textContent = msg;
                 outer.appendChild(banner);
             }
@@ -686,17 +673,20 @@
             animC('captWhiteCount', capturedW.length); animC('captBlackCount', capturedB.length);
             updPts('cardWhite', pointsW); updPts('cardBlack', pointsB);
             renderShop();
+            renderInventory();
         }
         function animC(id, v) { const el = document.getElementById(id), old = el.textContent; el.textContent = v; if (String(old) !== String(v)) { el.classList.remove('score-pop'); void el.offsetWidth; el.classList.add('score-pop'); } }
         function updPts(cardId, pts) {
-            const card = document.getElementById(cardId);
-            let el = card.querySelector('.points-display');
-            if (!el) { el = document.createElement('div'); el.className = 'points-display'; card.appendChild(el); }
             const cardColor = cardId === 'cardWhite' ? 'w' : 'b';
             const taxActive = taxEvasion && taxEvasion.owner === cardColor;
-            el.className = 'points-display' + (taxActive ? ' tax-active' : '');
-            const taxLabel = taxActive ? ` <span style="font-size:.55rem;color:#ffe066;">x2 (${taxEvasion.turnsLeft}t)</span>` : '';
-            el.innerHTML = `<span class="points-icon">🪙</span><span class="points-value">${pts}</span><span style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;">pontos${taxLabel}</span>`;
+            const taxLabel = taxActive ? ` <span style="font-size:.5rem;color:#ffe066;">x2(${taxEvasion.turnsLeft}t)</span>` : '';
+            const coinsSuffix = cardColor === 'w' ? 'White' : 'Black';
+            const coinsEl = document.getElementById('coins' + coinsSuffix);
+            const ptsEl = document.getElementById('pts' + coinsSuffix);
+            if (coinsEl) { coinsEl.innerHTML = pts + taxLabel; }
+            if (ptsEl) ptsEl.textContent = pts;
+            const card = document.getElementById(cardId);
+            if (card) { const old = card.querySelector('.points-display'); if (old) old.remove(); }
         }
 
         // ── Board resize ───────────────────────────────────────
@@ -737,6 +727,17 @@
                     cb(row, col);
                     return;
                 }
+                if (powerPickMode.type === 'enemy') {
+                    const validTargets = powerPickMode.excludedTypes;
+                    const isValid = validTargets && validTargets.some(t => t.row === row && t.col === col);
+                    if (!isValid) { showToast('⚠️ Escolha uma peça inimiga na diagonal do bispo!'); return; }
+                    const cb = powerPickMode.onPick;
+                    powerPickMode = null;
+                    document.body.classList.remove('pick-mode-enemy');
+                    render();
+                    cb(row, col);
+                    return;
+                }
             }
 
             if (!myTurn || gameOver) return;
@@ -766,6 +767,16 @@
                 delete shieldedPieces[targetKey];
                 noReshieldKeys.add(targetKey);
                 showToast('🛡️ O escudo bloqueou a captura!');
+                selected = null; legalMoves = [];
+                turn = movedColor === 'w' ? 'b' : 'w';
+                render(); updateBanner();
+                if (!isRemote) { myTurn = false; await pushState(); } else { myTurn = true; }
+                return;
+            }
+
+            // Rook safety zone check
+            if (captured && Maldicao.isInRookSafetyZone(tr, tc, captured.color)) {
+                showToast('🛡️ A zona sagrada da Torre protegeu a peça!');
                 selected = null; legalMoves = [];
                 turn = movedColor === 'w' ? 'b' : 'w';
                 render(); updateBanner();

@@ -137,6 +137,13 @@
             padding: 30px;
             position: relative;
             z-index: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .power-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(138, 43, 226, 0.7);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.2);
         }
 
         .power-card::before {
@@ -176,6 +183,7 @@
             color: var(--clr-muted);
             line-height: 1.6;
             margin-bottom: 20px;
+            font-size: 0.95rem;
         }
 
         .power-cost {
@@ -189,7 +197,118 @@
             border: 1px solid rgba(230, 190, 110, 0.3);
         }
 
-        /* Eventos Mutiplos (Maldições e Clima) */
+        .power-tip {
+            display: block;
+            margin-top: 12px;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.35);
+            font-style: italic;
+        }
+
+        /* ── Maldições: Seção dedicada ── */
+        .curses-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+
+        .curses-intro p {
+            color: var(--clr-muted);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .curses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+        }
+
+        .curse-card {
+            background: linear-gradient(145deg, rgba(60, 0, 0, 0.6), rgba(15, 0, 20, 0.9));
+            border: 1px solid rgba(200, 40, 40, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .curse-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(220, 50, 50, 0.7);
+            box-shadow: 0 10px 40px rgba(180, 0, 0, 0.3);
+        }
+
+        .curse-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top left, rgba(180, 0, 0, 0.15), transparent 70%);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .curse-piece-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 60, 60, 0.5));
+            margin-bottom: 16px;
+        }
+
+        .curse-piece-emoji {
+            font-size: 4rem;
+            line-height: 70px;
+            margin-bottom: 16px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 60, 60, 0.5));
+        }
+
+        .curse-threshold {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(220, 50, 50, 0.2);
+            border: 1px solid rgba(220, 50, 50, 0.4);
+            border-radius: 20px;
+            color: #ff6b6b;
+            font-size: 0.78rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .curse-name {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            margin-bottom: 12px;
+        }
+
+        .curse-desc {
+            color: var(--clr-muted);
+            font-size: 0.93rem;
+            line-height: 1.65;
+        }
+
+        .curse-desc strong {
+            color: rgba(255, 150, 150, 0.9);
+        }
+
+        .curse-humor {
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: rgba(255, 180, 180, 0.45);
+            font-style: italic;
+            border-top: 1px solid rgba(255, 100, 100, 0.1);
+            padding-top: 12px;
+        }
+
+        /* Eventos */
         .event-split {
             display: flex;
             gap: 50px;
@@ -253,33 +372,6 @@
             font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 20px;
-        }
-
-        .curse-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .curse-list li {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .curse-img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-        }
-
-        .curse-info strong {
-            color: var(--clr-accent-red);
         }
 
         .meteor-board,
@@ -445,86 +537,235 @@
             </div>
         </section>
 
+        <!-- ===== MALDIÇÕES ===== -->
+        <section class="manual-section"
+            style="background: rgba(40,0,0,0.3); box-shadow: inset 0 0 60px rgba(100,0,0,0.4);">
+            <h2 class="manual-section-title">O Preço do <span style="color: #ff6b6b;">Sangue</span> — Maldições</h2>
+            <div class="curses-intro">
+                <p>
+                    Nem toda peça foi feita para derramar tanto sangue sem consequências. Quando uma de suas peças
+                    captura inimigos demais, as <strong style="color:#ff6b6b;">almas acumuladas a amaldiçoam</strong>
+                    — e ela ganha um poder sombrio e devastador. 💀
+                    <br><br>
+                    Clique com o <strong style="color:#ff6b6b;">botão direito do mouse</strong> em uma peça amaldiçoada
+                    (identificada pelo ícone 💀) para ativar a habilidade. A maldição é consumida e a peça volta ao
+                    normal — porém o efeito pode ser irreversível para o adversário.
+                    <br><br>
+                    <em style="color: rgba(255,180,180,0.5);">Ativar uma maldição não consome o turno do jogador. Você
+                        pode maldizer e ainda jogar na mesma rodada!</em>
+                </p>
+            </div>
+
+            <div class="curses-grid">
+
+                <!-- Peão -->
+                <div class="curse-card">
+                    <img src="../spritesxadrez/sprites/spr_peao_roxo.png" alt="Peão" class="curse-piece-img">
+                    <span class="curse-threshold">⚠️ Apenas 1 Captura</span>
+                    <h3 class="curse-name">💀 Maldição do Peão</h3>
+                    <p class="curse-desc">
+                        O humilde peãozinho está <strong>traumatizado</strong> com a barbárie que cometeu. A partir de
+                        agora, ele esquece tudo que sabia sobre "avançar em linha reta" e passa a se mover exatamente
+                        como um <strong>Rei:</strong> uma casa em qualquer direção, e capturando normalmente.
+                        <br><br>
+                        Sim, o seu peão proletário ganhou status de realeza. Pelo resto da vida.
+                    </p>
+                    <p class="curse-humor">*O Rei olhou para o peão, olhou para a tropa, e decidiu não comentar nada.*
+                    </p>
+                </div>
+
+                <!-- Cavalo -->
+                <div class="curse-card">
+                    <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo" class="curse-piece-img">
+                    <span class="curse-threshold">⚠️ 2 Capturas</span>
+                    <h3 class="curse-name">💀 Maldição do Cavalo</h3>
+                    <p class="curse-desc">
+                        Após derramar o sangue de dois inimigos, o Cavalo enlouquece de poder e aprende o antigo ritual
+                        da <strong>Troca de Almas:</strong> ao ativar, você escolhe <em>qualquer outra peça aliada</em>
+                        (exceto o Rei) e o Cavalo troca de posição com ela instantaneamente.
+                        <br><br>
+                        Ideal para resgatar uma peça valiosa de uma posição horrível. Ou simplesmente para confundir o
+                        adversário de vez.
+                    </p>
+                    <p class="curse-humor">*"Táxi!" – gritou o Bispo, encurralado no canto. O Cavalo chegou em 0.3
+                        segundos.*</p>
+                </div>
+
+                <!-- Bispo -->
+                <div class="curse-card">
+                    <span class="curse-piece-emoji">♝</span>
+                    <span class="curse-threshold">⚠️ 2 Capturas</span>
+                    <h3 class="curse-name">💀 Maldição do Bispo</h3>
+                    <p class="curse-desc">
+                        O Bispo já andava pelas diagonais cochichando orações sombrias. Após 2 capturas, ele finalmente
+                        aprende a <strong>Execução à Distância:</strong> escolha qualquer peça inimiga nas suas
+                        diagonais
+                        e ela será <em>capturada instantaneamente</em> — sem que o Bispo precise se mover um centímetro.
+                        <br><br>
+                        Alcance máximo, sem deslocamento. Pura execução remota à la sniper religioso.
+                    </p>
+                    <p class="curse-humor">*"A Rainha inimiga estava a 7 casas de distância. O Bispo nem levantou da
+                        cadeira."*</p>
+                </div>
+
+                <!-- Torre -->
+                <div class="curse-card">
+                    <img src="../spritesxadrez/sprites/spr_torre_verde.png" alt="Torre" class="curse-piece-img">
+                    <span class="curse-threshold">⚠️ 2 Capturas</span>
+                    <h3 class="curse-name">💀 Maldição da Torre</h3>
+                    <p class="curse-desc">
+                        Duas capturas transformaram a Torre em uma <strong>Fortaleza Sagrada</strong>. Ao ativar, ela
+                        cria uma <em>zona de proteção azul</em> de 1 casa de raio ao redor dela. Todas as peças
+                        aliadas nessa área ficam <strong>imunes a capturas por 5 turnos</strong>.
+                        <br><br>
+                        Marcadores azuis aparecem no tabuleiro indicando as casas protegidas. Mova suas peças para
+                        dentro
+                        do escudo e reze para o adversário não ter um Bispo amaldiçoado.
+                    </p>
+                    <p class="curse-humor">*"Venha, atravesse meu campo de força. Eu espero."* — Torre, provavelmente.*
+                    </p>
+                </div>
+
+                <!-- Rainha -->
+                <div class="curse-card"
+                    style="border-color: rgba(200, 80, 220, 0.3); background: linear-gradient(145deg, rgba(40,0,60,0.7), rgba(15,0,20,0.9));">
+                    <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha" class="curse-piece-img"
+                        style="filter: drop-shadow(0 0 14px rgba(180,0,255,0.7));">
+                    <span class="curse-threshold"
+                        style="background: rgba(180,0,220,0.2); border-color: rgba(180,0,220,0.4); color: #da8fff;">⚠️ 2
+                        Capturas</span>
+                    <h3 class="curse-name" style="color: #da8fff;">💀 Maldição da Rainha</h3>
+                    <p class="curse-desc">
+                        Ah, a Rainha. Já não era suficientemente aterrorizante. Após 2 capturas, ela desperta o poder do
+                        <strong style="color:#da8fff;">Necromancer:</strong> cada vez que capturar uma peça inimiga,
+                        <em>uma cópia dessa peça</em> — que jura lealdade a você — surge imediatamente no tabuleiro.
+                        <br><br>
+                        Imagina capturar o Cavalo do adversário e vê-lo ressurgir no seu time. Ele não vai gostar. Você
+                        vai adorar.
+                    </p>
+                    <p class="curse-humor" style="color: rgba(200,150,255,0.4);">*"Você me destrói uma peça, eu crio
+                        duas. Matemática simples."* — A Rainha, toda modesta.*</p>
+                </div>
+
+            </div>
+        </section>
+
         <!-- ===== LOJA DE PODERES ===== -->
         <section class="manual-section"
             style="background: rgba(10,5,20,0.5); box-shadow: inset 0 0 50px rgba(0,0,0,0.8);">
             <h2 class="manual-section-title">Loja de <span>Magia</span></h2>
             <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto 50px;">Use suas moedas
-                arduamente ganhas para comprar feitiços na loja diretamente do tabuleiro de batalha. Os feitiços dão
-                vantagens táticas inigualáveis e podem virar o jogo de cabeça para baixo.</p>
+                arduamente ganhas para comprar feitiços diretamente no tabuleiro de batalha. A cada partida, <strong>4
+                    feitiços
+                    aleatórios</strong> ficam disponíveis na loja — a lista abaixo revela todos os possíveis. Comprar um
+                poder
+                consome o turno do jogador. Use a sua vez com sabedoria.</p>
 
             <div class="powers-grid">
+
                 <div class="power-card">
                     <div class="power-icon">🛡️</div>
                     <h3 class="power-title">Escudo Covarde</h3>
-                    <p class="power-desc">Escolha uma peça (exceto rei) para abençoá-la com um feitiço de proteção,
-                        bloqueando imunidade e evitando que ela seja capturada um ataque completo apenas uma vez.</p>
-                    <span class="power-cost">Custa 5 Moedas</span>
+                    <p class="power-desc">Escolha uma peça sua (exceto o rei) e envolva-a num escudo mágico. A próxima
+                        vez que o adversário tentar capturá-la... nada acontece! A peça sobrevive e o escudo some.
+                        Perfeito para proteger sua Rainha enquanto ela está fazendo coisas ilegais no canto do
+                        tabuleiro.</p>
+                    <span class="power-cost">💰 20 moedas</span>
+                    <span class="power-tip">Compre para a peça mais valiosa que estiver em perigo.</span>
                 </div>
+
                 <div class="power-card">
                     <div class="power-icon">🪞</div>
                     <h3 class="power-title">Espelho</h3>
-                    <p class="power-desc">Um truque milagroso: clona instantaneamente uma de suas peças (exceto rei ou
-                        rainha) e materializa uma cópia idêntica na casa adjacente se ela estiver vazia.</p>
-                    <span class="power-cost">Custa 6 Moedas</span>
+                    <p class="power-desc">Clona uma de suas peças (exceto rei e rainha) e materializa a cópia em uma
+                        casa adjacente vazia. Dois Cavalos? Por favor. Dois Bispos amaldiçoados? Isso é um crime de
+                        guerra — mas quem estamos nós para julgar?</p>
+                    <span class="power-cost">💰 6 moedas</span>
+                    <span class="power-tip">Funciona melhor em peças já evoluídas ou com capturas próximas da
+                        maldição.</span>
                 </div>
+
                 <div class="power-card">
                     <div class="power-icon">💰</div>
                     <h3 class="power-title">Sonegar Impostos</h3>
-                    <p class="power-desc">Adentre o mercado negro e ganhe o DOBRO de pontos por cada captura
-                        bem-sucedida durante os próximos 6 turnos. Perfeito para combar capturas.</p>
-                    <span class="power-cost">Custa 10 Moedas</span>
+                    <p class="power-desc">Entra no mercado negro e por 6 turnos você ganha o <strong
+                            style="color:gold;">DOBRO</strong> de moedas por cada captura. A Receita Federal não pode
+                        te prender no tabuleiro. Aproveite enquanto dura.</p>
+                    <span class="power-cost">💰 10 moedas</span>
+                    <span class="power-tip">Combina muito bem com uma sequência agressiva de capturas logo em
+                        seguida.</span>
                 </div>
+
+                <div class="power-card">
+                    <div class="power-icon">💫</div>
+                    <h3 class="power-title">Armadilha</h3>
+                    <p class="power-desc">Escolha qualquer casa vazia do tabuleiro e coloque uma armadilha invisível que
+                        dura <strong>8 turnos</strong>. Se qualquer peça — inimiga ou aliada — pisar nessa casa, ela
+                        é destruída instantaneamente. Sem pontos de captura. Sem avisos. Só um puf e sumiu.</p>
+                    <span class="power-cost">💰 7 moedas</span>
+                    <span class="power-tip">Coloque em casas que o adversário provavelmente vai passar. Também funciona
+                        para trollar você mesmo, mas aí é culpa sua.</span>
+                </div>
+
                 <div class="power-card">
                     <div class="power-icon">❄️</div>
                     <h3 class="power-title">Caminho Congelante</h3>
-                    <p class="power-desc">Seleciona uma coluna inteira do tabuleiro e evoca uma nevasca. Pelos próximos
-                        3 turnos, o adversário fica totalmente paralisado e impedido de se mover por ali!</p>
-                    <span class="power-cost">Custa 10 Moedas</span>
+                    <p class="power-desc">Evoca uma nevasca mágica em uma coluna inteira do tabuleiro. Durante
+                        <strong>4 turnos</strong>, o adversário não pode mover nenhuma peça que esteja nessa coluna.
+                        Ideal para bloquear uma Torre furiosa ou aquele Peão que estava quase virando Rainha.
+                    </p>
+                    <span class="power-cost">💰 12 moedas</span>
+                    <span class="power-tip">Use em colunas centrais ou onde o adversário está prestes a promover um
+                        Peão.</span>
                 </div>
+
+                <div class="power-card">
+                    <div class="power-icon">💥</div>
+                    <h3 class="power-title">Corrente</h3>
+                    <p class="power-desc">Escolha uma de suas peças e lança uma corrente mágica. A peça inimiga mais
+                        próxima na vertical é <strong>puxada</strong> até o lado da sua peça — mesmo que ela não
+                        queira. Nenhuma peça pediu pra ser arrastada assim, mas acontece.</p>
+                    <span class="power-cost">💰 8 moedas</span>
+                    <span class="power-tip">Use para posicionar inimigos em casas perigosas ou dentro do alcance das
+                        suas peças.</span>
+                </div>
+
+                <div class="power-card">
+                    <div class="power-icon">👻</div>
+                    <h3 class="power-title">Fantasma da Noite</h3>
+                    <p class="power-desc">Escolha uma peça sua (exceto Rei e Rainha) e ela passa a ser um
+                        <strong>Fantasma eterno</strong>: pode atravessar qualquer peça aliada pelo resto da partida.
+                        Paredes? Não existem. Bloqueios? Conceito ultrapassado. A peça simplesmente atravessa tudo
+                        sem pedir licença.
+                    </p>
+                    <span class="power-cost">💰 20 moedas</span>
+                    <span class="power-tip">Poderoso em Cavalos e Bispos — eles já têm mobilidade, agora têm mobilidade
+                        fantasmagórica.</span>
+                </div>
+
+                <div class="power-card"
+                    style="border-color: rgba(255,80,0,0.4); background: linear-gradient(145deg, rgba(60,10,0,0.8), rgba(15,5,0,0.9));">
+                    <div class="power-icon"
+                        style="box-shadow: 0 0 20px rgba(255,100,0,0.6); border-color: rgba(255,80,0,0.6);">🔥</div>
+                    <h3 class="power-title" style="color: #ff7b3a;">Inferno</h3>
+                    <p class="power-desc">Amaldiçoa <strong>todas as suas peças</strong> de uma vez. Todas elas
+                        recebem o ícone 💀 imediatamente — prontas para ativar suas respectivas habilidades de maldição
+                        quando você quiser. Porque às vezes a sutileza é superestimada.
+                        <br><br>
+                        <em style="font-size:0.82rem; color:rgba(255,150,80,0.6);">Atenção: disponível apenas após 20
+                            turnos. O caos responsável precisa de um warmup.</em>
+                    </p>
+                    <span class="power-cost" style="border-color: rgba(255,100,0,0.4);">💰 25 moedas</span>
+                    <span class="power-tip">Use quando já tiver várias peças próximas do threshold de maldição. Ou
+                        quando quiser simplesmente entrar em modo caos total.</span>
+                </div>
+
             </div>
         </section>
 
-        <!-- ===== EVENTOS E MALDIÇÕES ===== -->
+        <!-- ===== EVENTOS ===== -->
         <section class="manual-section">
-            <h2 class="manual-section-title">Eventos &amp; <span>Maldições</span></h2>
-
-            <!-- Maldição -->
-            <div class="event-split">
-                <div class="event-split-text">
-                    <span class="event-tag tag-red">Mecânica de Maldição</span>
-                    <h3 class="event-title">O PREÇO DO SANGUE</h3>
-                    <p class="event-desc">Nem toda peça foi feita para derramar tanto sangue sem consequências. Quando
-                        uma de suas peças captura inimigos sucessivas vezes, as almas acumuladas a **amaldiçoam**, dando
-                        à peça o poder de realizar uma habilidade devastadora. <strong>Utilize o botão direito do
-                            mouse</strong> em uma peça amaldiçoada (com o ícone 💀) para ativar a habilidade e drenar a
-                        maldição de uma vez.</p>
-
-                    <ul class="curse-list">
-                        <li>
-                            <img src="../spritesxadrez/sprites/spr_peao_roxo.png" alt="Peão" class="curse-img">
-                            <div class="curse-info">
-                                <strong>Peões (2 Capturas)</strong>
-                                <div>Ganha o poder vital de se mover como Rei e capturar de forma clássica.</div>
-                            </div>
-                        </li>
-                        <li>
-                            <img src="../spritesxadrez/sprites/spr_cavalo_verde.png" alt="Cavalo" class="curse-img">
-                            <div class="curse-info">
-                                <strong>Cavalos (3 Capturas)</strong>
-                                <div>Troca misticamente de posição através do tabuleiro com outra peça aliada sua
-                                    (exceto o rei). Permite resgates surpresas inigualáveis!</div>
-                            </div>
-                        </li>
-                    </ul>
-                    <p class="event-desc" style="font-size: 0.9rem; margin-top:15px; font-style: italic;">*Mais
-                        maldições lendárias e ocultas continuam sendo desenterradas pelos nossos magos.*</p>
-                </div>
-                <div class="event-split-visual">
-                    <img src="../spritesxadrez/sprites/spr_rainha_roxa.png" alt="Rainha Assassina"
-                        style="width: 250px; filter: drop-shadow(0 0 20px #ff0000); animation: pulse-red 3s infinite;">
-                </div>
-            </div>
+            <h2 class="manual-section-title">Eventos &amp; <span>Calamidades</span></h2>
 
             <!-- Moeda -->
             <div class="event-split">
@@ -537,15 +778,14 @@
                     <span class="event-tag tag-gold">Fenômeno Aleatório</span>
                     <h3 class="event-title">A MOEDA MILAGROSA</h3>
                     <p class="event-desc">
-                        A economia do mundo do xadrezinho é turbulenta. <strong>A cada 5 turnos</strong> consecutivos
+                        A economia do Xadrezinho é turbulenta. <strong>A cada 5 turnos</strong> consecutivos
                         sem nenhuma captura efetuada por qualquer jogador, uma Moeda de Ouro radiante aparece em uma
                         casa totalmente aleatória que esteja vazia no campo!
                     </p>
                     <p class="event-desc">
                         Corra! O primeiro general que mover corajosamente sua peça em cima dessa casa coletará
                         instantaneamente impressionantes <strong>+10 MOEDAS</strong> para sua própria bolsa! O placar e
-                        a vez são passados imediatamente, zerando a contagem de turnos novamente e reiniciando a caça do
-                        tesouro.
+                        a vez são passados imediatamente, zerando a contagem de turnos novamente.
                     </p>
                 </div>
             </div>
@@ -554,16 +794,15 @@
             <div class="event-split">
                 <div class="event-split-text">
                     <span class="event-tag tag-red">Mártir Climático</span>
-                    <h3 class="event-title">O FURACÃO CELESTIAL METEORO</h3>
-                    <p class="event-desc">Enquanto batalham pela vida abaixo, o cosmos também não perdoa heróis ou
-                        vilões acima. O tabuleiro é fustigado ocasionalmente pela queda catastrófica de <strong>um
-                            meteoro flamejante!</strong></p>
+                    <h3 class="event-title">O FURACÃO CELESTIAL — METEORO</h3>
+                    <p class="event-desc">O cosmos não perdoa heróis nem vilões. O tabuleiro é fustigado
+                        ocasionalmente pela queda catastrófica de <strong>um meteoro flamejante!</strong></p>
                     <p class="event-desc">Isso acontece exatamente a cada <strong>12 turnos totais.</strong> Um aviso
-                        ardente aparecerá destacando uma zona central de <strong>2x2 blocos</strong> (tamanho a3-h6),
-                        avisando a calamidade que está por vir. Um letreiro de pânico de 3 TURNOS será ativado –
-                        qualquer general que deixar as suas peças em uma daquelas 4 casas ao final deste terceiro aviso
-                        provará as chamas e de zero recompensa por morrer! Nada, até mesmo escudos covardes mortais
-                        podem ser destruídos nisso!</p>
+                        ardente aparecerá destacando uma zona central de <strong>2x2 blocos</strong>, avisando a
+                        calamidade
+                        que está por vir. Um letreiro de pânico de 3 TURNOS será ativado — qualquer general que deixar
+                        as suas peças naquelas 4 casas ao final do terceiro aviso provará as chamas e não receberá
+                        nenhuma recompensa. Até escudos são destruídos.</p>
                 </div>
                 <div class="event-split-visual">
                     <div class="meteor-board">

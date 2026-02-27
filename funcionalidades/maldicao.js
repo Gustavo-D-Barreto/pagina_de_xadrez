@@ -191,12 +191,85 @@
             if (r >= 0 && r < 8 && c >= 0 && c < 8) {
                 // Remove zona anterior na mesma posição (se houver) para evitar duplicatas
                 _rookSafetyZones = _rookSafetyZones.filter(z => !(z.row === r && z.col === c));
-                _rookSafetyZones.push({ row: r, col: c, turnsLeft: 6, owner: piece.color });
+                _rookSafetyZones.push({ row: r, col: c, turnsLeft: 5, owner: piece.color });
             }
         }
 
-        showToast('💀 Maldição da Torre! Zona de proteção criada por 6 turnos!');
+        showToast('💀 Maldição da Torre! Zona de proteção azul criada por 5 turnos!');
         if (onAfterActivation) onAfterActivation();
+    }
+
+    /**
+     * Retorna as posições de peças inimigas nas diagonais do bispo (alcance máximo).
+     * @param {number} row
+     * @param {number} col
+     * @param {Array}  board - tabuleiro 8x8
+     * @param {string} color - cor do bispo
+     * @returns {Array} lista de { row, col } de alvos capturáveis
+     */
+    function getBishopDiagonalTargets(row, col, board, color) {
+        const enemy = color === 'w' ? 'b' : 'w';
+        const targets = [];
+        const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+        for (const [dr, dc] of dirs) {
+            let r = row + dr, c = col + dc;
+            while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+                const sq = board[r][c];
+                if (sq) {
+                    if (sq.color === enemy) targets.push({ row: r, col: c });
+                    break; // bloqueado (aliado ou inimigo)
+                }
+                r += dr; c += dc;
+            }
+        }
+        return targets;
+    }
+
+    /**
+     * Ativa a habilidade da maldição do Bispo (B):
+     * O jogador escolhe uma peça inimiga na diagonal do bispo para capturá-la
+     * sem que o bispo se mova.
+     */
+    function ativarMaldicaoBispo(row, col, piece, context) {
+        const { board, showToast, onAfterActivation, onCancel } = context;
+
+        const targets = getBishopDiagonalTargets(row, col, board, piece.color);
+
+        if (targets.length === 0) {
+            showToast('⚠️ Nenhuma peça inimiga nas diagonais do bispo!');
+            if (onCancel) onCancel();
+            return;
+        }
+
+        // Usa pick-mode do tipo 'bishop-curse' — mas como o módulo não tem acesso direto
+        // ao enterPickMode, delegamos via contexto com tipo especial 'enemy'.
+        // O caller passará enterPickMode que aceita 'enemy' com lista de alvos.
+        if (context.enterPickMode) {
+            context.enterPickMode(
+                'enemy',
+                targets,
+                (targetRow, targetCol) => {
+                    const captured = board[targetRow][targetCol];
+                    if (!captured) {
+                        showToast('⚠️ Casa vazia, escolha um inimigo!');
+                        ativarMaldicaoBispo(row, col, piece, context);
+                        return;
+                    }
+                    // Remove a peça capturada sem mover o bispo
+                    board[targetRow][targetCol] = null;
+
+                    // Marca que a maldição foi usada
+                    piece.cursed = false;
+                    piece.curseUsed = true;
+
+                    showToast('💀 Maldição do Bispo! Peça inimiga capturada à distância!');
+                    if (onAfterActivation) onAfterActivation();
+                },
+                () => {
+                    if (onCancel) onCancel();
+                }
+            );
+        }
     }
 
     /**
@@ -271,6 +344,9 @@
                     break;
                 case 'R':
                     ativarMaldicaoTorre(row, col, piece, context);
+                    break;
+                case 'B':
+                    ativarMaldicaoBispo(row, col, piece, context);
                     break;
                 default:
                     context.showToast('⚠️ Habilidade desconhecida para esta peça.');
