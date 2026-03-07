@@ -37,12 +37,7 @@
             <li><a href="manual.html" class="nav-link">Manual</a></li>
         </ul>
 
-        <!-- ===== BOTÃO VS IA ===== -->
-        <a href="ingame_vs_ia.html" class="btn-vs-ia" onclick="if(window.XqSons) window.XqSons.somBotaoPrimario()">
-            <span class="btn-vs-ia__icon">🤖</span>
-            <span class="btn-vs-ia__text">VS IA teste</span>
-            <span class="btn-vs-ia__shine"></span>
-        </a>
+
 
         <div class="nav-actions lobby-nav-right">
             <!-- Player badge (TODO: populate from Supabase) -->
@@ -78,6 +73,38 @@
         <!-- ===== MODE CARDS GRID ===== -->
         <div class="mode-grid">
 
+            <!-- 0 — VS IA (Destaque) -->
+            <div class="mode-card mode-card--ia" id="cardIA">
+                <div class="mode-card__bg"></div>
+                <div class="mode-card__glow"></div>
+
+                <div class="mode-card__top">
+                    <div class="mode-card__icon-wrap">
+                        <img src="../spritesxadrez/sprites/spr_rainha_verde.png" alt="" class="mode-card__icon" />
+                    </div>
+                    <span class="mode-badge mode-badge--ia">OFFLINE</span>
+                </div>
+
+                <div class="mode-card__body">
+                    <h2 class="mode-card__title">CONTRA IA (TREINO)</h2>
+                    <p class="mode-card__desc">
+                        Enfrente nossa inteligência artificial com 3 níveis de dificuldade.
+                        Ideal para testar novos poderes e estratégias.
+                    </p>
+                    <ul class="mode-card__tags">
+                        <li>🤖 3 Níveis</li>
+                        <li>👤 Solo</li>
+                        <li>🚀 Treino</li>
+                    </ul>
+                </div>
+
+                <a href="ingame_vs_ia.html" class="mode-card__btn mode-card__btn--purple"
+                    onclick="if(window.XqSons) window.XqSons.somBotaoPrimario()">
+                    <span>JOGAR CONTRA IA</span>
+                    <span class="btn-play-shine"></span>
+                </a>
+            </div>
+
             <!-- 1 — MATCHMAKING -->
             <div class="mode-card mode-card--online" id="cardMatchmaking">
                 <div class="mode-card__bg"></div>
@@ -91,7 +118,7 @@
                 </div>
 
                 <div class="mode-card__body">
-                    <h2 class="mode-card__title">PARTIDA RANQUEADA</h2>
+                    <h2 class="mode-card__title">PARTIDA RANQUEADA (MANUTENÇÃO)</h2>
                     <p class="mode-card__desc">
                         Entre na fila e enfrente um adversário aleatório online.
                         Ganhe pontos e suba de nível.

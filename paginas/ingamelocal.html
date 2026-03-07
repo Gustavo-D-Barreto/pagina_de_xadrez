@@ -11,9 +11,133 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="ingame-shared.css" />
     <link rel="stylesheet" href="ingame-local.css" />
+    <style>
+        /* ----- MODAL RUNAS (LOCAL) ----- */
+        .rune-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+
+        .rune-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rune-modal-content {
+            background: #0d0f18;
+            border: 1px solid rgba(155, 89, 232, 0.3);
+            width: 90%;
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+        }
+
+        .rune-modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 30px;
+            letter-spacing: 0.1em;
+        }
+
+        .rune-players-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .rune-player-col h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--clr-gold);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .rune-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rune-opt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .rune-opt:hover {
+            background: rgba(155, 89, 232, 0.1);
+            border-color: rgba(155, 89, 232, 0.4);
+        }
+
+        .rune-opt.selected {
+            background: rgba(155, 89, 232, 0.2);
+            border-color: #9b59e8;
+            box-shadow: 0 0 15px rgba(155, 89, 232, 0.3);
+        }
+
+        .rune-opt-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .rune-opt-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rune-opt-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .rune-opt-desc {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .btn-start-game {
+            background: linear-gradient(135deg, #4a1fa5 0%, #9b59e8 50%, #4a1fa5 100%);
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.15em;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn-start-game:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+    </style>
     <script src="../funcionalidades/poderes.js"></script>
     <script src="../funcionalidades/maldicao.js"></script>
     <script src="../funcionalidades/aleatoriedade.js"></script>
+    <script src="../funcionalidades/runas.js"></script>
 </head>
 
 <body>
@@ -33,6 +157,8 @@
                         <div class="player-name">Jogador 2</div>
                         <span class="turn-badge">Vez deles</span>
                     </div>
+                    <img id="runaBlackBadge" src="" alt="Runa" title=""
+                        style="width:42px;height:42px;object-fit:contain;display:none;filter:drop-shadow(0 0 6px gold);" />
                 </div>
                 <div class="player-stats-row">
                     <div class="stat-chip">
@@ -84,6 +210,8 @@
                         <div class="player-name">Jogador 1</div>
                         <span class="turn-badge">Vez deles</span>
                     </div>
+                    <img id="runaWhiteBadge" src="" alt="Runa" title=""
+                        style="width:42px;height:42px;object-fit:contain;display:none;filter:drop-shadow(0 0 6px gold);" />
                 </div>
                 <div class="player-stats-row">
                     <div class="stat-chip">
@@ -165,6 +293,70 @@
             <div id="shopSlots" class="shop-slots"></div>
         </div>
 
+    </div>
+
+    <!-- ===== MODAL DE RUNAS (NOVO) ===== -->
+    <div class="rune-modal" id="runeModal">
+        <div class="rune-modal-content">
+            <h2 class="rune-modal-title">PODER DAS RUNAS</h2>
+            <div class="rune-players-grid">
+                <!-- Jogador 1 (Brancas) -->
+                <div class="rune-player-col">
+                    <h3>BRANCAS</h3>
+                    <div class="rune-options" id="runesW">
+                        <div class="rune-opt" data-id="azul" onclick="selectRuneLocal('w', 'azul')">
+                            <img src="../spritesxadrez/sprites/runaazul.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Azul</span>
+                                <span class="rune-opt-desc">Reembolso 40%</span>
+                            </div>
+                        </div>
+                        <div class="rune-opt" data-id="roxa" onclick="selectRuneLocal('w', 'roxa')">
+                            <img src="../spritesxadrez/sprites/runaroxa.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Roxa</span>
+                                <span class="rune-opt-desc">Peões Fantasmas</span>
+                            </div>
+                        </div>
+                        <div class="rune-opt" data-id="vermelha" onclick="selectRuneLocal('w', 'vermelha')">
+                            <img src="../spritesxadrez/sprites/runavermelha.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Vermelha</span>
+                                <span class="rune-opt-desc">Rainha Renasce</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Jogador 2 (Pretas) -->
+                <div class="rune-player-col">
+                    <h3>PRETAS</h3>
+                    <div class="rune-options" id="runesB">
+                        <div class="rune-opt" data-id="azul" onclick="selectRuneLocal('b', 'azul')">
+                            <img src="../spritesxadrez/sprites/runaazul.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Azul</span>
+                                <span class="rune-opt-desc">Reembolso 40%</span>
+                            </div>
+                        </div>
+                        <div class="rune-opt" data-id="roxa" onclick="selectRuneLocal('b', 'roxa')">
+                            <img src="../spritesxadrez/sprites/runaroxa.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Roxa</span>
+                                <span class="rune-opt-desc">Peões Fantasmas</span>
+                            </div>
+                        </div>
+                        <div class="rune-opt" data-id="vermelha" onclick="selectRuneLocal('b', 'vermelha')">
+                            <img src="../spritesxadrez/sprites/runavermelha.png" class="rune-opt-img">
+                            <div class="rune-opt-info">
+                                <span class="rune-opt-name">Runa Vermelha</span>
+                                <span class="rune-opt-desc">Rainha Renasce</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-start-game" onclick="startGameLocal()">INICIAR BATALHA</button>
+        </div>
     </div>
 
     <!-- ═══ MENU DE MALDIÇÃO ═══ -->
@@ -267,9 +459,39 @@
         let inventoryW = [];   // { ...poder } — max 4
         let inventoryB = [];   // { ...poder } — max 4
 
+        // ── RUNAS ────────────────────────────────────────────────────────
+        let runaW = null; // 'azul' | 'roxa' | 'vermelha' | null (Jogador 1)
+        let runaB = null; // 'azul' | 'roxa' | 'vermelha' | null (Jogador 2)
+        let rainhaRenascer = { w: null, b: null }; // Runa Vermelha: { lin, col } ou null
+        let rainhaRenasceu = { w: false, b: false }; // Runa Vermelha: já renasceu (limit 1x)
+
+        function selectRuneLocal(player, runeId) {
+            if (window.XqSons) window.XqSons.somHover();
+            if (player === 'w') runaW = runeId; else runaB = runeId;
+            const container = document.getElementById(player === 'w' ? 'runesW' : 'runesB');
+            container.querySelectorAll('.rune-opt').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.id === runeId);
+            });
+        }
+
+        function startGameLocal() {
+            if (!runaW || !runaB) {
+                showToast('Selecione uma runa para ambos os jogadores!', 'warn');
+                if (window.XqSons) window.XqSons.somErro();
+                return;
+            }
+            if (window.XqSons) window.XqSons.somSucesso();
+            document.getElementById('runeModal').classList.remove('active');
+            initBoard();
+        }
+
         // ═══════════════════════════════════════════════════
         //  BOARD INIT
         // ═══════════════════════════════════════════════════
+        window.onload = () => {
+            document.getElementById('runeModal').classList.add('active');
+        };
+
         function initBoard() {
             board = Array.from({ length: 8 }, () => Array(8).fill(null));
             const backRank = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
@@ -303,6 +525,16 @@
             armadilhas = [];
             inventoryW = []; inventoryB = [];
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
+
+            // Runas: runaW e runaB já foram definidas pelo modal de seleção
+            rainhaRenascer = { w: null, b: null };
+            rainhaRenasceu = { w: false, b: false };
+            const runaImgs = { azul: '../spritesxadrez/sprites/runaazul.png', roxa: '../spritesxadrez/sprites/runaroxa.png', vermelha: '../spritesxadrez/sprites/runavermelha.png' };
+            const runaTitles = { azul: 'Runa Azul: Reembolso 40%', roxa: 'Runa Roxa: Peões fantasmas', vermelha: 'Runa Vermelha: Rainha renasce' };
+            const badgeW = document.getElementById('runaWhiteBadge');
+            const badgeB = document.getElementById('runaBlackBadge');
+            if (badgeW) { if (runaW && runaImgs[runaW]) { badgeW.src = runaImgs[runaW]; badgeW.title = runaTitles[runaW] || ''; badgeW.style.display = 'block'; } else badgeW.style.display = 'none'; }
+            if (badgeB) { if (runaB && runaImgs[runaB]) { badgeB.src = runaImgs[runaB]; badgeB.title = runaTitles[runaB] || ''; badgeB.style.display = 'block'; } else badgeB.style.display = 'none'; }
 
             // Maldição
             Maldicao.initMaldicao();
@@ -393,6 +625,15 @@
             // Deduz pontos
             if (turn === 'w') pointsW -= poder.custo;
             else pointsB -= poder.custo;
+
+            // Runa Azul: reembolso de 40% do custo
+            const runaAtual = turn === 'w' ? runaW : runaB;
+            if (runaAtual === 'azul') {
+                const reembolso = Math.floor(poder.custo * 0.4);
+                if (turn === 'w') pointsW += reembolso;
+                else pointsB += reembolso;
+                showToast(`💰 Runa Azul: +${reembolso} moedas de reembolso!`);
+            }
 
             // Adiciona ao inventário do jogador
             myInv.push({ ...poder });
@@ -665,6 +906,19 @@
             armadilhas = armadilhas.map(a => ({ ...a, turnsLeft: a.turnsLeft - 1 })).filter(a => a.turnsLeft > 0);
             // Tick zona de segurança da Torre
             Maldicao.tickRookSafetyZones();
+            // Runa Vermelha: tentar renascer rainha
+            for (const cor of ['w', 'b']) {
+                if (rainhaRenascer[cor]) {
+                    const { lin, col } = rainhaRenascer[cor];
+                    if (!board[lin][col]) {
+                        board[lin][col] = { color: cor, type: 'Q' };
+                        rainhaRenascer[cor] = null;
+                        rainhaRenasceu[cor] = true;
+                        showToast(`❤️ Runa Vermelha: A Rainha ${cor === 'w' ? 'Branca' : 'Preta'} renasceu!`);
+                        if (window.XqSons) window.XqSons.somPromocao();
+                    }
+                }
+            }
         }
 
         // ── Board pick-mode helpers ─────────────────────────────
@@ -1148,6 +1402,15 @@
                 // Registra captura para maldição (usa o objeto `piece` ANTES de mover)
                 const justCursed = Maldicao.registrarCaptura(piece);
                 if (justCursed) showToast('💀 Uma peça foi amaldiçoada! Clique direito nela para ativar.');
+                // Runa Vermelha: rainha capturada renasce (apenas 1x por partida)
+                if (captured.type === 'Q') {
+                    const runaDoAlvo = captured.color === 'w' ? runaW : runaB;
+                    if (runaDoAlvo === 'vermelha' && !rainhaRenasceu[captured.color]) {
+                        const linOriginal = captured.color === 'w' ? 7 : 0;
+                        rainhaRenascer[captured.color] = { lin: linOriginal, col: 3 };
+                        showToast('❤️ Runa Vermelha: A Rainha irá renascer!');
+                    }
+                }
             }
 
             // en passant capture
@@ -1368,13 +1631,16 @@
             if (!p) return [];
             const moves = [];
             const add = (row, col) => { if (inBounds(row, col)) moves.push({ row, col }); };
+            const runaMovendo = p.color === 'w' ? runaW : runaB;
             const slide = (dr, dc) => {
                 let nr = r + dr, nc = c + dc;
                 while (inBounds(nr, nc)) {
                     moves.push({ row: nr, col: nc });
                     if (b[nr][nc]) {
                         if (p.isGhost && b[nr][nc].color === p.color) {
-                            // atravessa aliada
+                            // atravessa aliada (ghost)
+                        } else if (b[nr][nc].color === p.color && isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], runaMovendo)) {
+                            // Runa Roxa: peão aliado na casa original é transparente
                         } else {
                             break;
                         }
@@ -1420,6 +1686,7 @@
                 if (inBounds(row, col) && b[row][col] && b[row][col].color === enemy)
                     moves.push({ row, col, capture: true });
             };
+            const runaAtualMov = p.color === 'w' ? runaW : runaB;
             const slide = (dr, dc) => {
                 let nr = r + dr, nc = c + dc;
                 while (inBounds(nr, nc)) {
@@ -1431,8 +1698,9 @@
                         } else {
                             // Hit an ally
                             if (p.isGhost) {
-                                // Jump over it, but cannot land on it
-                                // Just continue the loop
+                                // Jump over it, but cannot land on it (ghost)
+                            } else if (isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], runaAtualMov)) {
+                                // Runa Roxa: peão aliado na casa original é transparente
                             } else {
                                 break; // Blocked by ally
                             }
@@ -1455,9 +1723,18 @@
                             }
                         });
                     } else {
-                        addIfEmpty(r + dir, c);
-                        if (r === startRow && !b[r + dir][c] && !b[r + 2 * dir][c])
-                            moves.push({ row: r + 2 * dir, col: c, capture: false });
+                        // Movimento normal do peão (1 casa à frente)
+                        const sq1 = b[r + dir][c];
+                        const sq1Transparent = sq1 && sq1.color === p.color && isPawnTransparentByRunaRoxa(r + dir, c, sq1, runaAtualMov);
+                        if (!sq1 || sq1Transparent) {
+                            if (!sq1) moves.push({ row: r + dir, col: c, capture: false });
+                            // Movimento de 2 casas (casa inicial)
+                            if (r === startRow && !b[r + 2 * dir][c]) {
+                                // Precisa que a casa intermediária esteja vazia ou seja peão transparente
+                                if (!sq1 || sq1Transparent)
+                                    moves.push({ row: r + 2 * dir, col: c, capture: false });
+                            }
+                        }
                     }
 
                     addIfCapture(r + dir, c - 1);
@@ -1562,17 +1839,24 @@
         // ═══════════════════════════════════════════════════
         document.getElementById('btnNew').addEventListener('click', () => {
             hideModal();
-            initBoard();
+            runaW = null; runaB = null;
+            document.querySelectorAll('.rune-opt').forEach(o => o.classList.remove('selected'));
+            document.getElementById('runeModal').classList.add('active');
         });
         document.getElementById('modalNew').addEventListener('click', () => {
             hideModal();
-            initBoard();
+            runaW = null; runaB = null;
+            document.querySelectorAll('.rune-opt').forEach(o => o.classList.remove('selected'));
+            document.getElementById('runeModal').classList.add('active');
         });
 
         // ═══════════════════════════════════════════════════
         //  START
         // ═══════════════════════════════════════════════════
-        initBoard();
+        window.onload = () => {
+            document.getElementById('runeModal').classList.add('active');
+        };
+        // O initBoard original deve ser removido daqui e chamado pelo startGameLocal
     </script>
 </body>
 

@@ -14,6 +14,7 @@
     <script src="../funcionalidades/poderes.js"></script>
     <script src="../funcionalidades/maldicao.js"></script>
     <script src="../funcionalidades/aleatoriedade.js"></script>
+    <script src="../funcionalidades/runas.js"></script>
     <!-- Motor de IA local (sem servidor) -->
     <script src="../funcionalidades/ia_engine.js"></script>
     <style>
@@ -253,6 +254,8 @@
                         <div class="player-name">Você</div>
                         <span class="turn-badge">Vez deles</span>
                     </div>
+                    <img id="runaWhiteBadge" src="" alt="Runa" title=""
+                        style="width:42px;height:42px;object-fit:contain;display:none;filter:drop-shadow(0 0 6px gold);" />
                 </div>
                 <div class="player-stats-row">
                     <div class="stat-chip">
@@ -481,6 +484,11 @@
         let inventoryW = [];   // { ...poder } — max 4 (humano)
         let inventoryB = [];   // { ...poder } — max 4 (IA — não usado)
 
+        // ── RUNAS ────────────────────────────────────────────────────────
+        let runaW = null; // 'azul' | 'roxa' | 'vermelha' | null
+        let rainhaRenascer = { w: null, b: null }; // Runa Vermelha: { lin, col } ou null
+        let rainhaRenasceu = { w: false, b: false }; // Runa Vermelha: já renasceu 1x
+
         // ═══════════════════════════════════════════════════
         //  BOARD INIT
         // ═══════════════════════════════════════════════════
@@ -519,6 +527,24 @@
             iaIsThinking = false;
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
             setAIThinking(false);
+
+            // Carregar runa do jogador
+            runaW = localStorage.getItem('xq_runa_w') || null;
+            rainhaRenascer = { w: null, b: null };
+            rainhaRenasceu = { w: false, b: false };
+            // Mostrar badge da runa no card do jogador
+            const runaBadge = document.getElementById('runaWhiteBadge');
+            if (runaBadge) {
+                const runaImgs = { azul: '../spritesxadrez/sprites/runaazul.png', roxa: '../spritesxadrez/sprites/runaroxa.png', vermelha: '../spritesxadrez/sprites/runavermelha.png' };
+                const runaTitles = { azul: 'Runa Azul: Reembolso 40%', roxa: 'Runa Roxa: Peões fantasmas', vermelha: 'Runa Vermelha: Rainha renasce' };
+                if (runaW && runaImgs[runaW]) {
+                    runaBadge.src = runaImgs[runaW];
+                    runaBadge.title = runaTitles[runaW] || '';
+                    runaBadge.style.display = 'block';
+                } else {
+                    runaBadge.style.display = 'none';
+                }
+            }
 
             Maldicao.initMaldicao();
             initAleatoriedade();
@@ -612,6 +638,13 @@
             if (turn === 'w') pointsW -= poder.custo;
             else pointsB -= poder.custo;
 
+            // Runa Azul: reembolso de 40% do custo
+            if (runaW === 'azul' && turn === 'w') {
+                const reembolso = Math.floor(poder.custo * 0.4);
+                pointsW += reembolso;
+                showToast(`💰 Runa Azul: +${reembolso} moedas de reembolso!`);
+            }
+
             myInv.push({ ...poder });
 
             const idsNaLoja = shopPowers.map(sp => sp.id);
@@ -638,13 +671,17 @@
             const poder = inv[slotIdx];
             if (!poder) return;
 
+
+
             inv.splice(slotIdx, 1);
             renderInventory();
             updatePlayerCards();
 
             if (poder.id === 'escudo_covarde') {
                 enterPickMode('piece', ['K'],
-                    (row, col) => { shieldedPieces[`${row},${col}`] = true; showToast('🛡️ Escudo aplicado!'); render(); },
+                    (row, col) => {
+                        shieldedPieces[`${row},${col}`] = true; showToast('🛡️ Escudo aplicado!'); render();
+                    },
                     () => { inv.splice(slotIdx, 0, poder); renderInventory(); }
                 );
             } else if (poder.id === 'espelho') {
@@ -698,7 +735,8 @@
                         let tgt = null;
                         if (fU && fD) tgt = fU.dist <= fD.dist ? fU.r : fD.r; else if (fU) tgt = fU.r; else if (fD) tgt = fD.r;
                         if (tgt !== null) {
-                            const ep = board[tgt][col], pd = tgt < row ? -1 : 1, ar = row + pd;
+                            const ep = board[tgt][col];
+                            const pd = tgt < row ? -1 : 1, ar = row + pd;
                             board[ar][col] = ep; board[tgt][col] = null;
                             showToast('💥 Peça inimiga puxada!'); render();
                         } else { inv.splice(slotIdx, 0, poder); renderInventory(); showToast('😔 Nenhuma peça para puxar.'); }
@@ -783,6 +821,19 @@
             armadilhas = armadilhas.map(a => ({ ...a, turnsLeft: a.turnsLeft - 1 })).filter(a => a.turnsLeft > 0);
             // Tick zona de segurança da Torre
             Maldicao.tickRookSafetyZones();
+            // Runa Vermelha: tentar renascer rainha
+            for (const cor of ['w', 'b']) {
+                if (rainhaRenascer[cor]) {
+                    const { lin, col } = rainhaRenascer[cor];
+                    if (!board[lin][col]) {
+                        board[lin][col] = { color: cor, type: 'Q' };
+                        rainhaRenascer[cor] = null;
+                        rainhaRenasceu[cor] = true;
+                        showToast(`❤️ Runa Vermelha: A Rainha ${cor === 'w' ? 'Branca' : 'Preta'} renasceu!`);
+                        if (window.XqSons) window.XqSons.somPromocao();
+                    }
+                }
+            }
         }
 
         // ── Board pick-mode helpers ─────────────────────────────
@@ -1264,6 +1315,15 @@
                 // Registra captura para maldição (usa o objeto `piece` ANTES de mover)
                 const justCursed = Maldicao.registrarCaptura(piece);
                 if (justCursed) showToast('💀 Uma peça foi amaldiçoada! Clique direito nela para ativar.');
+                // Runa Vermelha: rainha capturada renasce (apenas 1x por partida)
+                if (captured.type === 'Q') {
+                    const runaDoAlvo = captured.color === 'w' ? runaW : null;
+                    if (runaDoAlvo === 'vermelha' && !rainhaRenasceu[captured.color]) {
+                        const linOriginal = captured.color === 'w' ? 7 : 0;
+                        rainhaRenascer[captured.color] = { lin: linOriginal, col: 3 };
+                        showToast('❤️ Runa Vermelha: A Rainha irá renascer!');
+                    }
+                }
             }
 
             // en passant capture
@@ -1488,13 +1548,16 @@
             if (!p) return [];
             const moves = [];
             const add = (row, col) => { if (inBounds(row, col)) moves.push({ row, col }); };
+            const runaMovendo = p.color === 'w' ? runaW : null;
             const slide = (dr, dc) => {
                 let nr = r + dr, nc = c + dc;
                 while (inBounds(nr, nc)) {
                     moves.push({ row: nr, col: nc });
                     if (b[nr][nc]) {
                         if (p.isGhost && b[nr][nc].color === p.color) {
-                            // atravessa aliada
+                            // atravessa aliada (ghost)
+                        } else if (b[nr][nc].color === p.color && isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], runaMovendo)) {
+                            // Runa Roxa: peão aliado na casa original é transparente
                         } else {
                             break;
                         }
@@ -1540,6 +1603,7 @@
                 if (inBounds(row, col) && b[row][col] && b[row][col].color === enemy)
                     moves.push({ row, col, capture: true });
             };
+            const runaAtualMov = p.color === 'w' ? runaW : null;
             const slide = (dr, dc) => {
                 let nr = r + dr, nc = c + dc;
                 while (inBounds(nr, nc)) {
@@ -1547,14 +1611,14 @@
                     else {
                         if (b[nr][nc].color === enemy) {
                             moves.push({ row: nr, col: nc, capture: true });
-                            break; // Always blocked by enemy
+                            break;
                         } else {
-                            // Hit an ally
                             if (p.isGhost) {
-                                // Jump over it, but cannot land on it
-                                // Just continue the loop
+                                // ghost
+                            } else if (isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], runaAtualMov)) {
+                                // Runa Roxa: peão aliado na casa original é transparente
                             } else {
-                                break; // Blocked by ally
+                                break;
                             }
                         }
                     }
@@ -1575,9 +1639,16 @@
                             }
                         });
                     } else {
-                        addIfEmpty(r + dir, c);
-                        if (r === startRow && !b[r + dir][c] && !b[r + 2 * dir][c])
-                            moves.push({ row: r + 2 * dir, col: c, capture: false });
+                        // Movimento normal do peão (1 casa à frente)
+                        const sq1 = b[r + dir][c];
+                        const sq1Transparent = sq1 && sq1.color === p.color && isPawnTransparentByRunaRoxa(r + dir, c, sq1, runaAtualMov);
+                        if (!sq1 || sq1Transparent) {
+                            if (!sq1) moves.push({ row: r + dir, col: c, capture: false });
+                            if (r === startRow && !b[r + 2 * dir][c]) {
+                                if (!sq1 || sq1Transparent)
+                                    moves.push({ row: r + 2 * dir, col: c, capture: false });
+                            }
+                        }
                     }
 
                     addIfCapture(r + dir, c - 1);

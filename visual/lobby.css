@@ -172,10 +172,10 @@
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
     width: 100%;
-    max-width: 1260px;
+    max-width: 1400px;
     margin-bottom: 48px;
 }
 
@@ -215,6 +215,10 @@
     border-color: #3fa8f0;
 }
 
+.mode-card--ia:hover {
+    border-color: #9b59e8;
+}
+
 /* Glow blob behind each card */
 .mode-card__glow {
     position: absolute;
@@ -244,6 +248,10 @@
 
 .mode-card--local .mode-card__glow {
     background: rgba(63, 168, 240, 0.2);
+}
+
+.mode-card--ia .mode-card__glow {
+    background: rgba(155, 89, 232, 0.25);
 }
 
 .mode-card:hover .mode-card__glow {
@@ -306,6 +314,10 @@
     background: radial-gradient(rgba(63, 168, 240, 0.35), transparent);
 }
 
+.mode-card--ia .mode-card__icon-wrap::before {
+    background: radial-gradient(rgba(155, 89, 232, 0.35), transparent);
+}
+
 .mode-card:hover .mode-card__icon-wrap::before {
     opacity: 1;
 }
@@ -336,6 +348,10 @@
     filter: drop-shadow(0 0 14px rgba(63, 168, 240, 0.8));
 }
 
+.mode-card--ia:hover .mode-card__icon {
+    filter: drop-shadow(0 0 14px rgba(155, 89, 232, 0.8));
+}
+
 /* Badges */
 .mode-badge {
     font-size: 0.62rem;
@@ -362,6 +378,12 @@
     background: rgba(63, 168, 240, 0.15);
     color: #3fa8f0;
     border: 1px solid rgba(63, 168, 240, 0.4);
+}
+
+.mode-badge--ia {
+    background: rgba(155, 89, 232, 0.15);
+    color: var(--clr-purple);
+    border: 1px solid rgba(155, 89, 232, 0.4);
 }
 
 /* ---- Card Body ---- */
@@ -825,7 +847,7 @@
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.22em;
-    color: #d4aaff;
+    color: #ffffff;
     position: relative;
     z-index: 1;
     text-shadow: 0 0 10px rgba(155, 89, 232, 0.8);

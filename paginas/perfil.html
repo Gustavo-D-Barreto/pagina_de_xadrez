@@ -1202,6 +1202,111 @@
                 display: none;
             }
         }
+
+        /* ============================================================
+       RUNE SELECTOR
+    ============================================================ */
+        .rune-section-title {
+            font-family: var(--font-deco);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-dk);
+            margin: 24px 0 12px;
+        }
+
+        .rune-picker {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .rune-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 10px 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background 0.2s;
+            position: relative;
+        }
+
+        .rune-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(201, 168, 76, 0.5);
+            background: rgba(201, 168, 76, 0.07);
+        }
+
+        .rune-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 16px rgba(201, 168, 76, 0.45), 0 0 4px rgba(201, 168, 76, 0.3);
+            background: rgba(201, 168, 76, 0.1);
+        }
+
+        .rune-card.selected::after {
+            content: '✦';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--gold);
+            background: var(--bg-card);
+            padding: 0 4px;
+        }
+
+        .rune-card img {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 6px;
+            filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+            transition: filter 0.2s;
+        }
+
+        .rune-card.selected img {
+            filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.7));
+        }
+
+        .rune-card-name {
+            font-family: var(--font-deco);
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .rune-card.selected .rune-card-name {
+            color: var(--gold-lt);
+        }
+
+        .rune-card-desc {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Active rune badge in mini-stats */
+        .mini-stat.rune-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mini-stat.rune-stat img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.6));
+        }
+
+        .mini-stat.rune-stat b {
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 
@@ -1281,6 +1386,10 @@
                             <b id="card-partidas">—</b>
                             Partidas
                         </div>
+                        <div class="mini-stat rune-stat" id="card-rune-stat" style="display:none">
+                            <img id="card-rune-img" src="" alt="Runa" />
+                            <b id="card-rune-name" style="display:block">—</b>
+                        </div>
                     </div>
 
                     <div class="avatar-picker-title">Escolha seu Avatar</div>
@@ -1299,6 +1408,29 @@
                     <button class="save-avatar-btn" id="save-avatar-btn" disabled>
                         ✦ Salvar Avatar
                     </button>
+
+                    <!-- RUNE PICKER -->
+                    <div class="rune-section-title">⟡ Escolha sua Runa</div>
+                    <div class="rune-picker" id="rune-picker">
+                        <div class="rune-card" data-runa="azul"
+                            title="Receba 40% do dinheiro gasto em poderes de volta.">
+                            <img src="../spritesxadrez/sprites/runaazul.png" alt="Runa Azul" />
+                            <div class="rune-card-name">Runa Azul</div>
+                            <div class="rune-card-desc">Reembolso de 40% em poderes</div>
+                        </div>
+                        <div class="rune-card" data-runa="roxa"
+                            title="Peões na casa original não bloqueiam suas outras peças.">
+                            <img src="../spritesxadrez/sprites/runaroxa.png" alt="Runa Roxa" />
+                            <div class="rune-card-name">Runa Roxa</div>
+                            <div class="rune-card-desc">Peões fantasmas na casa original</div>
+                        </div>
+                        <div class="rune-card" data-runa="vermelha"
+                            title="Sua rainha renasce na célula original ao morrer.">
+                            <img src="../spritesxadrez/sprites/runavermelha.png" alt="Runa Vermelha" />
+                            <div class="rune-card-name">Runa Vermelha</div>
+                            <div class="rune-card-desc">Rainha renasce ao morrer</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- RIGHT: Stats Panel -->
@@ -1539,6 +1671,68 @@
         });
 
         // ----------------------------------------------------------------
+        // RUNE PICKER
+        // ----------------------------------------------------------------
+        const RUNA_IMGS = {
+            azul: '../spritesxadrez/sprites/runaazul.png',
+            roxa: '../spritesxadrez/sprites/runaroxa.png',
+            vermelha: '../spritesxadrez/sprites/runavermelha.png'
+        };
+        const RUNA_NOMES = {
+            azul: 'Runa Azul', roxa: 'Runa Roxa', vermelha: 'Runa Vermelha'
+        };
+
+        let selectedRuna = null;
+
+        function initRunePicker() {
+            document.querySelectorAll('.rune-card').forEach(card => {
+                card.addEventListener('click', () => selectRuna(card.dataset.runa));
+            });
+        }
+
+        function selectRuna(runaId) {
+            selectedRuna = runaId;
+            applyRunaUI(runaId);
+            saveRuna(runaId);
+        }
+
+        function applyRunaUI(runaId) {
+            // Update picker cards
+            document.querySelectorAll('.rune-card').forEach(c => {
+                c.classList.toggle('selected', c.dataset.runa === runaId);
+            });
+            // Update mini-stat badge
+            const stat = document.getElementById('card-rune-stat');
+            const img = document.getElementById('card-rune-img');
+            const name = document.getElementById('card-rune-name');
+            if (runaId && RUNA_IMGS[runaId]) {
+                stat.style.display = 'flex';
+                img.src = RUNA_IMGS[runaId];
+                name.textContent = RUNA_NOMES[runaId];
+            } else {
+                stat.style.display = 'none';
+            }
+        }
+
+        async function saveRuna(runaId) {
+            // Always save to localStorage
+            localStorage.setItem('xq_runa_w', runaId || '');
+            // Save to Supabase if logged in
+            if (!currentUserId) {
+                toast('✦ Runa salva localmente!');
+                return;
+            }
+            const { error } = await sb.from('profiles')
+                .update({ runa_id: runaId })
+                .eq('id', currentUserId);
+            if (error) {
+                toast('Erro ao salvar runa: ' + error.message, true);
+            } else {
+                toast('✦ Runa equipada com sucesso!');
+            }
+        }
+
+        // ----------------------------------------------------------------
         // LOAD PROFILE
         // ----------------------------------------------------------------
         async function loadProfile() {
@@ -1594,6 +1788,11 @@
             document.getElementById('card-vitorias').textContent = p.vitorias ?? 0;
             document.getElementById('card-pontos').textContent = p.pontos ?? 0;
             document.getElementById('card-partidas').textContent = p.partidas ?? 0;
+
+            // Runa ativa
+            const runaId = p.runa_id || localStorage.getItem('xq_runa_w') || null;
+            selectedRuna = runaId;
+            applyRunaUI(runaId);
 
             // Big stats
             const vit = p.vitorias ?? 0;
@@ -1749,6 +1948,7 @@
         // ----------------------------------------------------------------
         // INIT
         // ----------------------------------------------------------------
+        initRunePicker();
         loadProfile();
         loadLeaderboard();
     </script>
