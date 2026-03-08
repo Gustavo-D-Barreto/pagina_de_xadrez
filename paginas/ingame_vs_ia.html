@@ -183,6 +183,119 @@
         .btn-hint {
             background: linear-gradient(135deg, #0a3a2e, #3fcf72, #0a3a2e) !important;
         }
+
+        .btn-hint.hint-cooldown {
+            background: linear-gradient(135deg, #1a1a2e, #333, #1a1a2e) !important;
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ── Indicador de fase (Modo Série) ── */
+        .phase-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(13, 15, 24, 0.9);
+            border: 1px solid rgba(155, 89, 232, 0.4);
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            color: #d4aaff;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .phase-indicator__icon {
+            font-size: 1.2rem;
+        }
+
+        .phase-indicator__text {
+            font-weight: 700;
+        }
+
+        .phase-indicator.phase-advance {
+            animation: phaseGlow 1.5s ease-out;
+            border-color: #ffd700;
+            color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+
+        @keyframes phaseGlow {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            }
+        }
+
+        .phase-dots {
+            display: flex;
+            gap: 4px;
+            margin-left: 4px;
+        }
+
+        .phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(155, 89, 232, 0.3);
+            transition: all 0.3s;
+        }
+
+        .phase-dot.completed {
+            background: #9b59e8;
+            border-color: #d4aaff;
+            box-shadow: 0 0 6px rgba(155, 89, 232, 0.6);
+        }
+
+        .phase-dot.current {
+            background: #ffd700;
+            border-color: #ffed4a;
+            box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+        }
+
+        /* ── Zonas congeladas (Fase 3) ── */
+        .sq.frozen-zone {
+            background: rgba(0, 150, 255, 0.15) !important;
+            box-shadow: inset 0 0 12px rgba(0, 120, 255, 0.3);
+        }
+
+        .sq.frozen-zone::after {
+            content: '❄️';
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            font-size: 0.5rem;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .sq.frozen-zone.has-trapped-piece {
+            background: rgba(255, 60, 60, 0.2) !important;
+            box-shadow: inset 0 0 14px rgba(255, 0, 0, 0.35);
+        }
+
+        /* ── Botão de pular fase (debug) ── */
+        .btn-skip-phase {
+            background: linear-gradient(135deg, #8b0000, #cc3300) !important;
+            font-size: 0.65rem;
+        }
     </style>
 </head>
 
@@ -328,6 +441,20 @@
                 <button class="btn btn-hint" id="btnHint" onclick="requestHint()">💡 Dica</button>
                 <button class="btn" id="btnNew">Nova Partida</button>
                 <button class="btn" id="btnMenu" onclick="window.location.href='../index.html'">Menu</button>
+                <button class="btn btn-skip-phase" id="btnSkipPhase" onclick="skipPhase()" style="display:none;">⏩ Pular
+                    Fase</button>
+            </div>
+
+            <!-- Indicador de fase (Modo Série) -->
+            <div class="phase-indicator" id="phaseIndicator" style="display:none;">
+                <span class="phase-indicator__icon">⚔️</span>
+                <span class="phase-indicator__text" id="phaseText">Fase 1 / 4</span>
+                <div class="phase-dots" id="phaseDots">
+                    <span class="phase-dot current"></span>
+                    <span class="phase-dot"></span>
+                    <span class="phase-dot"></span>
+                    <span class="phase-dot"></span>
+                </div>
             </div>
         </div>
 
@@ -360,6 +487,7 @@
             <div class="modal-title" id="modalTitle">Xeque-Mate!</div>
             <div class="modal-sub" id="modalSub">As Brancas venceram</div>
             <div class="modal-btns">
+                <button class="btn" id="modalNextPhase" style="display:none;">▶ Próxima Fase</button>
                 <button class="btn" id="modalNew">Nova Partida</button>
                 <button class="btn" onclick="window.location.href='../index.html'">Menu</button>
             </div>
@@ -371,11 +499,11 @@
 
 
 
-    <!-- ═══ MODAL DE CONFIGURAÇÃO ═══ -->
+    <!-- ═══ MODAL DE CONFIGURAÇÃO (MODO SÉRIE) ═══ -->
     <div id="setupModal">
         <div class="setup-box">
-            <div class="setup-title">🤖 VS INTELIGÊNCIA ARTIFICIAL</div>
-            <div class="setup-sub">Configure sua partida antes de começar</div>
+            <div class="setup-title">🏆 MODO SÉRIE</div>
+            <div class="setup-sub">Vença 4 fases consecutivas para dominar a série</div>
 
             <div class="setup-group">
                 <span class="setup-label">Sua cor</span>
@@ -385,16 +513,7 @@
                 </div>
             </div>
 
-            <div class="setup-group">
-                <span class="setup-label">Dificuldade da IA</span>
-                <div class="setup-options">
-                    <button class="setup-opt" data-group="diff" data-val="1">😊 Fácil</button>
-                    <button class="setup-opt active" data-group="diff" data-val="2">🎯 Médio</button>
-                    <button class="setup-opt" data-group="diff" data-val="3">🔥 Difícil</button>
-                </div>
-            </div>
-
-            <button class="setup-btn" id="setupStartBtn">▶ COMEÇAR PARTIDA</button>
+            <button class="setup-btn" id="setupStartBtn">▶ INICIAR SÉRIE</button>
         </div>
     </div>
 
@@ -421,10 +540,17 @@
         //  IA — Estado (engine local, sem servidor)
         // ═══════════════════════════════════════════════════
         let iaPlayerColor = 'w';    // cor do humano
-        let iaDifficulty = 2;
+        let iaDifficulty = 3;       // Modo Série: sempre difícil
         let iaIsThinking = false;
         let iaGameActive = false;
         let iaEngine = new XadrezIA(iaDifficulty);  // motor JS local
+
+        // ═══════════════════════════════════════════════════
+        //  MODO SÉRIE — Estado
+        // ═══════════════════════════════════════════════════
+        let seriePhase = 1;          // fase atual 1-4
+        let hintLastUsedTurn = -10;  // último turno em que dica foi usada
+        let frozenZones = [];            // casas congeladas (Fase 3) [{row,col}]
 
         // ═══════════════════════════════════════════════════
         //  CONSTANTS
@@ -492,7 +618,28 @@
         // ═══════════════════════════════════════════════════
         //  BOARD INIT
         // ═══════════════════════════════════════════════════
-        function initBoard() {
+        function initBoard(keepProgression = false) {
+            // ── Salvar estado do jogador entre fases (Modo Série) ──
+            let savedInventory = [];
+            let savedPieceCurses = [];
+            if (keepProgression) {
+                savedInventory = [...inventoryW];
+                const playerColor = iaPlayerColor;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const p = board[r][c];
+                        if (p && p.color === playerColor && (p.captureCount > 0 || p.cursed || p.curseUsed)) {
+                            savedPieceCurses.push({
+                                type: p.type,
+                                captureCount: p.captureCount || 0,
+                                cursed: !!p.cursed,
+                                curseUsed: !!p.curseUsed
+                            });
+                        }
+                    }
+                }
+            }
+
             board = Array.from({ length: 8 }, () => Array(8).fill(null));
             const backRank = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
             for (let c = 0; c < 8; c++) {
@@ -502,6 +649,51 @@
                 board[7][c] = { color: 'w', type: backRank[c] };
             }
             Maldicao.assignAllIds(board);
+
+            // ═══════════════════════════════════════════════════
+            //  MODO SÉRIE — Modificações de fase no tabuleiro
+            //  Cada fase tem APENAS sua modificação específica
+            // ═══════════════════════════════════════════════════
+            const aiColor = iaPlayerColor === 'w' ? 'b' : 'w';
+            const aiPawnRow = aiColor === 'b' ? 1 : 6;
+            const aiBackRow = aiColor === 'b' ? 0 : 7;
+
+            if (seriePhase === 2) {
+                // Fase 2: Peões da IA alternados com Torres (P, R, P, R...)
+                for (let c = 0; c < 8; c++) {
+                    if (board[aiPawnRow][c] && board[aiPawnRow][c].color === aiColor && board[aiPawnRow][c].type === 'P') {
+                        if (c % 2 === 1) { // cols 1,3,5,7 viram Torres
+                            board[aiPawnRow][c].type = 'R';
+                        }
+                    }
+                }
+            }
+
+            // Zonas congeladas (somente Fase 3)
+            frozenZones = [];
+            if (seriePhase === 3) {
+                const zoneRows = iaPlayerColor === 'w' ? [0, 1, 2] : [5, 6, 7];
+                const zoneCols = [1, 2, 3, 4, 5, 6]; // b,c,d,e,f,g
+                for (const zr of zoneRows) {
+                    for (const zc of zoneCols) {
+                        frozenZones.push({ row: zr, col: zc });
+                    }
+                }
+            }
+
+            if (seriePhase === 4) {
+                // Fase 4: Cavalos da IA viram Rainhas com maldição ativada
+                for (let c = 0; c < 8; c++) {
+                    const p = board[aiBackRow][c];
+                    if (p && p.color === aiColor && p.type === 'N') {
+                        p.type = 'Q';
+                        p.curseUsed = true; // maldição ativada (clonagem)
+                    }
+                }
+                // Escudos são aplicados depois do reset de estado (veja abaixo)
+            }
+
+
             turn = 'w';
             selected = null;
             legalSquares = [];
@@ -512,7 +704,7 @@
             halfMoveClock = 0;
             kingChecked = null;
             kingDestroyed = false;
-            isFlipped = false; // VS IA: tabuleiro NUNCA vira
+            isFlipped = false;
             document.getElementById('boardOuter').classList.remove('rotated');
             moveHistory = [];
             pendingWhiteMove = null;
@@ -525,14 +717,13 @@
             armadilhas = [];
             inventoryW = []; inventoryB = [];
             iaIsThinking = false;
+            hintLastUsedTurn = -10;
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
             setAIThinking(false);
 
-            // Carregar runa do jogador
             runaW = localStorage.getItem('xq_runa_w') || null;
             rainhaRenascer = { w: null, b: null };
             rainhaRenasceu = { w: false, b: false };
-            // Mostrar badge da runa no card do jogador
             const runaBadge = document.getElementById('runaWhiteBadge');
             if (runaBadge) {
                 const runaImgs = { azul: '../spritesxadrez/sprites/runaazul.png', roxa: '../spritesxadrez/sprites/runaroxa.png', vermelha: '../spritesxadrez/sprites/runavermelha.png' };
@@ -549,17 +740,53 @@
             Maldicao.initMaldicao();
             initAleatoriedade();
             initShop();
+
+            // Fase 4: Escudo covarde em TODAS as peças da IA (após reset de shieldedPieces)
+            if (seriePhase === 4) {
+                const aiC = iaPlayerColor === 'w' ? 'b' : 'w';
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c] && board[r][c].color === aiC) {
+                            shieldedPieces[`${r},${c}`] = true;
+                        }
+                    }
+                }
+            }
+
+            // ── Restaurar estado entre fases (Modo Série) ──
+            if (keepProgression) {
+                inventoryW = savedInventory;
+                const playerColor = iaPlayerColor;
+                const playerPieces = [];
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c] && board[r][c].color === playerColor) {
+                            playerPieces.push(board[r][c]);
+                        }
+                    }
+                }
+                const curseQueue = [...savedPieceCurses];
+                for (const piece of playerPieces) {
+                    const idx = curseQueue.findIndex(sc => sc.type === piece.type);
+                    if (idx !== -1) {
+                        const saved = curseQueue.splice(idx, 1)[0];
+                        piece.captureCount = saved.captureCount;
+                        piece.cursed = saved.cursed;
+                        piece.curseUsed = saved.curseUsed;
+                    }
+                }
+            }
+
             render();
             updateTurnBanner();
             updatePlayerCards();
             renderHistory();
+            updatePhaseIndicator();
 
-            // Atualiza badge de dificuldade
-            const diffNames = { 1: '😊 Fácil', 2: '🎯 Médio', 3: '🔥 Difícil' };
             const badge = document.getElementById('aiDiffBadge');
-            if (badge) badge.textContent = diffNames[iaDifficulty] || 'Médio';
-            // iaGameActive é setado pelo setupModal antes de initBoard
+            if (badge) badge.textContent = '🔥 Difícil';
         }
+
 
         // ═══════════════════════════════════════════════════
         //  SHOP
@@ -944,6 +1171,16 @@
                     // Frozen column highlight
                     if (frozenColSet.has(c)) sq.classList.add('frozen-col');
 
+                    // Frozen zone highlight (Fase 3+)
+                    if (frozenZones.some(z => z.row === r && z.col === c)) {
+                        sq.classList.add('frozen-zone');
+                        // Se tem peça do jogador presa, destaca em vermelho
+                        const p = board[r][c];
+                        if (p && p.color === iaPlayerColor) {
+                            sq.classList.add('has-trapped-piece');
+                        }
+                    }
+
                     const piece = board[r][c];
                     if (piece) {
                         const pDiv = document.createElement('div');
@@ -1157,6 +1394,9 @@
 
             // Refresh inventory panels
             renderInventory();
+
+            // Atualiza estado visual do botão de dica
+            updateHintButton();
         }
 
         function updatePointsDisplay(cardId, pts) {
@@ -1483,6 +1723,15 @@
                     }
                 }
             }
+
+            // Fase 3+: Peças do jogador em zonas congeladas não podem sair
+            if (piece && piece.color === iaPlayerColor && frozenZones.length > 0) {
+                const inFrozenZone = frozenZones.some(z => z.row === row && z.col === col);
+                if (inFrozenZone) {
+                    return []; // peça presa na zona congelada
+                }
+            }
+
             const pseudos = getPseudoMoves(row, col, board);
             return pseudos.filter(m => {
                 const sim = simulateMove(board, row, col, m.row, m.col, m);
@@ -1740,13 +1989,38 @@
         //  MODALS
         // ═══════════════════════════════════════════════════
         function showEndModal(winner) {
-            document.getElementById('modalTitle').textContent = 'Xeque-Mate!';
-            document.getElementById('modalSub').textContent = `As ${winner} venceram!`;
+            const playerWon = (iaPlayerColor === 'w' && winner === 'Brancas') || (iaPlayerColor === 'b' && winner === 'Pretas');
+            const nextBtn = document.getElementById('modalNextPhase');
+            const newBtn = document.getElementById('modalNew');
+
+            if (playerWon) {
+                if (seriePhase < 4) {
+                    document.getElementById('modalTitle').textContent = `⚔️ Fase ${seriePhase} Completa!`;
+                    document.getElementById('modalSub').textContent = `Parabéns! Prepare-se para a Fase ${seriePhase + 1}`;
+                    nextBtn.style.display = 'inline-block';
+                    newBtn.style.display = 'none';
+                } else {
+                    document.getElementById('modalTitle').textContent = '🏆 SÉRIE COMPLETA!';
+                    document.getElementById('modalSub').textContent = 'Você é o mestre! Venceu todas as 4 fases!';
+                    nextBtn.style.display = 'none';
+                    newBtn.style.display = 'inline-block';
+                    saveSerieProgress(4);
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = '💥 Derrota!';
+                document.getElementById('modalSub').textContent = `A série volta para a Fase 1. Tente novamente!`;
+                nextBtn.style.display = 'none';
+                newBtn.style.display = 'inline-block';
+                seriePhase = 1;
+            }
             document.getElementById('modalOverlay').classList.add('active');
         }
         function showStalemateModal() {
             document.getElementById('modalTitle').textContent = 'Empate!';
-            document.getElementById('modalSub').textContent = 'Afogamento — nenhum movimento legal.';
+            document.getElementById('modalSub').textContent = 'Afogamento — nenhum movimento legal. A série volta para a Fase 1.';
+            document.getElementById('modalNextPhase').style.display = 'none';
+            document.getElementById('modalNew').style.display = 'inline-block';
+            seriePhase = 1;
             document.getElementById('modalOverlay').classList.add('active');
         }
         function hideModal() {
@@ -1754,15 +2028,110 @@
         }
 
         // ═══════════════════════════════════════════════════
+        //  MODO SÉRIE — Funções de fase
+        // ═══════════════════════════════════════════════════
+        function startNextPhase() {
+            hideModal();
+            seriePhase++;
+            saveSerieProgress(seriePhase);
+            iaEngine = new XadrezIA(iaDifficulty);
+            initBoard(true); // keepProgression = true
+            showToast(`⚔️ Fase ${seriePhase} / 4 — Boa sorte!`);
+
+            // Animação de destaque na fase
+            const indicator = document.getElementById('phaseIndicator');
+            if (indicator) {
+                indicator.classList.add('phase-advance');
+                setTimeout(() => indicator.classList.remove('phase-advance'), 2000);
+            }
+
+            // Se humano é preto, IA joga primeiro
+            if (iaPlayerColor === 'b') requestAIMove();
+        }
+
+        // Debug: Pular fase para testes
+        function skipPhase() {
+            if (seriePhase >= 4) {
+                showToast('🏆 Você já está na última fase!');
+                return;
+            }
+            seriePhase++;
+            saveSerieProgress(seriePhase);
+            iaEngine = new XadrezIA(iaDifficulty);
+            initBoard(true);
+            showToast(`⏩ DEBUG: Pulou para Fase ${seriePhase} / 4`);
+
+            const indicator = document.getElementById('phaseIndicator');
+            if (indicator) {
+                indicator.classList.add('phase-advance');
+                setTimeout(() => indicator.classList.remove('phase-advance'), 2000);
+            }
+
+            if (iaPlayerColor === 'b') requestAIMove();
+        }
+
+        function updatePhaseIndicator() {
+            const indicator = document.getElementById('phaseIndicator');
+            const text = document.getElementById('phaseText');
+            const dotsContainer = document.getElementById('phaseDots');
+            if (!indicator) return;
+
+            indicator.style.display = 'flex';
+            if (text) text.textContent = `Fase ${seriePhase} / 4`;
+
+            if (dotsContainer) {
+                const dots = dotsContainer.querySelectorAll('.phase-dot');
+                dots.forEach((dot, i) => {
+                    dot.className = 'phase-dot';
+                    if (i < seriePhase - 1) dot.classList.add('completed');
+                    else if (i === seriePhase - 1) dot.classList.add('current');
+                });
+            }
+        }
+
+        function updateHintButton() {
+            const btn = document.getElementById('btnHint');
+            if (!btn) return;
+            const currentTurn = getTotalTurns();
+            const turnsUntilHint = 10 - (currentTurn - hintLastUsedTurn);
+            if (turnsUntilHint > 0) {
+                btn.classList.add('hint-cooldown');
+                btn.title = `Dica disponível em ${turnsUntilHint} turno(s)`;
+            } else {
+                btn.classList.remove('hint-cooldown');
+                btn.title = 'Pedir dica';
+            }
+        }
+
+        function saveSerieProgress(phase) {
+            // Salva progresso no localStorage como fallback
+            const currentMax = parseInt(localStorage.getItem('xq_fase_ia_max') || '1');
+            if (phase > currentMax) {
+                localStorage.setItem('xq_fase_ia_max', String(phase));
+            }
+            // Tentativa de salvar no Supabase (se disponível)
+            if (window._xqSupabase && window._xqUserId) {
+                window._xqSupabase
+                    .from('profiles')
+                    .update({ fase_ia: Math.max(phase, currentMax) })
+                    .eq('id', window._xqUserId)
+                    .then(() => console.log('[Série] Progresso salvo: fase', phase))
+                    .catch(e => console.warn('[Série] Erro ao salvar progresso:', e));
+            }
+        }
+
+        // ═══════════════════════════════════════════════════
         //  BUTTONS
         // ═══════════════════════════════════════════════════
         function newGame() {
             hideModal();
+            seriePhase = 1;
             iaEngine = new XadrezIA(iaDifficulty);
             initBoard();
         }
         document.getElementById('btnNew').addEventListener('click', newGame);
         document.getElementById('modalNew').addEventListener('click', newGame);
+        document.getElementById('modalNextPhase').addEventListener('click', startNextPhase);
 
         // ═══════════════════════════════════════════════════
         //  IA — Funções (engine local JS, sem servidor)
@@ -1806,12 +2175,24 @@
 
         function requestHint() {
             if (!iaGameActive || turn !== iaPlayerColor) return;
+
+            // Cooldown de 10 turnos
+            const currentTurn = getTotalTurns();
+            const turnsUntilHint = 10 - (currentTurn - hintLastUsedTurn);
+            if (turnsUntilHint > 0) {
+                showToast(`⏳ Dica indisponível! Aguarde ${turnsUntilHint} turno(s).`);
+                return;
+            }
+
             try {
                 const tempEngine = new XadrezIA(Math.min(iaDifficulty, 2));
                 tempEngine._castling = { ...castlingRights };
                 tempEngine._ep = enPassantTarget;
                 const move = tempEngine.melhorJogada(board, iaPlayerColor, castlingRights, enPassantTarget);
                 if (!move) return;
+
+                hintLastUsedTurn = currentTurn;
+                updateHintButton();
 
                 const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
                 const fromSq = document.querySelector(`.sq[data-row="${move.fromRow}"][data-col="${move.fromCol}"]`);
@@ -1892,7 +2273,7 @@
 
             document.getElementById('setupStartBtn').addEventListener('click', () => {
                 iaPlayerColor = modal.querySelector('.setup-opt[data-group="color"].active')?.dataset.val || 'w';
-                iaDifficulty = parseInt(modal.querySelector('.setup-opt[data-group="diff"].active')?.dataset.val || '2');
+                iaDifficulty = 3; // Modo Série: sempre difícil
 
                 modal.style.display = 'none';
 
@@ -1905,10 +2286,16 @@
                     document.querySelector('.black-avatar').textContent = '🤖';
                 }
 
-                // Cria engine com a dificuldade escolhida e inicia
+                // Inicia a série
+                seriePhase = 1;
                 iaEngine = new XadrezIA(iaDifficulty);
                 iaGameActive = true;
                 initBoard();
+
+                // Mostra indicador de fase e botão de debug
+                document.getElementById('phaseIndicator').style.display = 'flex';
+                document.getElementById('btnSkipPhase').style.display = 'inline-block';
+                updatePhaseIndicator();
 
                 // Se humano é preto, IA (brancas) joga primeiro
                 if (iaPlayerColor === 'b') {
@@ -1921,6 +2308,22 @@
         //  START — NÃO inicia automaticamente (aguarda modal)
         // ═══════════════════════════════════════════════════
         // initBoard() é chamado pelo setupModal ao confirmar
+    </script>
+
+    <!-- ═══ SUPABASE: salvar progresso Modo Série ═══ -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://segetgqdxjwwkyjguzzo.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZ2V0Z3FkeGp3d2t5amd1enpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MzIyMjcsImV4cCI6MjA4NzIwODIyN30.4jM7c0mIyiTzpA9wkTOpLjyCWQ6taTab_OjToPx1o10';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        // Expõe para o saveSerieProgress usar
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            window._xqSupabase = supabase;
+            window._xqUserId = session.user.id;
+        }
     </script>
 </body>
 

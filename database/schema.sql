@@ -184,3 +184,9 @@ INSERT WITH CHECK (auth.role() = 'authenticated');
 --    Database → Replication → supabase_realtime
 --    Adicionar as tabelas: partidas  e  jogadas
 -- ============================================================
+-- ============================================================
+--  8. PROGRESSO VS IA — Modo Série
+-- ============================================================
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS fase_ia INTEGER NOT NULL DEFAULT 1;
+COMMENT ON COLUMN public.profiles.fase_ia IS 'Fase máxima alcançada no Modo Série contra IA (1-4)';

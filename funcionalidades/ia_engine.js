@@ -273,9 +273,11 @@ class XadrezIA {
                 } else {
                     if (t.color === enemy) {
                         moves.push({ fromRow: r, fromCol: c, row: nr, col: nc, capture: true });
+                        break; // captura e para (mesmo ghost)
                     }
-                    // Ghost atravessa aliadas
-                    if (!p.isGhost || t.color === p.color) break;
+                    // Aliada: ghost atravessa, normal para
+                    if (!p.isGhost) break;
+                    // ghost + aliada → continua sem adicionar movimento
                 }
                 nr += dr; nc += dc;
             }
