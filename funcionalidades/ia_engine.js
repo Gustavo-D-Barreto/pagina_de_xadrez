@@ -32,10 +32,11 @@ class XadrezIA {
      * @param {object} enPassantTarget- { row, col } ou null
      * @returns {object|null} movimento
      */
-    melhorJogada(board, color, castlingRights, enPassantTarget) {
+    melhorJogada(board, color, castlingRights, enPassantTarget, activePowers = {}) {
         this.nodesVisited = 0;
         this._castling = { ...castlingRights };
         this._ep = enPassantTarget;
+        this._activePowers = activePowers;
 
         const allMoves = this._getAllMoves(board, color);
         if (allMoves.length === 0) return null;
@@ -316,6 +317,9 @@ class XadrezIA {
             }
             case 'N':
                 [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc));
+                if (this._activePowers && this._activePowers[p.color] && this._activePowers[p.color].sangue_puro) {
+                    [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([dr, dc]) => add(r + dr, c + dc));
+                }
                 break;
             case 'R':
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dr, dc]) => slide(dr, dc));
@@ -432,7 +436,11 @@ class XadrezIA {
 
         switch (p.type) {
             case 'P': return dr === dir && Math.abs(dc) === 1;
-            case 'N': return (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
+            case 'N': {
+                const normalKn = (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
+                const diagKn = this._activePowers && this._activePowers[p.color] && this._activePowers[p.color].sangue_puro && Math.abs(dr) === 1 && Math.abs(dc) === 1;
+                return normalKn || diagKn;
+            }
             case 'K': return Math.abs(dr) <= 1 && Math.abs(dc) <= 1;
             case 'R': return this._slideAttacks(board, r, c, tr, tc, [[0, 1], [0, -1], [1, 0], [-1, 0]]);
             case 'B': return this._slideAttacks(board, r, c, tr, tc, [[1, 1], [1, -1], [-1, 1], [-1, -1]]);

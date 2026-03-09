@@ -458,6 +458,245 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ── Fluxo de Jogo ── */
+        .flow-timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .flow-timeline::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--clr-gold-light), rgba(138, 43, 226, 0.6), rgba(220, 50, 50, 0.6), var(--clr-gold-light));
+            border-radius: 3px;
+            opacity: 0.5;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .flow-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .flow-step-number {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: white;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .flow-step-content {
+            flex: 1;
+            background: rgba(20, 25, 40, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 28px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .flow-step-content:hover {
+            transform: translateX(6px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .flow-step-title {
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flow-step-title .flow-emoji {
+            font-size: 1.6rem;
+        }
+
+        .flow-step-desc {
+            color: var(--clr-muted);
+            line-height: 1.65;
+            font-size: 0.95rem;
+        }
+
+        .flow-step-desc strong {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* ── Modos de Jogo ── */
+        .game-modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .game-mode-card {
+            border-radius: 18px;
+            padding: 36px 30px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .game-mode-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .game-mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 18px;
+            pointer-events: none;
+        }
+
+        .game-mode-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+        }
+
+        .game-mode-title {
+            font-family: var(--font-title);
+            font-size: 1.7rem;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
+        }
+
+        .game-mode-desc {
+            color: var(--clr-muted);
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+
+        .game-mode-desc strong {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .game-mode-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .game-mode-features li {
+            color: var(--clr-muted);
+            font-size: 0.9rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-mode-features li:last-child {
+            border-bottom: none;
+        }
+
+        .game-mode-features li .feat-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Modo Série */
+        .mode-serie {
+            background: linear-gradient(145deg, rgba(15, 40, 10, 0.7), rgba(5, 15, 5, 0.9));
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .mode-serie:hover {
+            box-shadow: 0 10px 40px rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.6);
+        }
+
+        .mode-serie .game-mode-title {
+            color: #81c784;
+        }
+
+        .mode-serie .feat-icon {
+            color: #81c784;
+        }
+
+        /* Modo Sala Privada */
+        .mode-privada {
+            background: linear-gradient(145deg, rgba(10, 20, 50, 0.7), rgba(5, 10, 30, 0.9));
+            border: 1px solid rgba(66, 165, 245, 0.3);
+        }
+
+        .mode-privada:hover {
+            box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
+            border-color: rgba(66, 165, 245, 0.6);
+        }
+
+        .mode-privada .game-mode-title {
+            color: #64b5f6;
+        }
+
+        .mode-privada .feat-icon {
+            color: #64b5f6;
+        }
+
+        /* Modo Dois Jogadores */
+        .mode-local {
+            background: linear-gradient(145deg, rgba(50, 20, 10, 0.7), rgba(25, 10, 5, 0.9));
+            border: 1px solid rgba(255, 167, 38, 0.3);
+        }
+
+        .mode-local:hover {
+            box-shadow: 0 10px 40px rgba(255, 167, 38, 0.2);
+            border-color: rgba(255, 167, 38, 0.6);
+        }
+
+        .mode-local .game-mode-title {
+            color: #ffb74d;
+        }
+
+        .mode-local .feat-icon {
+            color: #ffb74d;
+        }
+
+        @media (max-width: 900px) {
+            .flow-timeline::before {
+                left: 25px;
+            }
+
+            .flow-step-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .game-modes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -489,6 +728,136 @@
 
     <!-- ===== PONTUAÇÃO E VALOR DAS PEÇAS ===== -->
     <main>
+
+        <!-- ===== FLUXO DE JOGO ===== -->
+        <section class="manual-section">
+            <h2 class="manual-section-title">Fluxo de <span>Jogo</span></h2>
+            <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto 50px;">Entenda como
+                funciona uma partida de Xadrezinho do início ao fim. O jogo segue as regras clássicas do xadrez — mas
+                com
+                mecânicas extras que transformam cada partida em uma experiência caótica e estratégica.</p>
+
+            <div class="flow-timeline">
+
+                <!-- Passo 1 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(230,190,110,0.8), rgba(180,140,60,0.9));">
+                        1</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: var(--clr-gold-light);">
+                            <span class="flow-emoji">🎮</span> Escolha o Modo de Jogo
+                        </h3>
+                        <p class="flow-step-desc">Acesse o <strong>Lobby</strong> e escolha como quer jogar: contra a
+                            <strong>IA</strong> no Modo Série, contra um amigo em uma <strong>Sala Privada</strong>
+                            online, ou no modo <strong>Dois Jogadores</strong> local (mesma tela). Cada modo oferece uma
+                            experiência diferente!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 2 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(155,89,232,0.8), rgba(100,50,180,0.9));">
+                        2</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: #ce93d8;">
+                            <span class="flow-emoji">🔮</span> Seleção de Runas
+                        </h3>
+                        <p class="flow-step-desc">Antes da partida começar (nos modos local e sala privada), cada
+                            jogador escolhe uma <strong>Runa Passiva</strong> — um bônus que permanece ativo durante
+                            toda
+                            a batalha. A Runa certa pode definir toda a sua estratégia!</p>
+                    </div>
+                </div>
+
+                <!-- Passo 3 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(66,165,245,0.8), rgba(30,100,200,0.9));">
+                        3</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: #64b5f6;">
+                            <span class="flow-emoji">♟️</span> Movimente suas Peças
+                        </h3>
+                        <p class="flow-step-desc">O jogo segue as regras tradicionais do xadrez: cada jogador alterna
+                            turnos, movendo <strong>uma peça por vez</strong>. Peões, Torres, Cavalos, Bispos, Rainha e
+                            Rei seguem seus movimentos clássicos. Capture peças inimigas para enfraquecer o adversário e
+                            <strong>ganhar moedas</strong>!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 4 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(230,190,110,0.8), rgba(180,140,60,0.9));">
+                        4</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: var(--clr-gold-light);">
+                            <span class="flow-emoji">🪙</span> Economia: Capture e Acumule
+                        </h3>
+                        <p class="flow-step-desc">Cada peça capturada gera <strong>moedas</strong> — de 3🪙 por um peão
+                            até 12🪙 pela rainha. Essas moedas são usadas para comprar <strong>feitiços na Loja de
+                                Magia</strong>, que aparece no tabuleiro. Comprar um poder
+                            <strong>consome seu turno</strong>, então escolha bem o momento!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 5 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(220,50,50,0.8), rgba(150,20,20,0.9));">
+                        5</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: #ff6b6b;">
+                            <span class="flow-emoji">💀</span> Maldições se Ativam
+                        </h3>
+                        <p class="flow-step-desc">Quando uma peça captura inimigos demais, ela fica
+                            <strong>amaldiçoada</strong> (ícone 💀). Clique com o <strong>botão direito</strong> para
+                            ativar a habilidade — cada peça tem um poder sombrio único. Ativar uma maldição
+                            <strong>não consome o turno</strong>, então aproveite!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 6 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(255,100,0,0.8), rgba(200,60,0,0.9));">
+                        6</div>
+                    <div class="flow-step-content">
+                        <h3 class="flow-step-title" style="color: #ff7b3a;">
+                            <span class="flow-emoji">☄️</span> Eventos Caóticos
+                        </h3>
+                        <p class="flow-step-desc">O tabuleiro não é estático! <strong>Moedas Milagrosas</strong> surgem
+                            após 5 turnos sem capturas e <strong>Meteoros</strong> caem a cada 12 turnos, destruindo
+                            tudo em uma zona 2x2. Fique atento aos avisos e adapte sua estratégia ao caos!</p>
+                    </div>
+                </div>
+
+                <!-- Passo 7 -->
+                <div class="flow-step">
+                    <div class="flow-step-number"
+                        style="background: linear-gradient(135deg, rgba(230,190,110,0.9), rgba(200,160,80,1)); box-shadow: 0 0 30px rgba(230,190,110,0.4);">
+                        7</div>
+                    <div class="flow-step-content"
+                        style="border-color: rgba(230,190,110,0.2); background: rgba(30,25,10,0.6);">
+                        <h3 class="flow-step-title" style="color: var(--clr-gold-light);">
+                            <span class="flow-emoji">👑</span> Xeque-Mate!
+                        </h3>
+                        <p class="flow-step-desc">O objetivo final continua o mesmo: dar <strong>xeque-mate</strong> no
+                            Rei adversário! Use seus movimentos, maldições, poderes e a loucura dos eventos a seu favor.
+                            Quando o Rei inimigo não tiver escapatória — <strong>vitória é sua, Comandante!</strong></p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== PONTUAÇÃO E VALOR DAS PEÇAS ===== -->
         <section class="manual-section">
             <h2 class="manual-section-title">Valor e <span>Recompensas</span></h2>
             <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto;">No Xadrezinho, capturar
@@ -794,7 +1163,7 @@
             <div class="event-split">
                 <div class="event-split-text">
                     <span class="event-tag tag-red">Mártir Climático</span>
-                    <h3 class="event-title">O FURACÃO CELESTIAL — METEORO</h3>
+                    <h3 class="event-title">O METEORO CELESTIAL</h3>
                     <p class="event-desc">O cosmos não perdoa heróis nem vilões. O tabuleiro é fustigado
                         ocasionalmente pela queda catastrófica de <strong>um meteoro flamejante!</strong></p>
                     <p class="event-desc">Isso acontece exatamente a cada <strong>12 turnos totais.</strong> Um aviso
@@ -886,6 +1255,78 @@
                         Renascimento Real</span>
                     <span class="power-tip">Perfeita para quem joga agressivamente com a Rainha sem medo de
                         perdê-la.</span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== MODOS DE JOGO ===== -->
+        <section class="manual-section"
+            style="background: rgba(10,15,30,0.5); box-shadow: inset 0 0 60px rgba(0,0,0,0.6);">
+            <h2 class="manual-section-title">Modos de <span>Jogo</span></h2>
+            <p class="event-desc" style="text-align: center; max-width: 800px; margin: 0 auto 50px;">
+                Xadrezinho oferece três maneiras distintas de jogar. Cada modo tem suas próprias regras e desafios —
+                escolha o que mais combina com você e entre na batalha!
+            </p>
+
+            <div class="game-modes-grid">
+
+                <!-- Modo Série -->
+                <div class="game-mode-card mode-serie">
+                    <span class="game-mode-icon">🤖</span>
+                    <h3 class="game-mode-title">MODO SÉRIE</h3>
+                    <p class="game-mode-desc">
+                        Enfrente a <strong>Inteligência Artificial</strong> em uma sequência de fases progressivas.
+                        A cada fase, a IA se torna mais desafiadora e o tabuleiro ganha <strong>modificações
+                            especiais</strong> — peças diferentes, mecânicas novas e efeitos que não existem nos
+                        outros modos. É a experiência ideal para quem quer dominar o Xadrezinho sozinho.
+                    </p>
+                    <ul class="game-mode-features">
+                        <li><span class="feat-icon">⚔️</span> Jogue contra a IA com dificuldade crescente</li>
+                        <li><span class="feat-icon">🔄</span> Fases progressivas com modificadores únicos</li>
+                        <li><span class="feat-icon">🧩</span> Peças alternadas (torres, rainhas especiais) em fases
+                            avançadas</li>
+                        <li><span class="feat-icon">❄️</span> Zonas congeladas e escudos covardes automáticos na IA</li>
+                        <li><span class="feat-icon">🏆</span> Ideal para treinar e evoluir suas estratégias</li>
+                    </ul>
+                </div>
+
+                <!-- Modo Sala Privada -->
+                <div class="game-mode-card mode-privada">
+                    <span class="game-mode-icon">🌐</span>
+                    <h3 class="game-mode-title">SALA PRIVADA</h3>
+                    <p class="game-mode-desc">
+                        Crie uma sala com um <strong>código exclusivo</strong> e convide um amigo para jogar
+                        <strong>online</strong> em tempo real! Compartilhe o código, espere a conexão e a
+                        batalha começa. Todas as mecânicas do Xadrezinho estão disponíveis: maldições, poderes, runas,
+                        eventos e moedas. A experiência completa, a distância.
+                    </p>
+                    <ul class="game-mode-features">
+                        <li><span class="feat-icon">🔗</span> Conecte-se com amigos via código de sala</li>
+                        <li><span class="feat-icon">📡</span> Partida online em tempo real</li>
+                        <li><span class="feat-icon">🔮</span> Seleção de runas antes da partida</li>
+                        <li><span class="feat-icon">🛒</span> Loja de Magia, maldições e eventos ativos</li>
+                        <li><span class="feat-icon">⚡</span> Todas as mecânicas do Xadrezinho disponíveis</li>
+                    </ul>
+                </div>
+
+                <!-- Modo Dois Jogadores -->
+                <div class="game-mode-card mode-local">
+                    <span class="game-mode-icon">👥</span>
+                    <h3 class="game-mode-title">DOIS JOGADORES</h3>
+                    <p class="game-mode-desc">
+                        O clássico <strong>hotseat</strong> — dois jogadores no <strong>mesmo dispositivo</strong>,
+                        alternando turnos. Perfeito para desafiar quem está ao seu lado! Todas as mecânicas do
+                        Xadrezinho funcionam normalmente: maldições, loja, poderes, eventos e runas. Basta sentar,
+                        escolher suas runas e jogar.
+                    </p>
+                    <ul class="game-mode-features">
+                        <li><span class="feat-icon">🖥️</span> Dois jogadores na mesma tela</li>
+                        <li><span class="feat-icon">🔮</span> Seleção de runas para ambos os jogadores</li>
+                        <li><span class="feat-icon">🛒</span> Loja de Magia e inventário individual</li>
+                        <li><span class="feat-icon">💀</span> Maldições e curses funcionam normalmente</li>
+                        <li><span class="feat-icon">🎯</span> Ideal para duelos presenciais</li>
+                    </ul>
                 </div>
 
             </div>

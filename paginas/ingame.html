@@ -264,6 +264,7 @@
         let powerPickMode = null;
         // Armadilhas
         let armadilhas = [];
+        let primeiraCapturaOcorreu = false;
         // Inventários de poderes
         let inventoryW = [];   // { ...poder } — max 4
         let inventoryB = [];   // { ...poder } — max 4
@@ -287,7 +288,7 @@
             lastMove = null; kingChecked = null; moveHistory = []; pendingWhiteMove = null; gameOver = false;
             myTurn = (MY_CC === 'w');
             pointsW = 0; pointsB = 0; shieldedPieces = {}; noReshieldKeys = new Set();
-            frozenCols = []; taxEvasion = null; powerPickMode = null; armadilhas = [];
+            frozenCols = []; taxEvasion = null; powerPickMode = null; armadilhas = []; primeiraCapturaOcorreu = false;
             inventoryW = []; inventoryB = [];
             document.body.classList.remove('pick-mode-pieces', 'pick-mode-col', 'pick-mode-empty');
             rainhaRenasceu = { w: false, b: false };
@@ -309,7 +310,7 @@
 
         // ── Serialize / Deserialize ────────────────────────────
         function saveState() {
-            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove, pointsW, pointsB, shieldedPieces, noReshieldKeys: [...noReshieldKeys], frozenCols, taxEvasion, shopPowers, remainingPool, armadilhas });
+            return JSON.stringify({ board, turn, capturedW, capturedB, enPassantTarget, castlingRights, lastMove, moveHistory, pendingWhiteMove, pointsW, pointsB, shieldedPieces, noReshieldKeys: [...noReshieldKeys], frozenCols, taxEvasion, shopPowers, remainingPool, armadilhas, primeiraCapturaOcorreu });
         }
         function loadState(json) {
             try {
@@ -323,6 +324,7 @@
                 frozenCols = s.frozenCols || [];
                 taxEvasion = s.taxEvasion || null;
                 armadilhas = s.armadilhas || [];
+                primeiraCapturaOcorreu = s.primeiraCapturaOcorreu || false;
                 if (s.shopPowers) shopPowers = s.shopPowers;
                 if (s.remainingPool) remainingPool = s.remainingPool;
                 kingChecked = null;
@@ -481,7 +483,14 @@
                 setTimeout(() => {
                     overlay.classList.remove('visible');
                     enterPickMode('empty', [], async (row, col) => {
-                        armadilhas.push({ row, col, turnsLeft: 8, owner: MY_CC });
+                        const groupId = Date.now();
+                        const positions = [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]];
+                        positions.forEach(([dr, dc]) => {
+                            const nr = row + dr, nc = col + dc;
+                            if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && !board[nr][nc]) {
+                                armadilhas.push({ row: nr, col: nc, turnsLeft: 8, owner: MY_CC, groupId });
+                            }
+                        });
                         showToast('💫 Armadilha colocada!'); await afterUse();
                     }, restore);
                 }, 3000);
@@ -506,6 +515,11 @@
             } else if (p.id === 'inferno') {
                 for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const pc = board[r][c]; if (pc && pc.color === MY_CC) pc.cursed = true; }
                 showToast('🔥 INFERNO!'); await afterUse();
+            } else if (p.id === 'sangue_puro' || p.id === 'visao_preguiçosa') {
+                showToast(`🩸 Poder de efeito contínuo descartado!`);
+                selected = null;
+                legalMoves = [];
+                await afterUse();
             }
         };
 
@@ -524,7 +538,8 @@
                     const pw = inv[i];
                     slot.className = 'inv-slot has-item' + (canAct ? ' can-use' : ' disabled');
                     slot.title = pw.nome + ': ' + pw.descricao;
-                    slot.innerHTML = `<span class="inv-icon">${pw.icone}</span><span class="inv-name">${pw.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">Usar</button>` : ''}`;
+                    const btnText = (pw.id === 'sangue_puro' || pw.id === 'visao_preguiçosa') ? 'Descartar' : 'Usar';
+                    slot.innerHTML = `<span class="inv-icon">${pw.icone}</span><span class="inv-name">${pw.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">${btnText}</button>` : ''}`;
                 } else {
                     slot.className = 'inv-slot empty-slot';
                     slot.innerHTML = '＋';
@@ -597,6 +612,14 @@
                 if (lm) sq.classList.add(lm.capture ? 'legal-capture' : 'legal-move');
                 if (kingChecked && r === kingChecked.row && c === kingChecked.col) sq.classList.add('in-check');
                 if (frozenColSet.has(c)) sq.classList.add('frozen-col');
+
+                // Visão Preguiçosa
+                if (myTurn) {
+                    const myInv = turn === 'w' ? inventoryW : inventoryB;
+                    if (myInv.some(pw => pw.id === 'visao_preguiçosa') && isSqAttacked(r, c, turn === 'w' ? 'b' : 'w', board)) {
+                        sq.classList.add('visao-preguicosa');
+                    }
+                }
                 const pc = board[r][c];
                 if (pc) {
                     const d = document.createElement('div'); d.className = 'piece';
@@ -830,6 +853,11 @@
 
             if (captured) {
                 let pts = PIECE_POINT_VALUES[captured.type] || 0;
+                if (!primeiraCapturaOcorreu) {
+                    pts *= 3;
+                    primeiraCapturaOcorreu = true;
+                    showToast('First Blood! Pontos triplicados na primeira captura!');
+                }
                 if (taxEvasion && taxEvasion.owner === movedColor) pts *= 2;
                 if (movedColor === 'w') { capturedW.push(captured.color + captured.type); pointsW += pts; }
                 else { capturedB.push(captured.color + captured.type); pointsB += pts; }
@@ -855,6 +883,11 @@
                 const ep = board[epr][tc];
                 if (ep) {
                     let pts = PIECE_POINT_VALUES[ep.type] || 0;
+                    if (!primeiraCapturaOcorreu) {
+                        pts *= 3;
+                        primeiraCapturaOcorreu = true;
+                        showToast('First Blood! Pontos triplicados na primeira captura!');
+                    }
                     if (taxEvasion && taxEvasion.owner === movedColor) pts *= 2;
                     if (movedColor === 'w') { capturedW.push(ep.color + ep.type); pointsW += pts; }
                     else { capturedB.push(ep.color + ep.type); pointsB += pts; }
@@ -891,15 +924,24 @@
             let trapOwner = null;
             if (tIdx !== -1) {
                 trapOwner = armadilhas[tIdx].owner;
-                armadilhas.splice(tIdx, 1);
-                board[tr][tc] = null;
-                trapTriggered = true;
-                showToast('💫 Peça destruída pela armadilha!');
-                if (window.XqSons) window.XqSons.somCaptura();
-
-                // Points if enemy piece
                 if (trapOwner !== movedColor) {
+                    const gId = armadilhas[tIdx].groupId;
+                    if (gId) {
+                        armadilhas = armadilhas.filter(a => a.groupId !== gId);
+                    } else {
+                        armadilhas.splice(tIdx, 1);
+                    }
+                    board[tr][tc] = null;
+                    trapTriggered = true;
+                    showToast('💫 Peça destruída pela armadilha!');
+                    if (window.XqSons) window.XqSons.somCaptura();
+
                     let pts = PIECE_POINT_VALUES[piece.type] || 0;
+                    if (!primeiraCapturaOcorreu) {
+                        pts *= 3;
+                        primeiraCapturaOcorreu = true;
+                        showToast('First Blood! Pontos triplicados na primeira captura!');
+                    }
                     if (taxEvasion && taxEvasion.owner === trapOwner) pts *= 2;
                     if (trapOwner === 'w') { capturedW.push(piece.color + piece.type); pointsW += pts; }
                     else { capturedB.push(piece.color + piece.type); pointsB += pts; }
@@ -1112,8 +1154,8 @@
         function isCheck(col, b) { const k = findKIn(col, b); if (!k) return false; return isSqAttacked(k.row, k.col, col === 'w' ? 'b' : 'w', b); }
         function findKIn(col, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++)if (b[r][c] && b[r][c].color === col && b[r][c].type === 'K') return { row: r, col: c }; return null; }
         function isSqAttacked(row, col, by, b) { for (let r = 0; r < 8; r++)for (let c = 0; c < 8; c++) { const p = b[r][c]; if (!p || p.color !== by) continue; if (getAtks(r, c, b).some(a => a.row === row && a.col === col)) return true; } return false; }
-        function getAtks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], _runaM = p.color === 'w' ? runaW : runaB, sld = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) { if (p.isGhost && b[nr][nc].color === p.color) { } else if (b[nr][nc].color === p.color && isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], _runaM)) { } else break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1;[c - 1, c + 1].forEach(nc => { if (inB(r + d, nc)) ms.push({ row: r + d, col: nc }); }); break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); break; case 'R': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); break; case 'B': sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'Q': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); break; }return ms; }
-        function getPseudo(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], en = p.color === 'w' ? 'b' : 'w', _runaP = p.color === 'w' ? runaW : runaB, aE = (row, col) => { if (inB(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, aC = (row, col) => { if (inB(row, col) && b[row][col] && b[row][col].color === en) ms.push({ row, col, capture: true }); }, sl = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === en) { ms.push({ row: nr, col: nc, capture: true }); break; } else if (p.isGhost) { } else if (isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], _runaP)) { } else break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; if (p.curseUsed) { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (inB(nr, nc) && !b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); }); } else { const sq1 = b[r + d][c]; const sq1T = sq1 && sq1.color === p.color && isPawnTransparentByRunaRoxa(r + d, c, sq1, _runaP); if (!sq1 || sq1T) { if (!sq1) ms.push({ row: r + d, col: c, capture: false }); if (r === sr && !b[r + 2 * d][c]) { if (!sq1 || sq1T) ms.push({ row: r + 2 * d, col: c, capture: false }); } } } aC(r + d, c - 1); aC(r + d, c + 1); if (enPassantTarget) { const { row: er, col: ec } = enPassantTarget; if (r + d === er && Math.abs(c - ec) === 1) ms.push({ row: er, col: ec, capture: true, enPassant: true }); } break; } case 'N': [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); break; case 'R': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); break; case 'B': sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'Q': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 5, en, b) && !isSqAttacked(cr, 6, en, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 3, en, b) && !isSqAttacked(cr, 2, en, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } }return ms; }
+        function getAtks(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], _runaM = p.color === 'w' ? runaW : runaB, sld = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { ms.push({ row: nr, col: nc }); if (b[nr][nc]) { if (p.isGhost && b[nr][nc].color === p.color) { } else if (b[nr][nc].color === p.color && isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], _runaM)) { } else break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1;[c - 1, c + 1].forEach(nc => { if (inB(r + d, nc)) ms.push({ row: r + d, col: nc }); }); break; } case 'N': { [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); const myInvAtt = p.color === 'w' ? inventoryW : inventoryB; if (myInvAtt.some(pw => pw.id === 'sangue_puro')) { [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); } break; } case 'R': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); break; case 'B': sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'Q': sld(-1, 0); sld(1, 0); sld(0, -1); sld(0, 1); sld(-1, -1); sld(-1, 1); sld(1, -1); sld(1, 1); break; case 'K': [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { if (inB(r + dr, c + dc)) ms.push({ row: r + dr, col: c + dc }); }); break; }return ms; }
+        function getPseudo(r, c, b) { const p = b[r][c]; if (!p) return []; const ms = [], en = p.color === 'w' ? 'b' : 'w', _runaP = p.color === 'w' ? runaW : runaB, aE = (row, col) => { if (inB(row, col) && !b[row][col]) ms.push({ row, col, capture: false }); }, aC = (row, col) => { if (inB(row, col) && b[row][col] && b[row][col].color === en) ms.push({ row, col, capture: true }); }, sl = (dr, dc) => { let nr = r + dr, nc = c + dc; while (inB(nr, nc)) { if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else { if (b[nr][nc].color === en) { ms.push({ row: nr, col: nc, capture: true }); break; } else if (p.isGhost) { } else if (isPawnTransparentByRunaRoxa(nr, nc, b[nr][nc], _runaP)) { } else break; } nr += dr; nc += dc; } }; switch (p.type) { case 'P': { const d = p.color === 'w' ? -1 : 1, sr = p.color === 'w' ? 6 : 1; if (p.curseUsed) { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (inB(nr, nc) && !b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); }); } else { const sq1 = b[r + d][c]; const sq1T = sq1 && sq1.color === p.color && isPawnTransparentByRunaRoxa(r + d, c, sq1, _runaP); if (!sq1 || sq1T) { if (!sq1) ms.push({ row: r + d, col: c, capture: false }); if (r === sr && !b[r + 2 * d][c]) { if (!sq1 || sq1T) ms.push({ row: r + 2 * d, col: c, capture: false }); } } } aC(r + d, c - 1); aC(r + d, c + 1); if (enPassantTarget) { const { row: er, col: ec } = enPassantTarget; if (r + d === er && Math.abs(c - ec) === 1) ms.push({ row: er, col: ec, capture: true, enPassant: true }); } break; } case 'N': { [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const myInvKn = p.color === 'w' ? inventoryW : inventoryB; if (myInvKn.some(pw => pw.id === 'sangue_puro')) { [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); } break; } case 'R': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); break; case 'B': sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'Q': sl(-1, 0); sl(1, 0); sl(0, -1); sl(0, 1); sl(-1, -1); sl(-1, 1); sl(1, -1); sl(1, 1); break; case 'K': { [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]].forEach(([dr, dc]) => { const nr = r + dr, nc = c + dc; if (!inB(nr, nc)) return; if (!b[nr][nc]) ms.push({ row: nr, col: nc, capture: false }); else if (b[nr][nc].color === en) ms.push({ row: nr, col: nc, capture: true }); }); const cr = p.color === 'w' ? 7 : 0; if (r === cr && c === 4) { if (castlingRights[p.color + 'K'] && !b[cr][5] && !b[cr][6] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 5, en, b) && !isSqAttacked(cr, 6, en, b)) ms.push({ row: cr, col: 6, capture: false, castle: 'K' }); if (castlingRights[p.color + 'Q'] && !b[cr][1] && !b[cr][2] && !b[cr][3] && !isSqAttacked(cr, 4, en, b) && !isSqAttacked(cr, 3, en, b) && !isSqAttacked(cr, 2, en, b)) ms.push({ row: cr, col: 2, capture: false, castle: 'Q' }); } break; } }return ms; }
         function inB(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 
         // ── Wait UI ────────────────────────────────────────────

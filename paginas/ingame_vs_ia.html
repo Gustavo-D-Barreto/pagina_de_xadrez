@@ -296,6 +296,12 @@
             background: linear-gradient(135deg, #8b0000, #cc3300) !important;
             font-size: 0.65rem;
         }
+
+        /* ── Visão Preguiçosa ── */
+        .sq.visao-preguicosa {
+            background: rgba(155, 89, 232, 0.15) !important;
+            box-shadow: inset 0 0 12px rgba(155, 89, 232, 0.4);
+        }
     </style>
 </head>
 
@@ -605,6 +611,7 @@
         // Board pick-mode: { type: 'piece'|'col'|'empty', excludedTypes, onPick, onCancel }
         let powerPickMode = null;
         let armadilhas = [];
+        let primeiraCapturaOcorreu = false;
 
         // Inventários de poderes
         let inventoryW = [];   // { ...poder } — max 4 (humano)
@@ -715,6 +722,7 @@
             taxEvasion = null;
             powerPickMode = null;
             armadilhas = [];
+            primeiraCapturaOcorreu = false;
             inventoryW = []; inventoryB = [];
             iaIsThinking = false;
             hintLastUsedTurn = -10;
@@ -948,7 +956,17 @@
                 setTimeout(() => {
                     overlay.classList.remove('visible');
                     enterPickMode('empty', [],
-                        (row, col) => { armadilhas.push({ row, col, turnsLeft: 8, owner: turn }); showToast('💫 Armadilha colocada!'); render(); },
+                        (row, col) => {
+                            const groupId = Date.now();
+                            const positions = [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]];
+                            positions.forEach(([dr, dc]) => {
+                                const nr = row + dr, nc = col + dc;
+                                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && !board[nr][nc]) {
+                                    armadilhas.push({ row: nr, col: nc, turnsLeft: 8, owner: turn, groupId });
+                                }
+                            });
+                            showToast('💫 Armadilha colocada!'); render();
+                        },
                         () => { inv.splice(slotIdx, 0, poder); renderInventory(); }
                     );
                 }, 3000);
@@ -978,6 +996,11 @@
             } else if (poder.id === 'inferno') {
                 for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = board[r][c]; if (p && p.color === turn) p.cursed = true; }
                 showToast('🔥 INFERNO!'); render();
+            } else if (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa') {
+                showToast(`🩸 Poder de efeito contínuo descartado!`);
+                selected = null;
+                legalSquares = [];
+                render();
             }
         }
 
@@ -997,7 +1020,8 @@
                     const poder = inv[i];
                     slot.className = 'inv-slot has-item' + (canAct ? ' can-use' : ' disabled');
                     slot.title = poder.nome + ': ' + poder.descricao;
-                    slot.innerHTML = `<span class="inv-icon">${poder.icone}</span><span class="inv-name">${poder.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">Usar</button>` : ''}`;
+                    const btnText = (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa') ? 'Descartar' : 'Usar';
+                    slot.innerHTML = `<span class="inv-icon">${poder.icone}</span><span class="inv-name">${poder.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">${btnText}</button>` : ''}`;
                 } else {
                     slot.className = 'inv-slot empty-slot';
                     slot.innerHTML = '＋';
@@ -1170,6 +1194,14 @@
 
                     // Frozen column highlight
                     if (frozenColSet.has(c)) sq.classList.add('frozen-col');
+
+                    // Visão Preguiçosa
+                    if (turn === iaPlayerColor) {
+                        const myInv = turn === 'w' ? inventoryW : inventoryB;
+                        if (myInv.some(pw => pw.id === 'visao_preguiçosa') && isSquareAttacked(r, c, turn === 'w' ? 'b' : 'w', board)) {
+                            sq.classList.add('visao-preguicosa');
+                        }
+                    }
 
                     // Frozen zone highlight (Fase 3+)
                     if (frozenZones.some(z => z.row === r && z.col === c)) {
@@ -1547,6 +1579,11 @@
             // --- Normal capture ---
             if (captured) {
                 let pts = PIECE_POINT_VALUES[captured.type] || 0;
+                if (!primeiraCapturaOcorreu) {
+                    pts *= 3;
+                    primeiraCapturaOcorreu = true;
+                    showToast('First Blood! Pontos triplicados na primeira captura!');
+                }
                 if (taxEvasion && taxEvasion.owner === turn) pts *= 2;
                 if (turn === 'w') { capturedW.push(captured.color + captured.type); pointsW += pts; }
                 else { capturedB.push(captured.color + captured.type); pointsB += pts; }
@@ -1572,6 +1609,11 @@
                 const epPiece = board[epRow][toCol];
                 if (epPiece) {
                     let pts = PIECE_POINT_VALUES[epPiece.type] || 0;
+                    if (!primeiraCapturaOcorreu) {
+                        pts *= 3;
+                        primeiraCapturaOcorreu = true;
+                        showToast('First Blood! Pontos triplicados na primeira captura!');
+                    }
                     if (taxEvasion && taxEvasion.owner === turn) pts *= 2;
                     if (turn === 'w') { capturedW.push(epPiece.color + epPiece.type); pointsW += pts; }
                     else { capturedB.push(epPiece.color + epPiece.type); pointsB += pts; }
@@ -1614,15 +1656,24 @@
             let trapOwner = null;
             if (tIdx !== -1) {
                 trapOwner = armadilhas[tIdx].owner;
-                armadilhas.splice(tIdx, 1);
-                board[toRow][toCol] = null;
-                trapTriggered = true;
-                showToast('💫 Peça destruída pela armadilha!');
-                if (window.XqSons) window.XqSons.somCaptura();
-
-                // Points if enemy piece
                 if (trapOwner !== movedColor) {
+                    const gId = armadilhas[tIdx].groupId;
+                    if (gId) {
+                        armadilhas = armadilhas.filter(a => a.groupId !== gId);
+                    } else {
+                        armadilhas.splice(tIdx, 1);
+                    }
+                    board[toRow][toCol] = null;
+                    trapTriggered = true;
+                    showToast('💫 Peça destruída pela armadilha!');
+                    if (window.XqSons) window.XqSons.somCaptura();
+
                     let pts = PIECE_POINT_VALUES[piece.type] || 0;
+                    if (!primeiraCapturaOcorreu) {
+                        pts *= 3;
+                        primeiraCapturaOcorreu = true;
+                        showToast('First Blood! Pontos triplicados na primeira captura!');
+                    }
                     if (taxEvasion && taxEvasion.owner === trapOwner) pts *= 2;
                     if (trapOwner === 'w') { capturedW.push(piece.color + piece.type); pointsW += pts; }
                     else { capturedB.push(piece.color + piece.type); pointsB += pts; }
@@ -1821,6 +1872,10 @@
                     break;
                 case 'N':
                     [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]].forEach(([dr, dc]) => add(r + dr, c + dc));
+                    const myInvAtt = p.color === 'w' ? inventoryW : inventoryB;
+                    if (myInvAtt.some(pw => pw.id === 'sangue_puro')) {
+                        [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([dr, dc]) => add(r + dr, c + dc));
+                    }
                     break;
                 case 'R':
                     slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1);
@@ -1917,6 +1972,15 @@
                         if (!b[nr][nc]) moves.push({ row: nr, col: nc, capture: false });
                         else if (b[nr][nc].color === enemy) moves.push({ row: nr, col: nc, capture: true });
                     });
+                    const myInvKn = p.color === 'w' ? inventoryW : inventoryB;
+                    if (myInvKn.some(pw => pw.id === 'sangue_puro')) {
+                        [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([dr, dc]) => {
+                            const nr = r + dr, nc = c + dc;
+                            if (!inBounds(nr, nc)) return;
+                            if (!b[nr][nc]) moves.push({ row: nr, col: nc, capture: false });
+                            else if (b[nr][nc].color === enemy) moves.push({ row: nr, col: nc, capture: true });
+                        });
+                    }
                     break;
                 case 'R': slide(-1, 0); slide(1, 0); slide(0, -1); slide(0, 1); break;
                 case 'B': slide(-1, -1); slide(-1, 1); slide(1, -1); slide(1, 1); break;
@@ -2156,7 +2220,11 @@
                         iaEngine._ep = enPassantTarget;
 
                         const aiColor = iaPlayerColor === 'w' ? 'b' : 'w';
-                        const move = iaEngine.melhorJogada(board, aiColor, castlingRights, enPassantTarget);
+                        const activePowers = {
+                            w: { sangue_puro: inventoryW.some(pw => pw.id === 'sangue_puro') },
+                            b: { sangue_puro: inventoryB.some(pw => pw.id === 'sangue_puro') }
+                        };
+                        const move = iaEngine.melhorJogada(board, aiColor, castlingRights, enPassantTarget, activePowers);
 
                         if (!move) {
                             setAIThinking(false);

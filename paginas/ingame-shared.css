@@ -850,7 +850,7 @@ body {
     padding: 7px 16px;
     border: 1px solid var(--border);
     background: transparent;
-    color: var(--muted);
+    color: #ffffff;
     cursor: pointer;
     clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     transition: border-color .25s, color .25s, background .25s;

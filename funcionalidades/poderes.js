@@ -41,7 +41,7 @@ const TODOS_OS_PODERES = [
     {
         id: 'armadilha',
         nome: 'Armadilha',
-        descricao: 'voce escolhe uma celula vazia do tabuleiro para colocar uma armadilha que dura 8 turnos,que destroi qualquer peça que cair la.',
+        descricao: 'Você escolhe uma célula vazia para colocar uma armadilha em formato de cruz que dura 8 turnos, que destrói qualquer peça que cair lá. Todas desarmam se uma for ativada.',
         icone: '💫',
         custo: 7,
         ativo: true
@@ -76,6 +76,22 @@ const TODOS_OS_PODERES = [
         descricao: 'Amaldiçoa todas as suas peças imediatamente.',
         icone: '🔥',
         custo: 25,
+        ativo: true
+    },
+    {
+        id: 'sangue_puro',
+        nome: 'Sangue Puro',
+        descricao: 'enquanto ela estiver no seu inventario , cavalos vao poder capturar uma casa nas diagonais',
+        icone: '🩸',
+        custo: 16,
+        ativo: true
+    },
+    {
+        id: 'visao_preguiçosa',
+        nome: 'visão preguiçosa',
+        descricao: 'enquanto ela estiver no seu inventario , voce pode ver quais casas do tabuleiro estao na mira de uma peça adversaria',
+        icone: '👁️',
+        custo: 6,
         ativo: true
     }
 ];
