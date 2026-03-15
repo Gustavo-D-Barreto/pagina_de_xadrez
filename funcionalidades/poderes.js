@@ -19,15 +19,15 @@ const TODOS_OS_PODERES = [
         nome: 'Escudo Covarde',
         descricao: 'Escolha uma peça sua (exceto o rei) para protegê-la de ser capturada uma vez.',
         icone: '🛡️',
-        custo: 20,
+        custo: 15,
         ativo: true
     },
     {
         id: 'espelho',
         nome: 'Espelho',
-        descricao: 'Duplica uma peça sua (exceto rei e rainha) em uma casa adjacente vazia.',
+        descricao: 'triplica uma peça sua (exceto rei e rainha) em duas casas adjacente vazia.',
         icone: '🪞',
-        custo: 6,
+        custo: 12,
         ativo: true
     },
     {
@@ -35,7 +35,7 @@ const TODOS_OS_PODERES = [
         nome: 'Sonegar Impostos',
         descricao: 'Ganhe o dobro de pontos por 6 turnos.',
         icone: '💰',
-        custo: 10,
+        custo: 7,
         ativo: true
     },
     {
@@ -43,7 +43,7 @@ const TODOS_OS_PODERES = [
         nome: 'Armadilha',
         descricao: 'Você escolhe uma célula vazia para colocar uma armadilha em formato de cruz que dura 8 turnos, que destrói qualquer peça que cair lá. Todas desarmam se uma for ativada.',
         icone: '💫',
-        custo: 7,
+        custo: 9,
         ativo: true
     },
     {
@@ -67,7 +67,7 @@ const TODOS_OS_PODERES = [
         nome: 'Fantasma da Noite',
         descricao: 'Escolha uma peça sua (menos rei e rainha), esta peça pode atravessar peças aliadas até o final da partida.',
         icone: '👻',
-        custo: 20,
+        custo: 16,
         ativo: true
     },
     {
@@ -75,7 +75,7 @@ const TODOS_OS_PODERES = [
         nome: 'Inferno',
         descricao: 'Amaldiçoa todas as suas peças imediatamente.',
         icone: '🔥',
-        custo: 25,
+        custo: 22,
         ativo: true
     },
     {
@@ -92,6 +92,14 @@ const TODOS_OS_PODERES = [
         descricao: 'enquanto ela estiver no seu inventario , voce pode ver quais casas do tabuleiro estao na mira de uma peça adversaria',
         icone: '👁️',
         custo: 6,
+        ativo: true
+    },
+    {
+        id: 'convocando_recrutas',
+        nome: 'Convocando Recrutas',
+        descricao: 'enquanto ela estiver no seu inventario , quando o seu rei fizer um movimento ha 40% de chance de invocar uma peça aliada',
+        icone: '🪄',
+        custo: 12,
         ativo: true
     }
 ];

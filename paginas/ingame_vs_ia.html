@@ -930,7 +930,13 @@
                             const adjEmpty = getAdjacentEmpty(row, col);
                             if (!adjEmpty.length) { inv.splice(slotIdx, 0, poder); renderInventory(); showToast('😔 Sem espaço — poder cancelado.'); return; }
                             board[adjEmpty[0][0]][adjEmpty[0][1]] = { color: board[row][col].color, type: board[row][col].type };
-                            showToast('🪩 Peça duplicada!'); render();
+                            if (adjEmpty.length > 1) {
+                                board[adjEmpty[1][0]][adjEmpty[1][1]] = { color: board[row][col].color, type: board[row][col].type };
+                                showToast('🪩 Peça triplicada!');
+                            } else {
+                                showToast('🪩 Peça duplicada! (Sem espaço para a 3ª)');
+                            }
+                            render();
                         },
                         () => { inv.splice(slotIdx, 0, poder); renderInventory(); }
                     );
@@ -996,8 +1002,8 @@
             } else if (poder.id === 'inferno') {
                 for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = board[r][c]; if (p && p.color === turn) p.cursed = true; }
                 showToast('🔥 INFERNO!'); render();
-            } else if (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa') {
-                showToast(`🩸 Poder de efeito contínuo descartado!`);
+            } else if (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa' || poder.id === 'convocando_recrutas') {
+                showToast(`✨ Poder de efeito contínuo descartado!`);
                 selected = null;
                 legalSquares = [];
                 render();
@@ -1020,7 +1026,7 @@
                     const poder = inv[i];
                     slot.className = 'inv-slot has-item' + (canAct ? ' can-use' : ' disabled');
                     slot.title = poder.nome + ': ' + poder.descricao;
-                    const btnText = (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa') ? 'Descartar' : 'Usar';
+                    const btnText = (poder.id === 'sangue_puro' || poder.id === 'visao_preguiçosa' || poder.id === 'convocando_recrutas') ? 'Descartar' : 'Usar';
                     slot.innerHTML = `<span class="inv-icon">${poder.icone}</span><span class="inv-name">${poder.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">${btnText}</button>` : ''}`;
                 } else {
                     slot.className = 'inv-slot empty-slot';
@@ -1646,6 +1652,20 @@
                 };
                 Maldicao.assignId(board[fromRow][fromCol]);
                 showToast(`💀 Maldição da Rainha! Um clone de ${captured.type} foi criado!`);
+            }
+
+            // --- CONVOCANDO RECRUTAS ---
+            if (piece.type === 'K') {
+                const myInv = movedColor === 'w' ? inventoryW : inventoryB;
+                if (myInv.some(pw => pw.id === 'convocando_recrutas')) {
+                    if (Math.random() < 0.40 && !board[fromRow][fromCol]) {
+                        const types = ['N', 'R', 'B'];
+                        const spType = types[Math.floor(Math.random() * types.length)];
+                        board[fromRow][fromCol] = { color: movedColor, type: spType };
+                        if (window.Maldicao && Maldicao.assignId) Maldicao.assignId(board[fromRow][fromCol]);
+                        showToast(`🪄 Recruta Convocado!`);
+                    }
+                }
             }
 
             lastMove = { fromRow, fromCol, toRow, toCol };

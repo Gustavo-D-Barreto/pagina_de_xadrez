@@ -458,7 +458,13 @@
                         const adj = getAdjacentEmpty(row, col);
                         if (!adj.length) { restore(); showToast('😔 Sem espaço — cancelado.'); return; }
                         board[adj[0][0]][adj[0][1]] = { color: board[row][col].color, type: board[row][col].type };
-                        showToast('🪩 Peça duplicada!'); await afterUse();
+                        if (adj.length > 1) {
+                            board[adj[1][0]][adj[1][1]] = { color: board[row][col].color, type: board[row][col].type };
+                            showToast('🪩 Peça triplicada!');
+                        } else {
+                            showToast('🪩 Peça duplicada! (Sem espaço para a 3ª)');
+                        }
+                        await afterUse();
                     }, restore);
                 }, 3000);
             } else if (p.id === 'caminho_congelante') {
@@ -515,8 +521,8 @@
             } else if (p.id === 'inferno') {
                 for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const pc = board[r][c]; if (pc && pc.color === MY_CC) pc.cursed = true; }
                 showToast('🔥 INFERNO!'); await afterUse();
-            } else if (p.id === 'sangue_puro' || p.id === 'visao_preguiçosa') {
-                showToast(`🩸 Poder de efeito contínuo descartado!`);
+            } else if (p.id === 'sangue_puro' || p.id === 'visao_preguiçosa' || p.id === 'convocando_recrutas') {
+                showToast(`✨ Poder de efeito contínuo descartado!`);
                 selected = null;
                 legalMoves = [];
                 await afterUse();
@@ -538,7 +544,7 @@
                     const pw = inv[i];
                     slot.className = 'inv-slot has-item' + (canAct ? ' can-use' : ' disabled');
                     slot.title = pw.nome + ': ' + pw.descricao;
-                    const btnText = (pw.id === 'sangue_puro' || pw.id === 'visao_preguiçosa') ? 'Descartar' : 'Usar';
+                    const btnText = (pw.id === 'sangue_puro' || pw.id === 'visao_preguiçosa' || pw.id === 'convocando_recrutas') ? 'Descartar' : 'Usar';
                     slot.innerHTML = `<span class="inv-icon">${pw.icone}</span><span class="inv-name">${pw.nome}</span>${canAct ? `<button class="inv-use-btn" onclick="useInventoryPower('${color}', ${i})">${btnText}</button>` : ''}`;
                 } else {
                     slot.className = 'inv-slot empty-slot';
@@ -916,6 +922,21 @@
                 Maldicao.assignId(board[fr][fc]);
                 showToast(`💀 Maldição da Rainha! Clone criado!`);
             }
+
+            // --- CONVOCANDO RECRUTAS ---
+            if (piece.type === 'K') {
+                const myInv = movedColor === 'w' ? inventoryW : inventoryB;
+                if (myInv.some(pw => pw.id === 'convocando_recrutas')) {
+                    if (Math.random() < 0.40 && !board[fr][fc]) {
+                        const types = ['N', 'R', 'B'];
+                        const spType = types[Math.floor(Math.random() * types.length)];
+                        board[fr][fc] = { color: movedColor, type: spType };
+                        if (window.Maldicao && Maldicao.assignId) Maldicao.assignId(board[fr][fc]);
+                        showToast(`🪄 Recruta Convocado!`);
+                    }
+                }
+            }
+
             lastMove = { fr, fc, tr, tc };
 
             // Check trap
